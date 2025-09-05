@@ -87,6 +87,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: "Bearer Token",
         header: "Authorization: Bearer <token>",
         required_for: ["POST /api/products"]
+      },
+      product_schema: {
+        name: "string (required)",
+        description: "string (required)",
+        price: "string (required, decimal format)",
+        category: "string (required: 'furniture', 'equipment', 'decor')",
+        imageUrls: "array of strings (required, min 1 valid URL)"
       }
     });
   });

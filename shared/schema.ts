@@ -9,7 +9,7 @@ export const products = pgTable("products", {
   description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   category: text("category").notNull(), // "furniture", "equipment", "decor"
-  imageUrl: text("image_url").notNull(),
+  imageUrls: text("image_urls").array().notNull(),
   isAvailable: boolean("is_available").default(true).notNull(),
   createdAt: timestamp("created_at").default(sql`now()`).notNull(),
 });
@@ -36,6 +36,8 @@ export const reservations = pgTable("reservations", {
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
+}).extend({
+  imageUrls: z.array(z.string().url("Each image must be a valid URL")).min(1, "At least one image URL is required"),
 });
 
 export const insertFaqSchema = createInsertSchema(faqs).omit({

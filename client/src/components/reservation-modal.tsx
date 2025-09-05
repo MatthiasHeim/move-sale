@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 interface ReservationModalProps {
@@ -26,6 +27,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [selectedPickupTime, setSelectedPickupTime] = useState("");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -66,6 +68,23 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
     setCustomerName("");
     setCustomerPhone("");
     setSelectedPickupTime("");
+    setCurrentImageIndex(0);
+  };
+
+  const nextImage = () => {
+    if (product) {
+      setCurrentImageIndex((prev) => (prev + 1) % product.imageUrls.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (product) {
+      setCurrentImageIndex((prev) => (prev - 1 + product.imageUrls.length) % product.imageUrls.length);
+    }
+  };
+
+  const formatPrice = (price: string) => {
+    return `CHF ${parseFloat(price).toFixed(0)}.-`;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -95,15 +114,95 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
 
   if (!product) return null;
 
+  const hasMultipleImages = product && product.imageUrls.length > 1;
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md mx-auto" data-testid="reservation-modal">
+      <DialogContent className="max-w-lg mx-auto" data-testid="reservation-modal">
         <DialogHeader>
           <DialogTitle data-testid="modal-title">Artikel reservieren</DialogTitle>
           <DialogDescription>
             Füllen Sie das Formular aus, um {product.name} zu reservieren und einen Abholtermin zu vereinbaren.
           </DialogDescription>
         </DialogHeader>
+        
+        {/* Product Summary */}
+        <div className="border rounded-lg p-4 bg-muted/20" data-testid="product-summary">
+          <div className="flex gap-4">
+            {/* Product Image Gallery */}
+            <div className="relative w-24 h-24 flex-shrink-0 group">
+              <img 
+                src={product.imageUrls[currentImageIndex]} 
+                alt={`${product.name} - Bild ${currentImageIndex + 1}`}
+                className="w-full h-full object-cover rounded"
+                data-testid="modal-product-image"
+              />
+              
+              {hasMultipleImages && (
+                <>
+                  {/* Navigation buttons */}
+                  <button
+                    type="button"
+                    onClick={prevImage}
+                    className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    data-testid="modal-prev-image"
+                  >
+                    <ChevronLeft size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nextImage}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    data-testid="modal-next-image"
+                  >
+                    <ChevronRight size={12} />
+                  </button>
+                  
+                  {/* Image counter */}
+                  <div className="absolute bottom-1 right-1 bg-black/50 text-white px-1 py-0.5 rounded text-xs">
+                    {currentImageIndex + 1}/{product.imageUrls.length}
+                  </div>
+                </>
+              )}
+            </div>
+            
+            {/* Product Details */}
+            <div className="flex-1">
+              <h4 className="font-semibold text-sm mb-1" data-testid="modal-product-name">
+                {product.name}
+              </h4>
+              <p className="text-lg font-bold text-destructive mb-1" data-testid="modal-product-price">
+                {formatPrice(product.price)}
+              </p>
+              <p className="text-xs text-muted-foreground line-clamp-2" data-testid="modal-product-description">
+                {product.description}
+              </p>
+            </div>
+          </div>
+          
+          {/* Thumbnail gallery for multiple images */}
+          {hasMultipleImages && (
+            <div className="flex gap-1 mt-3 overflow-x-auto">
+              {product.imageUrls.map((imageUrl, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`flex-shrink-0 w-12 h-12 rounded border-2 overflow-hidden transition-colors ${
+                    index === currentImageIndex ? 'border-primary' : 'border-transparent'
+                  }`}
+                  data-testid={`modal-thumbnail-${index}`}
+                >
+                  <img 
+                    src={imageUrl} 
+                    alt={`${product.name} - Thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

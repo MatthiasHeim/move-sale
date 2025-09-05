@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 interface ProductCardProps {
@@ -7,22 +9,85 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onReservation }: ProductCardProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
   const formatPrice = (price: string) => {
     return `CHF ${parseFloat(price).toFixed(0)}.-`;
   };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % product.imageUrls.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + product.imageUrls.length) % product.imageUrls.length);
+  };
+
+  const hasMultipleImages = product.imageUrls.length > 1;
 
   return (
     <div 
       className="product-card bg-card rounded-lg shadow-md overflow-hidden border border-border" 
       data-testid={`product-card-${product.id}`}
     >
-      <img 
-        src={product.imageUrl} 
-        alt={product.name}
-        className="w-full h-48 object-cover"
-        loading="lazy"
-        data-testid={`product-image-${product.id}`}
-      />
+      <div className="relative group">
+        <img 
+          src={product.imageUrls[currentImageIndex]} 
+          alt={`${product.name} - Bild ${currentImageIndex + 1}`}
+          className="w-full h-48 object-cover"
+          loading="lazy"
+          data-testid={`product-image-${product.id}`}
+        />
+        
+        {hasMultipleImages && (
+          <>
+            {/* Navigation buttons */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevImage();
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+              data-testid={`prev-image-${product.id}`}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextImage();
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+              data-testid={`next-image-${product.id}`}
+            >
+              <ChevronRight size={16} />
+            </button>
+            
+            {/* Image indicator dots */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
+              {product.imageUrls.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentImageIndex(index);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                  data-testid={`image-dot-${product.id}-${index}`}
+                />
+              ))}
+            </div>
+
+            {/* Image counter */}
+            <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded-md text-xs">
+              {currentImageIndex + 1} / {product.imageUrls.length}
+            </div>
+          </>
+        )}
+      </div>
+      
       <div className="p-4">
         <h3 className="font-semibold text-foreground mb-2" data-testid={`product-name-${product.id}`}>
           {product.name}
