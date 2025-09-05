@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProductSchema, insertFaqSchema, insertReservationSchema } from "@shared/schema";
+import { validateApiToken, optionalApiToken, API_TOKEN, type AuthenticatedRequest } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Cleanup expired reservations on server start and periodically
@@ -9,6 +10,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setInterval(() => {
     storage.cleanupExpiredReservations().catch(console.error);
   }, 5 * 60 * 1000); // Every 5 minutes
+
+  // Log API token for external applications
+  console.log("\n🔑 API Token for external applications:");
+  console.log(`   ${API_TOKEN}`);
+  console.log("   Use this token in the Authorization header: 'Bearer <token>'\n");
 
   // Products endpoints
   app.get("/api/products", async (req, res) => {
@@ -42,15 +48,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/products", async (req, res) => {
+  // Authenticated endpoint for creating products (for external applications)
+  app.post("/api/products", validateApiToken, async (req: AuthenticatedRequest, res) => {
     try {
       const validatedData = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(validatedData);
-      res.status(201).json(product);
-    } catch (error) {
+      res.status(201).json({
+        success: true,
+        message: "Produkt erfolgreich erstellt",
+        product
+      });
+    } catch (error: any) {
       console.error("Error creating product:", error);
-      res.status(400).json({ error: "Ungültige Produktdaten" });
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ 
+          error: "Ungültige Produktdaten", 
+          details: error.errors 
+        });
+      }
+      res.status(500).json({ error: "Fehler beim Erstellen des Produkts" });
     }
+  });
+
+  // API endpoint info (public)
+  app.get("/api/info", (req, res) => {
+    res.json({
+      name: "MöbelMarkt API",
+      version: "1.0.0",
+      endpoints: {
+        "GET /api/products": "Liste aller verfügbaren Produkte",
+        "GET /api/products/:id": "Einzelnes Produkt abrufen",
+        "POST /api/products": "Neues Produkt erstellen (authentifiziert)",
+        "GET /api/faqs": "Liste aller FAQs",
+        "POST /api/reservations": "Neue Reservierung erstellen",
+        "GET /api/pickup-times": "Verfügbare Abholzeiten"
+      },
+      authentication: {
+        type: "Bearer Token",
+        header: "Authorization: Bearer <token>",
+        required_for: ["POST /api/products"]
+      }
+    });
   });
 
   // FAQs endpoints
