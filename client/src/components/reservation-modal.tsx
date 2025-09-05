@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -100,18 +99,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md mx-auto" data-testid="reservation-modal">
         <DialogHeader>
-          <DialogTitle className="flex justify-between items-center">
-            <span data-testid="modal-title">Artikel reservieren</span>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleClose}
-              className="h-6 w-6"
-              data-testid="close-modal-button"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogTitle>
+          <DialogTitle data-testid="modal-title">Artikel reservieren</DialogTitle>
           <DialogDescription>
             Füllen Sie das Formular aus, um {product.name} zu reservieren und einen Abholtermin zu vereinbaren.
           </DialogDescription>
