@@ -16,7 +16,7 @@ export default function Home() {
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products", selectedCategory],
+    queryKey: [`/api/products${selectedCategory !== "all" ? `?category=${selectedCategory}` : ""}`],
     enabled: true,
   });
 
