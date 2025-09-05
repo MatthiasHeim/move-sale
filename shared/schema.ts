@@ -47,6 +47,8 @@ export const insertReservationSchema = createInsertSchema(reservations).omit({
   id: true,
   createdAt: true,
   expiresAt: true,
+}).extend({
+  pickupTime: z.string().transform((str) => new Date(str))
 });
 
 export type InsertProduct = z.infer<typeof insertProductSchema>;
