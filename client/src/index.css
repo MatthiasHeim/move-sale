@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(210, 20%, 98%);
+  --foreground: hsl(210, 40%, 20%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(210, 40%, 20%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(210, 40%, 20%);
+  --primary: hsl(354, 70%, 68%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(174, 64%, 63%);
+  --secondary-foreground: hsl(210, 40%, 20%);
+  --muted: hsl(210, 20%, 95%);
+  --muted-foreground: hsl(210, 20%, 45%);
+  --accent: hsl(48, 100%, 70%);
+  --accent-foreground: hsl(210, 40%, 20%);
+  --destructive: hsl(4, 78%, 58%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 20%, 90%);
+  --input: hsl(210, 20%, 95%);
+  --ring: hsl(354, 70%, 68%);
+  --chart-1: hsl(354, 70%, 68%);
+  --chart-2: hsl(174, 64%, 63%);
+  --chart-3: hsl(48, 100%, 70%);
+  --chart-4: hsl(147, 79%, 42%);
+  --chart-5: hsl(341, 75%, 51%);
+  --sidebar: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(210, 40%, 20%);
+  --sidebar-primary: hsl(354, 70%, 68%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(210, 20%, 95%);
+  --sidebar-accent-foreground: hsl(210, 40%, 20%);
+  --sidebar-border: hsl(210, 20%, 90%);
+  --sidebar-ring: hsl(354, 70%, 68%);
+  --font-sans: 'Poppins', 'Inter', system-ui, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.75rem;
+  --shadow-2xs: 0px 2px 0px 0px hsl(354, 70%, 68% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(354, 70%, 68% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(354, 70%, 68% / 0.00), 0px 1px 2px -1px hsl(354, 70%, 68% / 0.00);
+  --shadow: 0px 2px 0px 0px hsl(354, 70%, 68% / 0.00), 0px 1px 2px -1px hsl(354, 70%, 68% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(354, 70%, 68% / 0.00), 0px 2px 4px -1px hsl(354, 70%, 68% / 0.00);
+  --shadow-lg: 0px 2px 0px 0px hsl(354, 70%, 68% / 0.00), 0px 4px 6px -1px hsl(354, 70%, 68% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(354, 70%, 68% / 0.00), 0px 8px 10px -1px hsl(354, 70%, 68% / 0.00);
+  --shadow-2xl: 0px 2px 0px 0px hsl(354, 70%, 68% / 0.00);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --background: hsl(210, 40%, 8%);
+  --foreground: hsl(210, 20%, 95%);
+  --card: hsl(210, 40%, 12%);
+  --card-foreground: hsl(210, 20%, 95%);
+  --popover: hsl(210, 40%, 12%);
+  --popover-foreground: hsl(210, 20%, 95%);
+  --primary: hsl(354, 70%, 68%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(174, 64%, 63%);
+  --secondary-foreground: hsl(210, 40%, 20%);
+  --muted: hsl(210, 40%, 16%);
+  --muted-foreground: hsl(210, 20%, 65%);
+  --accent: hsl(48, 100%, 70%);
+  --accent-foreground: hsl(210, 40%, 20%);
+  --destructive: hsl(4, 78%, 58%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 40%, 20%);
+  --input: hsl(210, 40%, 16%);
+  --ring: hsl(354, 70%, 68%);
+  --sidebar: hsl(210, 40%, 12%);
+  --sidebar-foreground: hsl(210, 20%, 95%);
+  --sidebar-primary: hsl(354, 70%, 68%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(210, 40%, 16%);
+  --sidebar-accent-foreground: hsl(210, 20%, 95%);
+  --sidebar-border: hsl(210, 40%, 20%);
+  --sidebar-ring: hsl(354, 70%, 68%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .product-card {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .product-card:hover {
+    @apply -translate-y-0.5 shadow-lg;
+  }
+  
+  .fade-in {
+    animation: fade-in 0.6s ease-in;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
