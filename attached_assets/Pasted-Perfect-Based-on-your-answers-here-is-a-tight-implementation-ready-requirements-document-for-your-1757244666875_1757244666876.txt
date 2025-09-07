@@ -1,0 +1,268 @@
+Perfect. Based on your answers, here is a tight, implementation-ready requirements document for your Replit site.
+
+1. Objectives
+	•	Public site: show all items, let nearby people reserve and pick up.
+	•	Private admin console: you log in, upload photos from iPhone, chat with the agent to generate a product proposal in German, tweak via chat, then publish. Publishing creates a product in Neon and stores image URLs. It also saves a Tutti title + description for easy copy later.
+	•	Pricing: the agent proposes the price. Optional web search add-on for better pricing can be added later.
+	•	Storage: keep everything inside Replit. Use Replit object storage for images. If you later prefer Supabase Storage, swapping is trivial.
+
+2. Scope
+
+In scope
+	•	Admin login and session management for a single admin
+	•	Upload images from iPhone, convert, compress, store, return public URLs
+	•	Agent chat that produces: name, description, price, category, condition, dimensions (optional), selected cover + gallery images, Tutti title and body in German
+	•	Publish flow that writes to your existing Neon products table and keeps a Tutti text archive
+	•	Public catalog pages and item detail pages that already exist, plus small UI to mark sold or remove when logged in
+
+Out of scope
+	•	Reservation logic changes
+	•	Tutti automation or email automations
+	•	Multi-admin roles
+	•	WhatsApp or Slack integrations
+
+3. Personas
+	•	Seller admin: you, authenticated user with full access
+	•	Buyer: public, no account
+
+4. Information architecture
+
+Public
+	•	Home: grid of items with filters
+	•	Item detail: photos, description, price, reserve button
+
+Private (visible after login)
+	•	Admin console:
+	•	Upload + chat tab
+	•	Draft preview pane with Publish button
+	•	Products list with admin actions: Edit, Mark sold, Remove
+	•	Tutti archive tab: per product, show current Tutti title + body, copy to clipboard
+
+5. Data model
+
+Neon products table already exists:
+
+id               uuid primary key default gen_random_uuid()
+name             text not null
+description      text not null
+price            numeric not null
+category         text not null
+is_available     boolean not null default true
+created_at       timestamptz not null default now()
+image_urls       text[] not null
+
+Add a small companion table to archive Tutti text and future proposals:
+
+create table if not exists product_texts (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid references products(id) on delete cascade,
+  tutti_title_de text not null,
+  tutti_body_de  text not null,
+  created_at timestamptz not null default now()
+);
+
+Optional drafts history if you want to keep agent proposals before publish:
+
+create table if not exists drafts (
+  id uuid primary key default gen_random_uuid(),
+  images text[] not null,
+  raw_input text,
+  proposal jsonb,                -- agent JSON
+  created_at timestamptz not null default now()
+);
+
+6. Authentication
+	•	Single admin.
+	•	Simple password login:
+	•	ENV secret ADMIN_PASS stored in Replit Secrets
+	•	POST /api/auth/login with password
+	•	On success, set HttpOnly session cookie signed with SESSION_SECRET
+	•	Middleware protects all /admin/* and publishing endpoints
+	•	Logout clears cookie
+
+If later you want email magic links, we can add that. For now, keep it simple.
+
+7. Image storage and processing
+
+Storage
+	•	Use Replit App Storage for object files to stay fully inside Replit.
+	•	Bucket: products with public-read URLs.
+
+Upload route
+	•	POST /api/upload as multipart/form-data with images[]
+	•	Server converts iPhone photos to WebP, fixes EXIF orientation, compresses, sets longest edge to 1600 px
+	•	Returns JSON { image_urls: [...] }
+
+Processing rules
+	•	Accept up to 8 images per item
+	•	Allowed types: HEIC, HEIF, JPEG, PNG
+	•	Convert using Sharp:
+	•	.rotate() to honor EXIF
+	•	.webp({ quality: 82 })
+	•	.resize({ width: 1600, height: 1600, fit: "inside" })
+
+8. Agent design - in app
+
+You asked to keep the agent inside the app rather than n8n. Do that.
+
+Endpoint
+	•	POST /api/agent/draft
+	•	Body: { text: string, image_urls: string[] }
+	•	Calls your vision-capable LLM
+	•	Returns a strict JSON proposal
+
+System prompt - German
+	•	Context to include:
+	•	Ihr seid eine Familie aus Müllheim Dorf und zieht nach Hongkong. Alles muss raus. Freundliche Preise. Abholung vor Ort, Bar oder TWINT.
+	•	Kein Link in Tutti Texten. Keine E-Mail oder Telefonnummer.
+	•	Falls Maße unsicher, Feld leer lassen oder kurze Rueckfrage vorschlagen.
+	•	Kategorien: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other.
+	•	Preis in CHF, auf 5 CHF runden, als String mit 2 Dezimalstellen.
+	•	Ton: kurz, freundlich, klar.
+
+Response JSON schema
+
+{
+  "name": "string",
+  "description": "string",
+  "price_chf": "120.00",
+  "category": "furniture",
+  "condition": "like new | very good | good | fair",
+  "dimensions_cm": "80x30x180 or empty",
+  "cover_image_url": "https://.../img1.webp",
+  "gallery_image_urls": ["https://.../img1.webp","https://.../img2.webp"],
+  "tutti_title_de": "string",
+  "tutti_body_de": "string"
+}
+
+Validation
+	•	Clamp category to allowed set
+	•	Round price_chf to nearest 5, ensure 2 decimals
+	•	If cover_image_url not one of gallery_image_urls, prepend it
+
+Pricing with web search - optional add-on
+	•	Add a small module that calls a search API like Tavily or SerpAPI to fetch comparables and give the agent a list of titles + prices
+	•	Agent uses those to set a better suggested price
+	•	Keep this behind a feature flag so you can ship now and add later
+
+9. Publish flow
+	•	From admin UI you click Publish
+	•	POST /api/products with agent proposal fields:
+
+{
+  "name": "...",
+  "description": "...",
+  "price": "120.00",
+  "category": "furniture",
+  "image_urls": ["..."]
+}
+
+
+	•	Server inserts into Neon
+	•	Server also inserts into product_texts with the Tutti title + body
+	•	Response returns product_id and public URL
+
+10. Admin UI - seller console
+
+Tabs
+	1.	Create listing
+	•	Drag and drop or tap to upload photos
+	•	Text box for a short note
+	•	Button: Generate with agent
+	•	Show proposal card with:
+	•	Title, price, category, description
+	•	Cover + gallery
+	•	Tutti title + body with Copy buttons
+	•	Buttons: Regenerate, Edit inline, Publish
+	2.	Products
+	•	Table of all products: name, price, available flag, created date
+	•	Actions per row when logged in:
+	•	Edit
+	•	Mark sold: sets is_available = false
+	•	Remove: delete product
+	•	Click product to view its Tutti text history
+	3.	Tutti archive
+	•	Filter by name or date
+	•	Copy buttons for title and body
+
+Microcopy defaults
+	•	Abholung: Müllheim Dorf, Bar oder TWINT, Termin nach Absprache
+	•	Kein Versand. Privatverkauf, keine Garantie.
+
+11. Public UI tweaks
+	•	Show a small “Alles muss raus - Umzug nach Hongkong” banner
+	•	When you are logged in, show admin controls on item detail:
+	•	Mark sold
+	•	Remove
+	•	Edit
+
+12. Endpoints summary
+
+Public
+	•	GET /api/products - list visible products
+	•	GET /api/products/:id - product detail
+
+Admin only
+	•	POST /api/auth/login - sets session cookie
+	•	POST /api/upload - returns image_urls[]
+	•	POST /api/agent/draft - returns proposal JSON
+	•	POST /api/products - publish new product
+	•	PATCH /api/products/:id - edit fields
+	•	POST /api/products/:id/mark-sold - sets is_available = false
+	•	DELETE /api/products/:id - remove product
+	•	GET /api/products/:id/tutti - list saved Tutti texts
+
+13. Non-functional requirements
+	•	Performance: images 1600 px max, WebP 82 quality
+	•	Accessibility: large tap targets, high contrast
+	•	Privacy: no external analytics, internal audit logs only
+	•	Security: admin endpoints require session cookie, CSRF protection on form posts, secrets in Replit Secrets
+	•	Rate limits: upload up to 15 images in 15 minutes is fine
+
+14. Implementation plan
+
+Phase 1 - foundations
+	•	Add auth routes with single admin pass
+	•	Create image upload route with conversion and Replit object storage, return public URLs
+	•	Add Neon migration for product_texts
+
+Phase 2 - agent draft
+	•	Implement /api/agent/draft calling a vision-capable LLM
+	•	Implement proposal validation, rounding, category clamp
+	•	Build Admin console Create tab and Products tab
+	•	Implement Publish endpoint that writes to Neon and logs Tutti text
+
+Phase 3 - polish
+	•	Inline edit before publish
+	•	Copy buttons for Tutti text
+	•	Mark sold and Remove actions
+	•	Small public banner
+
+Phase 4 - optional add-ons
+	•	Comparable pricing module using a search API
+	•	Drafts table to keep all proposals
+	•	Switch storage to Supabase later if you want a CDN
+
+15. Acceptance criteria
+	•	I can log in with the admin password and get a session
+	•	I can upload iPhone photos and receive public image URLs
+	•	I can send text + image URLs to the agent and receive a valid JSON proposal in German
+	•	I can tweak via regenerate or inline edits, then Publish
+	•	Publish writes a product row with image_urls[] and an entry in product_texts
+	•	Public site shows the new product instantly
+	•	When logged in, I can Mark sold and Remove from the product page
+	•	Tutti text is retrievable and copyable later
+
+16. Notes about Tutti
+	•	Tutti already lets buyers see all your active listings on your profile, so there is no need to include your site in the listing text. Keep Tutti texts clean and link-free.
+	•	If a buyer messages you, you can manually share your site URL in replies outside of listing copy.
+
+⸻
+
+If you want, I can generate:
+	•	a minimal Next.js page for the Admin console
+	•	the upload route with Sharp conversion
+	•	the agent system prompt and JSON validator
+	•	the Neon SQL migration for product_texts
+
+Shall I proceed with the skeleton code for the upload route, agent endpoint, and admin console?
