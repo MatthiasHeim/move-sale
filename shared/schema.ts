@@ -53,7 +53,7 @@ export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
 }).extend({
-  imageUrls: z.array(z.string().url("Each image must be a valid URL")).min(1, "At least one image URL is required"),
+  imageUrls: z.array(z.string()).min(1, "At least one image URL is required"), // Allow relative URLs like /uploads/filename.webp
 });
 
 export const insertFaqSchema = createInsertSchema(faqs).omit({
