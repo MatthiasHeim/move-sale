@@ -101,21 +101,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // === STATIC FILE SERVING ===
   
-  // Serve uploaded images from /tmp directory  
+  // Serve uploaded images from /tmp directory (accessible to external services like OpenAI)
   app.get("/uploads/:filename", (req, res) => {
     const filename = req.params.filename;
     const filepath = `/tmp/${filename}`;
     
+    console.log(`📡 Serving image request: ${filename} from ${filepath}`);
+    
     // Security: only allow specific extensions
     if (!/\.(webp|jpg|jpeg|png)$/i.test(filename)) {
+      console.log(`❌ Invalid file extension for: ${filename}`);
       return res.status(404).send("File not found");
     }
     
-    res.sendFile(filepath, (err) => {
+    // Add CORS headers to allow external access (for OpenAI)
+    res.set({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+      'Cache-Control': 'public, max-age=3600',
+      'Content-Type': 'image/webp'
+    });
+    
+    // Check if file exists first
+    require('fs').access(filepath, require('fs').constants.F_OK, (err: any) => {
       if (err) {
-        console.error("Error serving uploaded file:", err);
-        res.status(404).send("File not found");
+        console.log(`❌ File not found: ${filepath}`);
+        return res.status(404).send("File not found");
       }
+      
+      console.log(`✅ Serving file: ${filepath}`);
+      res.sendFile(filepath, (sendErr) => {
+        if (sendErr) {
+          console.error("❌ Error serving uploaded file:", sendErr);
+          res.status(404).send("File not found");
+        } else {
+          console.log(`📤 Successfully served: ${filename}`);
+        }
+      });
     });
   });
 
