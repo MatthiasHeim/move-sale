@@ -65,23 +65,20 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     // Generate unique filename
     const filename = `product-${Date.now()}-${randomBytes(8).toString('hex')}.webp`;
     
-    // For now, use /tmp directory to ensure uploads work
-    const publicPath = `/tmp/${filename}`;
-    const useObjectStorage = false;
-    console.log(`📁 Using /tmp directory for upload: ${publicPath}`);
+    // Save to both /tmp (for AI processing) and public directory (for web serving)
+    const tmpPath = `/tmp/${filename}`;
+    const publicPath = path.join('client/public/uploads', filename);
     
-    // Write to storage
+    console.log(`📁 Saving to both: ${tmpPath} and ${publicPath}`);
+    
+    // Write to both locations
+    await fs.writeFile(tmpPath, processedBuffer);
     await fs.writeFile(publicPath, processedBuffer);
     
-    console.log(`💾 Image saved to: ${publicPath}`);
+    console.log(`💾 Image saved to both locations`);
     
-    // Return public URL
-    const baseUrl = `https://${process.env.REPL_ID || 'unknown'}.${process.env.REPLIT_CLUSTER || 'repl'}.replit.dev`;
-    if (useObjectStorage) {
-      return `${baseUrl}/public/${filename}`;
-    } else {
-      return `${baseUrl}/uploads/${filename}`;
-    }
+    // Return relative URL that Vite can serve
+    return `/uploads/${filename}`;
   } catch (error) {
     console.error('Error processing image:', error);
     throw new Error('Failed to process image');
