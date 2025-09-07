@@ -10,6 +10,12 @@ import path from "path";
 import { storage } from "./storage";
 import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "@shared/schema";
 import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
+import OpenAI from "openai";
+
+// Initialize OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -164,6 +170,142 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Upload error:", error);
       res.status(500).json({ error: "Upload failed" });
+    }
+  });
+
+  // AI Agent endpoint for product proposal generation
+  app.post("/api/agent/draft", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { text, image_urls } = req.body;
+      
+      if (!image_urls || !Array.isArray(image_urls) || image_urls.length === 0) {
+        return res.status(400).json({ error: "At least one image URL is required" });
+      }
+      
+      // System prompt for the AI agent
+      const systemPrompt = `Du bist ein Experte für Secondhand-Möbel und hilfst einer Familie aus Müllheim Dorf, die nach Hongkong umzieht. Alle Möbel und Gegenstände müssen verkauft werden.
+
+KONTEXT:
+- Familie zieht von Müllheim Dorf nach Hongkong um
+- Alles muss raus - freundliche Preise
+- Abholung vor Ort, Bar oder TWINT
+- Kein Link in Tutti Texten, keine E-Mail oder Telefonnummer
+- Falls Maße unsicher sind, Feld leer lassen oder kurze Rückfrage vorschlagen
+
+KATEGORIEN (nur diese verwenden):
+furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
+
+PREISGESTALTUNG:
+- Preis in CHF, auf 5 CHF runden
+- Als String mit 2 Dezimalstellen (z.B. "120.00")
+- Faire, marktübliche Preise für gebrauchte Artikel
+- Berücksichtige Zustand und Marke
+
+ZUSTAND (nur diese verwenden):
+like new, very good, good, fair
+
+TON:
+- Kurz, freundlich, klar
+- Deutsch (Schweizer Hochdeutsch)
+- Ehrlich über Zustand
+- Positiv aber realistisch
+
+Analysiere die Bilder und erstelle ein JSON-Objekt für diesen Artikel. Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.`;
+
+      // Prepare the messages for OpenAI
+      const userContent: any[] = [
+        { 
+          type: "text", 
+          text: text ? `Zusätzliche Informationen: ${text}` : "Erstelle eine Produktbeschreibung basierend auf den Bildern."
+        }
+      ];
+
+      // Add images to the content
+      for (const imageUrl of image_urls.slice(0, 4)) { // Limit to 4 images for API
+        userContent.push({
+          type: "image_url",
+          image_url: { url: imageUrl }
+        });
+      }
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o", // Use GPT-4 with vision capabilities
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: userContent
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1000,
+        temperature: 0.7
+      });
+
+      const responseContent = completion.choices[0]?.message?.content;
+      if (!responseContent) {
+        throw new Error("No response from AI");
+      }
+
+      let aiProposal;
+      try {
+        aiProposal = JSON.parse(responseContent);
+      } catch (error) {
+        console.error("Failed to parse AI response:", responseContent);
+        throw new Error("Invalid JSON response from AI");
+      }
+
+      // Validate and clean up the proposal
+      const validatedCategories = ["furniture", "appliances", "toys", "electronics", "decor", "kitchen", "sports", "outdoor", "kids_furniture", "other"];
+      const validatedConditions = ["like new", "very good", "good", "fair"];
+
+      // Ensure category is valid
+      if (!validatedCategories.includes(aiProposal.category)) {
+        aiProposal.category = "other";
+      }
+
+      // Ensure condition is valid
+      if (!validatedConditions.includes(aiProposal.condition)) {
+        aiProposal.condition = "good";
+      }
+
+      // Round price to nearest 5 CHF and format
+      const price = parseFloat(aiProposal.price_chf || "0");
+      const roundedPrice = Math.round(price / 5) * 5;
+      aiProposal.price_chf = roundedPrice.toFixed(2);
+
+      // Set cover image and gallery
+      aiProposal.cover_image_url = image_urls[0];
+      aiProposal.gallery_image_urls = image_urls;
+
+      // Ensure cover image is in gallery
+      if (!aiProposal.gallery_image_urls.includes(aiProposal.cover_image_url)) {
+        aiProposal.gallery_image_urls = [aiProposal.cover_image_url, ...aiProposal.gallery_image_urls];
+      }
+
+      // Validate with Zod schema
+      const validatedProposal = agentProposalSchema.parse(aiProposal);
+
+      res.json({
+        success: true,
+        proposal: validatedProposal
+      });
+
+    } catch (error: any) {
+      console.error("AI agent error:", error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ 
+          error: "Invalid AI proposal format", 
+          details: error.errors 
+        });
+      }
+      res.status(500).json({ 
+        error: "AI agent failed to generate proposal",
+        details: error.message 
+      });
     }
   });
 
