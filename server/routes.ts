@@ -64,15 +64,34 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     // Generate unique filename
     const filename = `product-${Date.now()}-${randomBytes(8).toString('hex')}.webp`;
     
-    // Use environment variable for public object storage path
+    // Try to use object storage path, create directory if needed, fallback to /tmp
+    let publicPath: string;
     const publicSearchPaths = process.env.PUBLIC_OBJECT_SEARCH_PATHS?.split(',') || [];
-    const publicPath = publicSearchPaths[0] ? `${publicSearchPaths[0]}/${filename}` : `/tmp/${filename}`;
     
-    // Write to object storage
+    if (publicSearchPaths[0]) {
+      publicPath = `${publicSearchPaths[0]}/${filename}`;
+      try {
+        // Try to create the directory structure
+        await fs.mkdir(publicSearchPaths[0], { recursive: true });
+      } catch (mkdirError) {
+        console.warn("Could not create object storage directory, using /tmp:", mkdirError);
+        publicPath = `/tmp/${filename}`;
+      }
+    } else {
+      publicPath = `/tmp/${filename}`;
+    }
+    
+    // Write to storage
     await fs.writeFile(publicPath, processedBuffer);
     
-    // Return public URL
-    return `https://${process.env.REPL_ID || 'unknown'}.${process.env.REPLIT_CLUSTER || 'repl'}.replit.dev/public/${filename}`;
+    console.log(`💾 Image saved to: ${publicPath}`);
+    
+    // Return public URL - for /tmp files, we'll need to serve them differently
+    if (publicPath.startsWith('/tmp/')) {
+      return `https://${process.env.REPL_ID || 'unknown'}.${process.env.REPLIT_CLUSTER || 'repl'}.replit.dev/uploads/${filename}`;
+    } else {
+      return `https://${process.env.REPL_ID || 'unknown'}.${process.env.REPLIT_CLUSTER || 'repl'}.replit.dev/public/${filename}`;
+    }
   } catch (error) {
     console.error('Error processing image:', error);
     throw new Error('Failed to process image');
@@ -90,6 +109,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   console.log("\n🔑 API Token for external applications:");
   console.log(`   ${API_TOKEN}`);
   console.log("   Use this token in the Authorization header: 'Bearer <token>'\n");
+
+  // === STATIC FILE SERVING ===
+  
+  // Serve uploaded images from /tmp directory  
+  app.get("/uploads/:filename", (req, res) => {
+    const filename = req.params.filename;
+    const filepath = `/tmp/${filename}`;
+    
+    // Security: only allow specific extensions
+    if (!/\.(webp|jpg|jpeg|png)$/i.test(filename)) {
+      return res.status(404).send("File not found");
+    }
+    
+    res.sendFile(filepath, (err) => {
+      if (err) {
+        console.error("Error serving uploaded file:", err);
+        res.status(404).send("File not found");
+      }
+    });
+  });
 
   // === ADMIN AUTHENTICATION ENDPOINTS ===
   
