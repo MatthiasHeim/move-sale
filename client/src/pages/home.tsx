@@ -67,14 +67,17 @@ export default function Home() {
                   </Button>
                 </Link>
               )}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full bg-muted hover:bg-secondary/20"
-                data-testid="menu-button"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
+              <Link href="/admin/login">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-full bg-muted hover:bg-secondary/20"
+                  data-testid="menu-button"
+                  title="Admin Login"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
           <div className="relative">
