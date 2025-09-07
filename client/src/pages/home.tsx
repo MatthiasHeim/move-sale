@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, MapPin, Menu } from "lucide-react";
+import { Search, MapPin, Menu, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import ProductCard from "@/components/product-card";
 import CategoryFilters from "@/components/category-filters";
 import FaqSection from "@/components/faq-section";
@@ -22,6 +23,12 @@ export default function Home() {
 
   const { data: faqs = [] } = useQuery<Faq[]>({
     queryKey: ["/api/faqs"],
+  });
+
+  // Check admin authentication status
+  const { data: authStatus } = useQuery({
+    queryKey: ["/api/auth/status"],
+    retry: false,
   });
 
   const filteredProducts = products.filter(product => 
@@ -46,14 +53,29 @@ export default function Home() {
         <div className="max-w-md mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-xl font-bold text-primary" data-testid="site-title">MöbelMarkt</h1>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full bg-muted hover:bg-secondary/20"
-              data-testid="menu-button"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {(authStatus as any)?.isAuthenticated && (
+                <Link href="/admin">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="rounded-full bg-blue-100 hover:bg-blue-200 text-blue-600"
+                    data-testid="admin-button"
+                    title="Admin Console"
+                  >
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full bg-muted hover:bg-secondary/20"
+                data-testid="menu-button"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
           <div className="relative">
             <Input
@@ -75,6 +97,20 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* AI Feature Banner - only show to admin */}
+      {(authStatus as any)?.isAuthenticated && (
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-200">
+          <div className="max-w-md mx-auto px-4 py-3">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-blue-800" data-testid="ai-banner">
+                🤖 KI-Assistant aktiv - Automatische Produktbeschreibungen & Tutti-Listings
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Location Banner */}
       <div className="bg-accent/10 border-b border-accent/20">
