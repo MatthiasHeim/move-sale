@@ -289,12 +289,33 @@ Analysiere die Bilder und erstelle ein JSON-Objekt für diesen Artikel. Verwende
         }
       ];
 
-      // Add images to the content
+      // Add images to the content (using base64 for reliability)
       for (const imageUrl of image_urls.slice(0, 4)) { // Limit to 4 images for API
-        userContent.push({
-          type: "image_url",
-          image_url: { url: imageUrl }
-        });
+        try {
+          // Extract filename from URL
+          const filename = imageUrl.split('/').pop();
+          if (!filename) continue;
+          
+          const filepath = `/tmp/${filename}`;
+          console.log(`📖 Converting image to base64: ${filepath}`);
+          
+          // Read image file and convert to base64
+          const fs = require('fs');
+          const imageBuffer = fs.readFileSync(filepath);
+          const base64Image = imageBuffer.toString('base64');
+          
+          userContent.push({
+            type: "image_url",
+            image_url: { 
+              url: `data:image/webp;base64,${base64Image}`,
+              detail: "high"
+            }
+          });
+          
+          console.log(`✅ Added base64 image: ${filename} (${imageBuffer.length} bytes)`);
+        } catch (err) {
+          console.error(`❌ Failed to process image ${imageUrl}:`, err);
+        }
       }
 
       const completion = await openai.chat.completions.create({
