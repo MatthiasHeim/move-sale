@@ -6,6 +6,7 @@ import sharp from "sharp";
 import heicConvert from "heic-convert";
 import { randomBytes } from "crypto";
 import fs from "fs/promises";
+import { readFileSync } from "fs";
 import path from "path";
 import { storage } from "./storage";
 import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "@shared/schema";
@@ -279,7 +280,19 @@ TON:
 - Ehrlich über Zustand
 - Positiv aber realistisch
 
-Analysiere die Bilder und erstelle ein JSON-Objekt für diesen Artikel. Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.`;
+Analysiere die Bilder und erstelle ein JSON-Objekt mit GENAU dieser Struktur:
+{
+  "name": "Produktname (z.B. 'IKEA Kallax Regal weiß')",
+  "description": "Kurze Produktbeschreibung für internen Gebrauch",
+  "price_chf": "120.00",
+  "category": "furniture",
+  "condition": "good", 
+  "dimensions_cm": "80x40x120 (BxTxH)" oder leer lassen wenn unsicher,
+  "tutti_title_de": "Eingängiger Tutti-Titel",
+  "tutti_body_de": "Vollständige Tutti-Beschreibung mit Details zu Zustand, Abholung in Müllheim Dorf, Preis etc."
+}
+
+Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.`;
 
       // Prepare the messages for OpenAI
       const userContent: any[] = [
@@ -300,8 +313,7 @@ Analysiere die Bilder und erstelle ein JSON-Objekt für diesen Artikel. Verwende
           console.log(`📖 Converting image to base64: ${filepath}`);
           
           // Read image file and convert to base64
-          const fs = require('fs');
-          const imageBuffer = fs.readFileSync(filepath);
+          const imageBuffer = readFileSync(filepath);
           const base64Image = imageBuffer.toString('base64');
           
           userContent.push({
