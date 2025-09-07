@@ -1,8 +1,74 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
+import sharp from "sharp";
+// @ts-ignore - heic-convert doesn't have types
+import heicConvert from "heic-convert";
+import { randomBytes } from "crypto";
+import fs from "fs/promises";
+import path from "path";
 import { storage } from "./storage";
-import { insertProductSchema, insertFaqSchema, insertReservationSchema } from "@shared/schema";
-import { validateApiToken, optionalApiToken, API_TOKEN, type AuthenticatedRequest } from "./auth";
+import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "@shared/schema";
+import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
+
+// Configure multer for file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { 
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 8 // Max 8 files
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
+    if (allowedTypes.includes(file.mimetype) || file.originalname.toLowerCase().endsWith('.heic')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, HEIC, and HEIF images are allowed'));
+    }
+  }
+});
+
+// Image processing function
+async function processImage(buffer: Buffer, originalName: string): Promise<string> {
+  try {
+    let imageBuffer = buffer;
+    
+    // Convert HEIC to JPEG if needed
+    if (originalName.toLowerCase().endsWith('.heic') || originalName.toLowerCase().endsWith('.heif')) {
+      const outputBuffer = await heicConvert({
+        buffer,
+        format: 'JPEG',
+        quality: 1
+      });
+      imageBuffer = Buffer.from(outputBuffer);
+    }
+    
+    // Process with Sharp: rotate, resize, convert to WebP
+    const processedBuffer = await sharp(imageBuffer)
+      .rotate() // Auto-rotate based on EXIF
+      .resize({
+        width: 1600,
+        height: 1600,
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .webp({ quality: 82 })
+      .toBuffer();
+    
+    // Generate unique filename
+    const filename = `product-${Date.now()}-${randomBytes(8).toString('hex')}.webp`;
+    const publicPath = `/replit-objstore-b29cd6b5-2920-47e4-9af9-9bfc794e3315/public/${filename}`;
+    
+    // Write to object storage
+    await fs.writeFile(publicPath, processedBuffer);
+    
+    // Return public URL
+    return `https://${process.env.REPL_ID || 'unknown'}.${process.env.REPLIT_CLUSTER || 'repl'}.replit.dev/public/${filename}`;
+  } catch (error) {
+    console.error('Error processing image:', error);
+    throw new Error('Failed to process image');
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Cleanup expired reservations on server start and periodically
@@ -15,6 +81,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
   console.log("\n🔑 API Token for external applications:");
   console.log(`   ${API_TOKEN}`);
   console.log("   Use this token in the Authorization header: 'Bearer <token>'\n");
+
+  // === ADMIN AUTHENTICATION ENDPOINTS ===
+  
+  // Admin login
+  app.post("/api/auth/login", async (req: AuthenticatedRequest, res) => {
+    try {
+      const { password } = req.body;
+      
+      if (!password || password !== ADMIN_PASS) {
+        return res.status(401).json({ error: "Invalid password" });
+      }
+      
+      req.session.isAdmin = true;
+      res.json({ 
+        success: true, 
+        message: "Login successful" 
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+  
+  // Admin logout
+  app.post("/api/auth/logout", async (req: AuthenticatedRequest, res) => {
+    try {
+      req.session.destroy((err: any) => {
+        if (err) {
+          console.error("Logout error:", err);
+          return res.status(500).json({ error: "Logout failed" });
+        }
+        res.json({ success: true, message: "Logout successful" });
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ error: "Logout failed" });
+    }
+  });
+  
+  // Check admin auth status
+  app.get("/api/auth/status", (req: AuthenticatedRequest, res) => {
+    res.json({ 
+      isAuthenticated: !!(req.session && req.session.isAdmin),
+      tokenType: req.session && req.session.isAdmin ? 'admin' : null
+    });
+  });
+
+  // === ADMIN-ONLY ENDPOINTS ===
+  
+  // Image upload endpoint
+  app.post("/api/upload", requireAdminAuth, upload.array('images', 8), async (req: AuthenticatedRequest, res) => {
+    try {
+      const files = req.files as Express.Multer.File[];
+      
+      if (!files || files.length === 0) {
+        return res.status(400).json({ error: "No images provided" });
+      }
+      
+      const imageUrls: string[] = [];
+      
+      for (const file of files) {
+        try {
+          const url = await processImage(file.buffer, file.originalname);
+          imageUrls.push(url);
+        } catch (error) {
+          console.error(`Error processing file ${file.originalname}:`, error);
+          // Continue with other files even if one fails
+        }
+      }
+      
+      if (imageUrls.length === 0) {
+        return res.status(500).json({ error: "Failed to process any images" });
+      }
+      
+      res.json({ 
+        success: true,
+        image_urls: imageUrls,
+        processed: imageUrls.length,
+        total: files.length
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ error: "Upload failed" });
+    }
+  });
 
   // Products endpoints
   app.get("/api/products", async (req, res) => {
