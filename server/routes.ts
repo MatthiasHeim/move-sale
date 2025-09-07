@@ -63,7 +63,10 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     
     // Generate unique filename
     const filename = `product-${Date.now()}-${randomBytes(8).toString('hex')}.webp`;
-    const publicPath = `/replit-objstore-b29cd6b5-2920-47e4-9af9-9bfc794e3315/public/${filename}`;
+    
+    // Use environment variable for public object storage path
+    const publicSearchPaths = process.env.PUBLIC_OBJECT_SEARCH_PATHS?.split(',') || [];
+    const publicPath = publicSearchPaths[0] ? `${publicSearchPaths[0]}/${filename}` : `/tmp/${filename}`;
     
     // Write to object storage
     await fs.writeFile(publicPath, processedBuffer);
@@ -139,37 +142,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image upload endpoint
   app.post("/api/upload", requireAdminAuth, upload.array('images', 8), async (req: AuthenticatedRequest, res) => {
     try {
+      console.log("📸 Upload request received");
       const files = req.files as Express.Multer.File[];
       
       if (!files || files.length === 0) {
+        console.log("❌ No files provided in upload request");
         return res.status(400).json({ error: "No images provided" });
       }
       
+      console.log(`📁 Processing ${files.length} files:`, files.map(f => f.originalname));
+      
       const imageUrls: string[] = [];
+      const errors: string[] = [];
       
       for (const file of files) {
         try {
+          console.log(`🔄 Processing file: ${file.originalname}`);
           const url = await processImage(file.buffer, file.originalname);
           imageUrls.push(url);
+          console.log(`✅ Successfully processed: ${file.originalname} -> ${url}`);
         } catch (error) {
-          console.error(`Error processing file ${file.originalname}:`, error);
+          const errorMsg = `Error processing ${file.originalname}: ${error}`;
+          console.error("❌", errorMsg);
+          errors.push(errorMsg);
           // Continue with other files even if one fails
         }
       }
       
       if (imageUrls.length === 0) {
-        return res.status(500).json({ error: "Failed to process any images" });
+        console.error("❌ Failed to process any images:", errors);
+        return res.status(500).json({ 
+          error: "Failed to process any images", 
+          details: errors 
+        });
       }
       
+      console.log(`🎉 Upload completed: ${imageUrls.length}/${files.length} images processed successfully`);
       res.json({ 
         success: true,
         image_urls: imageUrls,
         processed: imageUrls.length,
-        total: files.length
+        total: files.length,
+        errors: errors.length > 0 ? errors : undefined
       });
     } catch (error) {
-      console.error("Upload error:", error);
-      res.status(500).json({ error: "Upload failed" });
+      console.error("💥 Upload error:", error);
+      res.status(500).json({ error: "Upload failed", details: String(error) });
     }
   });
 
