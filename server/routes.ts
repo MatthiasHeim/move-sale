@@ -238,28 +238,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
           description: "Bequemes 3-Sitzer Sofa in dunkelgrau, perfekt für das Wohnzimmer",
           price: "350.00",
           category: "furniture",
-          imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=400&fit=crop"
+          imageUrls: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&h=400&fit=crop"]
         },
         {
           name: "Kühlschrank",
           description: "Energieeffizienter Kühlschrank, 200L Fassungsvermögen, A++ Energieklasse",
           price: "280.00",
           category: "equipment",
-          imageUrl: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=500&h=400&fit=crop"
+          imageUrls: ["https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=500&h=400&fit=crop"]
         },
         {
           name: "Vintage Nachttisch",
           description: "Authentischer Vintage-Nachttisch aus Holz mit praktischer Schublade",
           price: "75.00",
           category: "furniture",
-          imageUrl: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&h=400&fit=crop"
+          imageUrls: ["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&h=400&fit=crop"]
         },
         {
           name: "Dekorative Wanduhr",
           description: "Moderne Wanduhr im skandinavischen Design, 40cm Durchmesser",
           price: "25.00",
           category: "decor",
-          imageUrl: "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=500&h=400&fit=crop"
+          imageUrls: ["https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=500&h=400&fit=crop"]
         }
       ];
 

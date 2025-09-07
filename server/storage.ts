@@ -1,4 +1,4 @@
-import { products, faqs, reservations, type Product, type Faq, type Reservation, type InsertProduct, type InsertFaq, type InsertReservation } from "@shared/schema";
+import { products, faqs, reservations, productTexts, drafts, type Product, type Faq, type Reservation, type ProductText, type Draft, type InsertProduct, type InsertFaq, type InsertReservation, type InsertProductText, type InsertDraft } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc, and } from "drizzle-orm";
 import { sql } from "drizzle-orm";
@@ -6,10 +6,13 @@ import { sql } from "drizzle-orm";
 export interface IStorage {
   // Products
   getProducts(): Promise<Product[]>;
+  getAllProducts(): Promise<Product[]>; // Admin version - shows all products
   getProductsByCategory(category: string): Promise<Product[]>;
   getProductById(id: string): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product>;
   updateProductAvailability(id: string, isAvailable: boolean): Promise<void>;
+  deleteProduct(id: string): Promise<void>;
   
   // FAQs
   getFaqs(): Promise<Faq[]>;
@@ -21,6 +24,15 @@ export interface IStorage {
   getReservationsByProduct(productId: string): Promise<Reservation[]>;
   updateReservationStatus(id: string, status: string): Promise<void>;
   cleanupExpiredReservations(): Promise<void>;
+  
+  // Product Texts (Tutti archive)
+  createProductText(productText: InsertProductText): Promise<ProductText>;
+  getProductTextsByProductId(productId: string): Promise<ProductText[]>;
+  
+  // Drafts
+  createDraft(draft: InsertDraft): Promise<Draft>;
+  getDraftById(id: string): Promise<Draft | undefined>;
+  getDrafts(): Promise<Draft[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -44,8 +56,21 @@ export class DatabaseStorage implements IStorage {
     return product;
   }
 
+  async getAllProducts(): Promise<Product[]> {
+    return await db.select().from(products).orderBy(desc(products.createdAt));
+  }
+
+  async updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product> {
+    const [product] = await db.update(products).set(updates).where(eq(products.id, id)).returning();
+    return product;
+  }
+
   async updateProductAvailability(id: string, isAvailable: boolean): Promise<void> {
     await db.update(products).set({ isAvailable }).where(eq(products.id, id));
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    await db.delete(products).where(eq(products.id, id));
   }
 
   async getFaqs(): Promise<Faq[]> {
@@ -102,6 +127,33 @@ export class DatabaseStorage implements IStorage {
         .set({ isAvailable: true })
         .where(eq(products.id, reservation.productId));
     }
+  }
+
+  // Product Texts (Tutti archive)
+  async createProductText(productText: InsertProductText): Promise<ProductText> {
+    const [text] = await db.insert(productTexts).values(productText).returning();
+    return text;
+  }
+
+  async getProductTextsByProductId(productId: string): Promise<ProductText[]> {
+    return await db.select().from(productTexts)
+      .where(eq(productTexts.productId, productId))
+      .orderBy(desc(productTexts.createdAt));
+  }
+
+  // Drafts
+  async createDraft(draft: InsertDraft): Promise<Draft> {
+    const [newDraft] = await db.insert(drafts).values(draft).returning();
+    return newDraft;
+  }
+
+  async getDraftById(id: string): Promise<Draft | undefined> {
+    const [draft] = await db.select().from(drafts).where(eq(drafts.id, id));
+    return draft || undefined;
+  }
+
+  async getDrafts(): Promise<Draft[]> {
+    return await db.select().from(drafts).orderBy(desc(drafts.createdAt));
   }
 }
 
