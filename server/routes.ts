@@ -309,6 +309,51 @@ Analysiere die Bilder und erstelle ein JSON-Objekt für diesen Artikel. Verwende
     }
   });
 
+  // Admin-only endpoint to get all products (including sold)
+  app.get("/api/admin/products", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const products = await storage.getAllProducts();
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching admin products:", error);
+      res.status(500).json({ error: "Fehler beim Laden der Admin-Produkte" });
+    }
+  });
+
+  // Admin endpoint to update product
+  app.patch("/api/products/:id", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const updates = req.body;
+      const product = await storage.updateProduct(req.params.id, updates);
+      res.json({ success: true, product });
+    } catch (error) {
+      console.error("Error updating product:", error);
+      res.status(500).json({ error: "Fehler beim Aktualisieren des Produkts" });
+    }
+  });
+
+  // Admin endpoint to mark product as sold
+  app.post("/api/products/:id/mark-sold", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      await storage.updateProductAvailability(req.params.id, false);
+      res.json({ success: true, message: "Produkt als verkauft markiert" });
+    } catch (error) {
+      console.error("Error marking product as sold:", error);
+      res.status(500).json({ error: "Fehler beim Markieren als verkauft" });
+    }
+  });
+
+  // Admin endpoint to delete product
+  app.delete("/api/products/:id", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      await storage.deleteProduct(req.params.id);
+      res.json({ success: true, message: "Produkt gelöscht" });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      res.status(500).json({ error: "Fehler beim Löschen des Produkts" });
+    }
+  });
+
   // Products endpoints
   app.get("/api/products", async (req, res) => {
     try {
@@ -341,8 +386,8 @@ Analysiere die Bilder und erstelle ein JSON-Objekt für diesen Artikel. Verwende
     }
   });
 
-  // Authenticated endpoint for creating products (for external applications)
-  app.post("/api/products", validateApiToken, async (req: AuthenticatedRequest, res) => {
+  // Authenticated endpoint for creating products (accepts both admin session and API token)
+  app.post("/api/products", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const validatedData = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(validatedData);
