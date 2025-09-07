@@ -68,17 +68,23 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     let publicPath: string;
     const publicSearchPaths = process.env.PUBLIC_OBJECT_SEARCH_PATHS?.split(',') || [];
     
+    let useObjectStorage = false;
     if (publicSearchPaths[0]) {
-      publicPath = `${publicSearchPaths[0]}/${filename}`;
       try {
-        // Try to create the directory structure
+        // Try to create the directory structure first
         await fs.mkdir(publicSearchPaths[0], { recursive: true });
+        publicPath = `${publicSearchPaths[0]}/${filename}`;
+        useObjectStorage = true;
+        console.log(`📁 Using object storage: ${publicSearchPaths[0]}`);
       } catch (mkdirError) {
-        console.warn("Could not create object storage directory, using /tmp:", mkdirError);
+        console.warn("❌ Could not create object storage directory, using /tmp:", mkdirError);
         publicPath = `/tmp/${filename}`;
+        useObjectStorage = false;
       }
     } else {
+      console.log("📁 No object storage configured, using /tmp");
       publicPath = `/tmp/${filename}`;
+      useObjectStorage = false;
     }
     
     // Write to storage
@@ -86,11 +92,12 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     
     console.log(`💾 Image saved to: ${publicPath}`);
     
-    // Return public URL - for /tmp files, we'll need to serve them differently
-    if (publicPath.startsWith('/tmp/')) {
-      return `https://${process.env.REPL_ID || 'unknown'}.${process.env.REPLIT_CLUSTER || 'repl'}.replit.dev/uploads/${filename}`;
+    // Return public URL
+    const baseUrl = `https://${process.env.REPL_ID || 'unknown'}.${process.env.REPLIT_CLUSTER || 'repl'}.replit.dev`;
+    if (useObjectStorage) {
+      return `${baseUrl}/public/${filename}`;
     } else {
-      return `https://${process.env.REPL_ID || 'unknown'}.${process.env.REPLIT_CLUSTER || 'repl'}.replit.dev/public/${filename}`;
+      return `${baseUrl}/uploads/${filename}`;
     }
   } catch (error) {
     console.error('Error processing image:', error);
