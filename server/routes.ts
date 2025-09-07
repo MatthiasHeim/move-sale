@@ -64,28 +64,10 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     // Generate unique filename
     const filename = `product-${Date.now()}-${randomBytes(8).toString('hex')}.webp`;
     
-    // Try to use object storage path, create directory if needed, fallback to /tmp
-    let publicPath: string;
-    const publicSearchPaths = process.env.PUBLIC_OBJECT_SEARCH_PATHS?.split(',') || [];
-    
-    let useObjectStorage = false;
-    if (publicSearchPaths[0]) {
-      try {
-        // Try to create the directory structure first
-        await fs.mkdir(publicSearchPaths[0], { recursive: true });
-        publicPath = `${publicSearchPaths[0]}/${filename}`;
-        useObjectStorage = true;
-        console.log(`📁 Using object storage: ${publicSearchPaths[0]}`);
-      } catch (mkdirError) {
-        console.warn("❌ Could not create object storage directory, using /tmp:", mkdirError);
-        publicPath = `/tmp/${filename}`;
-        useObjectStorage = false;
-      }
-    } else {
-      console.log("📁 No object storage configured, using /tmp");
-      publicPath = `/tmp/${filename}`;
-      useObjectStorage = false;
-    }
+    // For now, use /tmp directory to ensure uploads work
+    const publicPath = `/tmp/${filename}`;
+    const useObjectStorage = false;
+    console.log(`📁 Using /tmp directory for upload: ${publicPath}`);
     
     // Write to storage
     await fs.writeFile(publicPath, processedBuffer);
