@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pin } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 interface ProductCardProps {
@@ -26,8 +26,12 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
   const hasMultipleImages = product.imageUrls.length > 1;
 
   return (
-    <div 
-      className="product-card bg-card rounded-lg shadow-md overflow-hidden border border-border" 
+    <div
+      className={`product-card bg-card rounded-lg shadow-md overflow-hidden border ${
+        (product as any).isPinned
+          ? "border-yellow-500 ring-2 ring-yellow-200 shadow-lg"
+          : "border-border"
+      }`}
       data-testid={`product-card-${product.id}`}
     >
       <div className="relative group">
@@ -85,6 +89,14 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
               {currentImageIndex + 1} / {product.imageUrls.length}
             </div>
           </>
+        )}
+
+        {/* Pinned indicator */}
+        {(product as any).isPinned && (
+          <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+            <Pin size={12} />
+            Empfohlen
+          </div>
         )}
       </div>
       

@@ -404,6 +404,27 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
     }
   });
 
+  // Admin endpoint to toggle product pinned status
+  app.post("/api/products/:id/toggle-pin", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const product = await storage.getProductById(req.params.id);
+      if (!product) {
+        return res.status(404).json({ error: "Produkt nicht gefunden" });
+      }
+
+      const newPinnedStatus = !product.isPinned;
+      await storage.updateProductPinnedStatus(req.params.id, newPinnedStatus);
+      res.json({
+        success: true,
+        message: newPinnedStatus ? "Produkt angepinnt" : "Produkt entpinnt",
+        isPinned: newPinnedStatus
+      });
+    } catch (error) {
+      console.error("Error toggling product pin status:", error);
+      res.status(500).json({ error: "Fehler beim Ändern des Pin-Status" });
+    }
+  });
+
   // Admin endpoint to delete product
   app.delete("/api/products/:id", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     try {
@@ -478,6 +499,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
         "GET /api/products": "Liste aller verfügbaren Produkte",
         "GET /api/products/:id": "Einzelnes Produkt abrufen",
         "POST /api/products": "Neues Produkt erstellen (authentifiziert)",
+        "POST /api/products/:id/toggle-pin": "Produkt anpinnen/entpinnen (Admin)",
         "GET /api/faqs": "Liste aller FAQs",
         "POST /api/reservations": "Neue Reservierung erstellen",
         "GET /api/pickup-times": "Verfügbare Abholzeiten"

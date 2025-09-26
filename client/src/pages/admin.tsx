@@ -45,7 +45,7 @@ export default function Admin() {
     },
   });
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated (but only after loading is complete)
   if (!authLoading && (!authStatus || !(authStatus as any)?.isAuthenticated)) {
     navigate("/admin/login");
     return null;

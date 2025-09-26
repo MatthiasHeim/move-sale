@@ -18,8 +18,10 @@ export default function AdminLogin() {
       const response = await apiRequest("POST", "/api/auth/login", { password });
       return response;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/status"] });
+    onSuccess: async () => {
+      // Invalidate and refetch auth status before navigating
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/status"] });
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/status"] });
       toast({
         title: "Login erfolgreich",
         description: "Willkommen im Admin-Bereich!",

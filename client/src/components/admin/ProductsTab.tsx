@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Edit, Trash2, CheckCircle, XCircle, Calendar } from "lucide-react";
+import { Edit, Trash2, CheckCircle, XCircle, Calendar, Pin, PinOff } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 export default function ProductsTab() {
@@ -65,6 +65,29 @@ export default function ProductsTab() {
       toast({
         title: "Artikel gelöscht",
         description: "Der Artikel wurde entfernt.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const togglePinMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      await apiRequest("POST", `/api/products/${productId}/toggle-pin`, {});
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: data.isPinned ? "Artikel angepinnt" : "Artikel entpinnt",
+        description: data.isPinned
+          ? "Der Artikel wird nun ganz oben angezeigt."
+          : "Der Artikel ist nicht mehr angepinnt.",
       });
     },
     onError: (error: any) => {
@@ -159,6 +182,12 @@ export default function ProductsTab() {
                             </>
                           )}
                         </Badge>
+                        {(product as any).isPinned && (
+                          <Badge variant="outline" className="border-yellow-500 text-yellow-700" data-testid={`product-pinned-${product.id}`}>
+                            <Pin className="h-3 w-3 mr-1" />
+                            Angepinnt
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-gray-600 mt-2 line-clamp-2" data-testid={`product-description-${product.id}`}>
                         {product.description}
@@ -177,7 +206,27 @@ export default function ProductsTab() {
                       <div className="text-xl font-bold text-green-600 mb-3" data-testid={`product-price-${product.id}`}>
                         CHF {product.price}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => togglePinMutation.mutate(product.id)}
+                          disabled={togglePinMutation.isPending}
+                          data-testid={`button-pin-${product.id}`}
+                          className={(product as any).isPinned ? "border-yellow-500 text-yellow-700" : ""}
+                        >
+                          {(product as any).isPinned ? (
+                            <>
+                              <PinOff className="h-4 w-4 mr-1" />
+                              Entpinnen
+                            </>
+                          ) : (
+                            <>
+                              <Pin className="h-4 w-4 mr-1" />
+                              Anpinnen
+                            </>
+                          )}
+                        </Button>
                         {product.isAvailable ? (
                           <Button
                             variant="outline"

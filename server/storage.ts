@@ -12,6 +12,7 @@ export interface IStorage {
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product>;
   updateProductAvailability(id: string, isAvailable: boolean): Promise<void>;
+  updateProductPinnedStatus(id: string, isPinned: boolean): Promise<void>;
   deleteProduct(id: string): Promise<void>;
   
   // FAQs
@@ -37,13 +38,13 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getProducts(): Promise<Product[]> {
-    return await db.select().from(products).where(eq(products.isAvailable, true)).orderBy(desc(products.createdAt));
+    return await db.select().from(products).where(eq(products.isAvailable, true)).orderBy(desc(products.isPinned), desc(products.createdAt));
   }
 
   async getProductsByCategory(category: string): Promise<Product[]> {
     return await db.select().from(products)
       .where(and(eq(products.category, category), eq(products.isAvailable, true)))
-      .orderBy(desc(products.createdAt));
+      .orderBy(desc(products.isPinned), desc(products.createdAt));
   }
 
   async getProductById(id: string): Promise<Product | undefined> {
@@ -57,7 +58,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllProducts(): Promise<Product[]> {
-    return await db.select().from(products).orderBy(desc(products.createdAt));
+    return await db.select().from(products).orderBy(desc(products.isPinned), desc(products.createdAt));
   }
 
   async updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product> {
@@ -67,6 +68,10 @@ export class DatabaseStorage implements IStorage {
 
   async updateProductAvailability(id: string, isAvailable: boolean): Promise<void> {
     await db.update(products).set({ isAvailable }).where(eq(products.id, id));
+  }
+
+  async updateProductPinnedStatus(id: string, isPinned: boolean): Promise<void> {
+    await db.update(products).set({ isPinned }).where(eq(products.id, id));
   }
 
   async deleteProduct(id: string): Promise<void> {

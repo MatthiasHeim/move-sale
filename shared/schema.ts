@@ -11,6 +11,7 @@ export const products = pgTable("products", {
   category: text("category").notNull(), // "furniture", "equipment", "decor"
   imageUrls: text("image_urls").array().notNull(),
   isAvailable: boolean("is_available").default(true).notNull(),
+  isPinned: boolean("is_pinned").default(false).notNull(),
   createdAt: timestamp("created_at").default(sql`now()`).notNull(),
 });
 
