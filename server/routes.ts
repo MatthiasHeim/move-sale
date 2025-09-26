@@ -11,6 +11,7 @@ import path from "path";
 import { storage } from "./storage";
 import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "@shared/schema";
 import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
+import { uploadImageToSupabase } from "./supabase";
 import OpenAI from "openai";
 
 // Initialize OpenAI
@@ -39,7 +40,7 @@ const upload = multer({
 async function processImage(buffer: Buffer, originalName: string): Promise<string> {
   try {
     let imageBuffer = buffer;
-    
+
     // Convert HEIC to JPEG if needed
     if (originalName.toLowerCase().endsWith('.heic') || originalName.toLowerCase().endsWith('.heif')) {
       const outputBuffer = await heicConvert({
@@ -49,7 +50,7 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
       });
       imageBuffer = Buffer.from(outputBuffer);
     }
-    
+
     // Process with Sharp: rotate, resize, convert to WebP
     const processedBuffer = await sharp(imageBuffer)
       .rotate() // Auto-rotate based on EXIF
@@ -61,24 +62,22 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
       })
       .webp({ quality: 82 })
       .toBuffer();
-    
+
     // Generate unique filename
     const filename = `product-${Date.now()}-${randomBytes(8).toString('hex')}.webp`;
-    
-    // Save to both /tmp (for AI processing) and public directory (for web serving)
+
+    // Save to /tmp for AI processing
     const tmpPath = `/tmp/${filename}`;
-    const publicPath = path.join('client/public/uploads', filename);
-    
-    console.log(`📁 Saving to both: ${tmpPath} and ${publicPath}`);
-    
-    // Write to both locations
     await fs.writeFile(tmpPath, processedBuffer);
-    await fs.writeFile(publicPath, processedBuffer);
-    
-    console.log(`💾 Image saved to both locations`);
-    
-    // Return relative URL that Vite can serve
-    return `/uploads/${filename}`;
+    console.log(`💾 Image saved to ${tmpPath} for AI processing`);
+
+    // Upload to Supabase Storage
+    const publicUrl = await uploadImageToSupabase(filename, processedBuffer, 'image/webp');
+
+    console.log(`✅ Image processing complete: ${publicUrl}`);
+
+    // Return the Supabase public URL
+    return publicUrl;
   } catch (error) {
     console.error('Error processing image:', error);
     throw new Error('Failed to process image');
