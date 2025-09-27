@@ -58,12 +58,35 @@ const upload = multer({
     files: 8 // Max 8 files
   },
   fileFilter: (req, file, cb) => {
+    console.log(`📋 File upload attempt - Name: ${file.originalname}, MIME type: ${file.mimetype || 'undefined'}`);
+
     const allowedTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
-    if (allowedTypes.includes(file.mimetype) || file.originalname.toLowerCase().endsWith('.heic')) {
+    const fileName = file.originalname.toLowerCase();
+    const allowedExtensions = ['.jpeg', '.jpg', '.png', '.heic', '.heif'];
+
+    // Check by MIME type first
+    if (allowedTypes.includes(file.mimetype)) {
+      console.log(`✅ File accepted by MIME type: ${file.mimetype}`);
       cb(null, true);
-    } else {
-      cb(new Error('Only JPEG, PNG, HEIC, and HEIF images are allowed'));
+      return;
     }
+
+    // Check by file extension (important for HEIC files with missing/wrong MIME types)
+    if (allowedExtensions.some(ext => fileName.endsWith(ext))) {
+      console.log(`✅ File accepted by extension: ${fileName}`);
+      cb(null, true);
+      return;
+    }
+
+    // Handle common edge cases for HEIC files
+    if (file.mimetype === 'application/octet-stream' && (fileName.endsWith('.heic') || fileName.endsWith('.heif'))) {
+      console.log(`✅ File accepted as HEIC with generic MIME type: ${file.mimetype}`);
+      cb(null, true);
+      return;
+    }
+
+    console.log(`❌ File rejected - Name: ${file.originalname}, MIME: ${file.mimetype}`);
+    cb(new Error(`File type not allowed. Got MIME type: ${file.mimetype || 'undefined'}, filename: ${file.originalname}`));
   }
 });
 
