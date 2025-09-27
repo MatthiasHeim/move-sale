@@ -7,7 +7,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { Pool, neonConfig } = await import('@neondatabase/serverless');
     const { drizzle } = await import('drizzle-orm/neon-serverless');
     const ws = await import('ws');
-    const schema = await import('../shared/schema');
+    const schema = await import('../shared/schema.ts');
 
     neonConfig.webSocketConstructor = ws.default;
 

@@ -34,7 +34,7 @@ async function startCleanupIfNeeded() {
     console.warn("Failed to start cleanup:", error.message);
   }
 }
-import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "@shared/schema";
+import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "../shared/schema";
 import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
 // Import supabase dynamically to avoid module-level initialization
 // Import OpenAI dynamically to avoid module-level initialization
