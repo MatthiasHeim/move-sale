@@ -66,7 +66,7 @@ export default function Admin() {
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              MöbelMarkt Admin
+              Umzugsbeute Admin
             </h1>
             <p className="text-sm text-gray-600">
               Verwalten Sie Ihre Möbel und Artikel

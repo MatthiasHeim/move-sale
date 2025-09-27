@@ -52,7 +52,7 @@ export default function Home() {
       <header className="bg-card shadow-sm border-b border-border sticky top-0 z-50">
         <div className="max-w-md mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-xl font-bold text-primary" data-testid="site-title">MöbelMarkt</h1>
+            <h1 className="text-xl font-bold text-primary" data-testid="site-title">Umzugsbeute</h1>
             <div className="flex items-center gap-2">
               {(authStatus as any)?.isAuthenticated && (
                 <Link href="/admin">

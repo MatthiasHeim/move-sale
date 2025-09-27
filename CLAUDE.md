@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Architecture
 
-This is a full-stack **furniture rental marketplace** called MöbelMarkt with a German interface. The application helps a family moving from Müllheim to Hong Kong sell their furniture and household items.
+This is a full-stack **furniture rental marketplace** called Umzugsbeute with a German interface. The application helps a family moving from Müllheim to Hong Kong sell their furniture and household items.
 
 ### Tech Stack
 - **Frontend**: React + TypeScript + Vite

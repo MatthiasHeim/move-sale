@@ -492,7 +492,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // API endpoint info (public)
   app.get("/api/info", (req, res) => {
     res.json({
-      name: "MöbelMarkt API",
+      name: "Umzugsbeute API",
       version: "1.0.0",
       endpoints: {
         "GET /api/products": "Liste aller verfügbaren Produkte",

@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 try {
-  console.log('🏗️  Building MöbelMarkt for Vercel...');
+  console.log('🏗️  Building Umzugsbeute for Vercel...');
 
   // Build frontend using Vercel-specific config
   console.log('📦 Building frontend with Vite...');
