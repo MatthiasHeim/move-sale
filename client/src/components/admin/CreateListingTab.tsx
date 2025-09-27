@@ -18,23 +18,49 @@ export default function CreateListingTab() {
 
   const uploadMutation = useMutation({
     mutationFn: async (files: File[]) => {
+      console.log("📤 Upload mutation started");
+      console.log("📋 Files to upload:", files.map(f => ({
+        name: f.name,
+        type: f.type,
+        size: f.size,
+        lastModified: f.lastModified
+      })));
+
       const formData = new FormData();
-      files.forEach(file => formData.append("images", file));
-      
+      files.forEach((file, index) => {
+        console.log(`📎 Appending file ${index + 1}:`, file.name, file.type);
+        formData.append("images", file);
+      });
+
+      console.log("🌐 Sending request to /api/upload");
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
         credentials: "include",
       });
-      
+
+      console.log("📥 Response received:", response.status, response.statusText);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Upload failed");
+        let errorText = "";
+        try {
+          const error = await response.json();
+          errorText = error.error || error.message || "Upload failed";
+          console.error("❌ Server error:", error);
+        } catch (parseError) {
+          const rawText = await response.text();
+          errorText = rawText || `HTTP ${response.status}: ${response.statusText}`;
+          console.error("❌ Failed to parse error response:", rawText);
+        }
+        throw new Error(errorText);
       }
-      
-      return response.json();
+
+      const result = await response.json();
+      console.log("✅ Upload successful:", result);
+      return result;
     },
     onSuccess: (data) => {
+      console.log("🎉 Upload mutation success:", data);
       setUploadedImages(data.image_urls);
       toast({
         title: "Bilder hochgeladen",
@@ -42,6 +68,7 @@ export default function CreateListingTab() {
       });
     },
     onError: (error: any) => {
+      console.error("💥 Upload mutation error:", error);
       toast({
         title: "Upload fehlgeschlagen",
         description: error.message,
@@ -104,7 +131,27 @@ export default function CreateListingTab() {
     },
   });
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
+    console.log("📁 onDrop called");
+    console.log("✅ Accepted files:", acceptedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
+    console.log("❌ Rejected files:", rejectedFiles.map(f => ({
+      file: { name: f.file?.name, type: f.file?.type, size: f.file?.size },
+      errors: f.errors?.map((e: any) => ({ code: e.code, message: e.message }))
+    })));
+
+    if (rejectedFiles.length > 0) {
+      const errorMessages = rejectedFiles.map(f =>
+        f.errors?.map((e: any) => `${f.file?.name}: ${e.message}`).join(", ")
+      ).join("; ");
+
+      toast({
+        title: "Dateien abgelehnt",
+        description: errorMessages,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (acceptedFiles.length > 8) {
       toast({
         title: "Zu viele Dateien",
@@ -113,20 +160,50 @@ export default function CreateListingTab() {
       });
       return;
     }
+
+    console.log("🚀 Starting upload for files:", acceptedFiles.map(f => f.name));
     uploadMutation.mutate(acceptedFiles);
   }, [uploadMutation, toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/jpeg': ['.jpeg', '.jpg'],
-      'image/png': ['.png'],
-      'image/heic': ['.heic'],
-      'image/heif': ['.heif'],
-      'image/*': ['.jpeg', '.jpg', '.png', '.heic', '.heif']
+      'image/*': [], // Accept any image type
+      'image/jpeg': [],
+      'image/png': [],
+      'image/heic': [],
+      'image/heif': [],
+      // Also try common extensions
+      '.jpg': [],
+      '.jpeg': [],
+      '.png': [],
+      '.heic': [],
+      '.heif': []
     },
     maxFiles: 8,
     maxSize: 10 * 1024 * 1024, // 10MB
+    // Add custom validator as fallback
+    validator: (file) => {
+      console.log("🔍 Custom validator for file:", {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+
+      const allowedExtensions = ['.jpg', '.jpeg', '.png', '.heic', '.heif'];
+      const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+
+      if (allowedExtensions.includes(fileExtension)) {
+        console.log("✅ File accepted by custom validator:", file.name);
+        return null; // null means no error
+      }
+
+      console.log("❌ File rejected by custom validator:", file.name);
+      return {
+        code: "file-invalid-type",
+        message: `File type not supported: ${fileExtension}`
+      };
+    }
   });
 
   const handleGenerate = () => {
