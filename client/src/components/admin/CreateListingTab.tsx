@@ -10,6 +10,18 @@ import { apiRequest } from "@/lib/queryClient";
 import { Upload, Loader2, Sparkles, Copy, CheckCircle, Edit3 } from "lucide-react";
 import type { AgentProposal } from "@shared/schema";
 
+// iOS/Safari detection utility
+const isIOS = () => {
+  if (typeof window === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
+const isSafari = () => {
+  if (typeof window === 'undefined') return false;
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+};
+
 export default function CreateListingTab() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [userInput, setUserInput] = useState("");
@@ -165,39 +177,62 @@ export default function CreateListingTab() {
     uploadMutation.mutate(acceptedFiles);
   }, [uploadMutation, toast]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  // Detect if we're on iOS/Safari
+  const isIOSDevice = isIOS() || isSafari();
+
+  console.log("🔍 Device detection - iOS:", isIOS(), "Safari:", isSafari(), "Using iOS config:", isIOSDevice);
+
+  const { getRootProps, getInputProps: getOriginalInputProps, isDragActive } = useDropzone({
     onDrop,
-    // Remove accept validation entirely - let the server handle it
     noClick: false,
     noKeyboard: false,
     maxFiles: 8,
     maxSize: 10 * 1024 * 1024, // 10MB
-    // Remove all file type restrictions to bypass react-dropzone issues
-    accept: undefined,
-    // Custom validator that's very permissive
+    // Different configurations for iOS vs other browsers
+    accept: isIOSDevice ? undefined : {
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
+      'image/*': ['.jpeg', '.jpg', '.png', '.heic', '.heif']
+    },
+    // Custom validator
     validator: (file) => {
-      console.log("🔍 Permissive validator for file:", {
+      console.log("🔍 File validator for file:", {
         name: file.name,
         type: file.type,
-        size: file.size
+        size: file.size,
+        isIOSDevice
       });
 
-      // Only reject obviously non-image files
+      // Very permissive validation - only reject obvious non-images
       const fileName = file.name.toLowerCase();
-      const badExtensions = ['.txt', '.doc', '.pdf', '.zip', '.exe'];
+      const badExtensions = ['.txt', '.doc', '.pdf', '.zip', '.exe', '.mp4', '.avi'];
 
       if (badExtensions.some(ext => fileName.endsWith(ext))) {
-        console.log("❌ File rejected - clearly not an image:", file.name);
+        console.log("❌ File rejected - not an image:", file.name);
         return {
           code: "file-invalid-type",
           message: `File type not supported: ${fileName.substring(fileName.lastIndexOf('.'))}`
         };
       }
 
-      console.log("✅ File accepted by permissive validator:", file.name);
-      return null; // Accept everything else
+      console.log("✅ File accepted by validator:", file.name);
+      return null;
     }
   });
+
+  // Override getInputProps to remove accept attribute on iOS
+  const getInputProps = useCallback(() => {
+    const props = getOriginalInputProps();
+
+    if (isIOSDevice) {
+      console.log("🍎 iOS detected - removing accept attribute to prevent Safari validation errors");
+      // Remove the accept attribute entirely for iOS to prevent Safari validation errors
+      const { accept, ...propsWithoutAccept } = props;
+      return propsWithoutAccept;
+    }
+
+    return props;
+  }, [getOriginalInputProps, isIOSDevice]);
 
   const handleGenerate = () => {
     if (uploadedImages.length === 0) {
