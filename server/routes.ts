@@ -657,21 +657,13 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
         SESSION_SECRET: process.env.SESSION_SECRET ? "SET" : "NOT SET",
         ADMIN_PASS: process.env.ADMIN_PASS ? "SET" : "NOT SET",
         OPENAI_API_KEY: process.env.OPENAI_API_KEY ? "SET" : "NOT SET",
-        allEnvKeys: Object.keys(process.env).length
+        VERCEL: process.env.VERCEL ? "SET" : "NOT SET",
+        allEnvKeys: Object.keys(process.env).length,
+        envKeys: Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('SESSION') || k.includes('ADMIN') || k.includes('OPENAI') || k.includes('VERCEL'))
       };
-
-      // Try database connection
-      let dbStatus = "UNKNOWN";
-      try {
-        const testQuery = await storage.getProducts();
-        dbStatus = `OK - ${testQuery.length} products found`;
-      } catch (dbError) {
-        dbStatus = `ERROR: ${dbError.message}`;
-      }
 
       res.json({
         environment: envCheck,
-        database: dbStatus,
         timestamp: new Date().toISOString()
       });
     } catch (error) {

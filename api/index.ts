@@ -1,6 +1,9 @@
 // Load environment variables FIRST for Vercel serverless functions
+// Only load .env file in development - Vercel handles env vars in production
 import { config } from "dotenv";
-config();
+if (process.env.NODE_ENV !== "production") {
+  config();
+}
 
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";

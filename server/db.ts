@@ -1,6 +1,9 @@
 // Load environment variables FIRST before any other imports
+// Only load .env file in development - Vercel handles env vars in production
 import { config } from "dotenv";
-config();
+if (process.env.NODE_ENV !== "production") {
+  config();
+}
 
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
