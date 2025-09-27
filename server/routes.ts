@@ -36,9 +36,19 @@ async function startCleanupIfNeeded() {
 }
 import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "./schema";
 import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
-// Import supabase dynamically to avoid module-level initialization
-// Import OpenAI dynamically to avoid module-level initialization
-import OpenAI from "openai";
+
+// Dynamic import functions to avoid module-level initialization
+async function getOpenAI() {
+  const OpenAI = await import("openai");
+  return new OpenAI.default({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
+
+async function getSupabase() {
+  const { supabase } = await import("./supabase");
+  return supabase;
+}
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -303,9 +313,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
         }
       }
 
-      const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-      });
+      const openai = await getOpenAI();
       const completion = await openai.chat.completions.create({
         model: "gpt-4o", // Use GPT-4 with vision capabilities
         messages: [
