@@ -16,6 +16,10 @@
       "dest": "/api/health.ts"
     },
     {
+      "src": "/api/minimal",
+      "dest": "/api/minimal.ts"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/index.ts"
     },

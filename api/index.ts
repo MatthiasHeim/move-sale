@@ -61,10 +61,23 @@ app.use((req, res, next) => {
   }
 });
 
-// Register API routes (synchronous for serverless)
-// Note: Skip cleanup and server creation for serverless functions
-import { addRoutesToApp } from "../server/routes";
-addRoutesToApp(app);
+// Register API routes (deferred for serverless compatibility)
+// Note: Import routes dynamically to avoid module-level database initialization
+let routesAdded = false;
+
+app.use(async (req, res, next) => {
+  if (!routesAdded) {
+    try {
+      const { addRoutesToApp } = await import("../server/routes");
+      addRoutesToApp(app);
+      routesAdded = true;
+    } catch (error) {
+      console.error("Failed to load routes:", error);
+      return res.status(500).json({ error: "Failed to initialize API" });
+    }
+  }
+  next();
+});
 
 // Error handling middleware
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
