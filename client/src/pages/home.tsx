@@ -17,8 +17,17 @@ export default function Home() {
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
-    queryKey: [`/api/products${selectedCategory !== "all" ? `?category=${selectedCategory}` : ""}`],
+    queryKey: [`/api/products-working${selectedCategory !== "all" ? `?category=${selectedCategory}` : ""}`],
     enabled: true,
+    queryFn: async () => {
+      const response = await fetch(`/api/products-working`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      const data = await response.json();
+      // The working API returns { products: [...] } so we extract the products array
+      return data.products || [];
+    },
   });
 
   const { data: faqs = [] } = useQuery<Faq[]>({

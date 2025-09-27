@@ -36,6 +36,14 @@
       "dest": "/api/products-working.ts"
     },
     {
+      "src": "/api/faqs",
+      "dest": "/api/faqs.ts"
+    },
+    {
+      "src": "/api/auth/status",
+      "dest": "/api/auth-status.ts"
+    },
+    {
       "src": "/uploads/(.*)",
       "dest": "/client/public/uploads/$1"
     },
