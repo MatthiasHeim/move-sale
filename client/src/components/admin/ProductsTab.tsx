@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Edit, Trash2, CheckCircle, XCircle, Calendar, Pin, PinOff } from "lucide-react";
+import EditProductModal from "./EditProductModal";
 import type { Product } from "@shared/schema";
 
 export default function ProductsTab() {
   const { toast } = useToast();
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   // Fetch all products (admin version shows all)
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -142,7 +144,11 @@ export default function ProductsTab() {
 
       <div className="grid gap-4">
         {products.map((product) => (
-          <Card key={product.id} className={!product.isAvailable ? "opacity-75" : ""}>
+          <Card
+            key={product.id}
+            className={`cursor-pointer hover:shadow-md transition-shadow ${!product.isAvailable ? "opacity-75" : ""}`}
+            onClick={() => setEditingProduct(product)}
+          >
             <CardContent className="p-6">
               <div className="flex gap-4">
                 {/* Product Image */}
@@ -210,7 +216,10 @@ export default function ProductsTab() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => togglePinMutation.mutate(product.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePinMutation.mutate(product.id);
+                          }}
                           disabled={togglePinMutation.isPending}
                           data-testid={`button-pin-${product.id}`}
                           className={(product as any).isPinned ? "border-yellow-500 text-yellow-700" : ""}
@@ -231,7 +240,10 @@ export default function ProductsTab() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => markSoldMutation.mutate(product.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markSoldMutation.mutate(product.id);
+                            }}
                             disabled={markSoldMutation.isPending}
                             data-testid={`button-mark-sold-${product.id}`}
                           >
@@ -242,7 +254,10 @@ export default function ProductsTab() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => reactivateMutation.mutate(product.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              reactivateMutation.mutate(product.id);
+                            }}
                             disabled={reactivateMutation.isPending}
                             data-testid={`button-reactivate-${product.id}`}
                           >
@@ -253,7 +268,8 @@ export default function ProductsTab() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             if (window.confirm("Artikel wirklich löschen?")) {
                               deleteMutation.mutate(product.id);
                             }
@@ -273,6 +289,13 @@ export default function ProductsTab() {
           </Card>
         ))}
       </div>
+
+      {/* Edit Product Modal */}
+      <EditProductModal
+        isOpen={!!editingProduct}
+        onClose={() => setEditingProduct(null)}
+        product={editingProduct}
+      />
     </div>
   );
 }

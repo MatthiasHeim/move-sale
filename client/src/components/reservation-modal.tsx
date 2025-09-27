@@ -118,7 +118,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg mx-auto" data-testid="reservation-modal">
+      <DialogContent className="max-w-lg mx-auto max-h-[90vh] overflow-y-auto" data-testid="reservation-modal">
         <DialogHeader>
           <DialogTitle data-testid="modal-title">Artikel reservieren</DialogTitle>
           <DialogDescription>
@@ -128,78 +128,78 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
         
         {/* Product Summary */}
         <div className="border rounded-lg p-4 bg-muted/20" data-testid="product-summary">
-          <div className="flex gap-4">
-            {/* Product Image Gallery */}
-            <div className="relative w-24 h-24 flex-shrink-0 group">
-              <img 
-                src={product.imageUrls[currentImageIndex]} 
-                alt={`${product.name} - Bild ${currentImageIndex + 1}`}
-                className="w-full h-full object-cover rounded"
-                data-testid="modal-product-image"
-              />
-              
-              {hasMultipleImages && (
-                <>
-                  {/* Navigation buttons */}
-                  <button
-                    type="button"
-                    onClick={prevImage}
-                    className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                    data-testid="modal-prev-image"
-                  >
-                    <ChevronLeft size={12} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={nextImage}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                    data-testid="modal-next-image"
-                  >
-                    <ChevronRight size={12} />
-                  </button>
-                  
-                  {/* Image counter */}
-                  <div className="absolute bottom-1 right-1 bg-black/50 text-white px-1 py-0.5 rounded text-xs">
-                    {currentImageIndex + 1}/{product.imageUrls.length}
-                  </div>
-                </>
-              )}
-            </div>
-            
-            {/* Product Details */}
-            <div className="flex-1">
-              <h4 className="font-semibold text-sm mb-1" data-testid="modal-product-name">
-                {product.name}
-              </h4>
-              <p className="text-lg font-bold text-destructive mb-1" data-testid="modal-product-price">
-                {formatPrice(product.price)}
-              </p>
-              <p className="text-xs text-muted-foreground line-clamp-2" data-testid="modal-product-description">
-                {product.description}
-              </p>
-            </div>
+          {/* Large Product Image Gallery */}
+          <div className="relative w-full aspect-[4/3] mb-4 group">
+            <img
+              src={product.imageUrls[currentImageIndex]}
+              alt={`${product.name} - Bild ${currentImageIndex + 1}`}
+              className="w-full h-full object-contain rounded bg-gray-50"
+              data-testid="modal-product-image"
+            />
+
+            {hasMultipleImages && (
+              <>
+                {/* Navigation buttons */}
+                <button
+                  type="button"
+                  onClick={prevImage}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                  data-testid="modal-prev-image"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={nextImage}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                  data-testid="modal-next-image"
+                >
+                  <ChevronRight size={16} />
+                </button>
+
+                {/* Image counter */}
+                <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-sm">
+                  {currentImageIndex + 1}/{product.imageUrls.length}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Product Details */}
+          <div className="space-y-2">
+            <h4 className="font-semibold text-lg" data-testid="modal-product-name">
+              {product.name}
+            </h4>
+            <p className="text-2xl font-bold text-destructive" data-testid="modal-product-price">
+              {formatPrice(product.price)}
+            </p>
+            <p className="text-sm text-muted-foreground" data-testid="modal-product-description">
+              {product.description}
+            </p>
           </div>
           
           {/* Thumbnail gallery for multiple images */}
           {hasMultipleImages && (
-            <div className="flex gap-1 mt-3 overflow-x-auto">
-              {product.imageUrls.map((imageUrl, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`flex-shrink-0 w-12 h-12 rounded border-2 overflow-hidden transition-colors ${
-                    index === currentImageIndex ? 'border-primary' : 'border-transparent'
-                  }`}
-                  data-testid={`modal-thumbnail-${index}`}
-                >
-                  <img 
-                    src={imageUrl} 
-                    alt={`${product.name} - Thumbnail ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
+            <div className="mt-3 max-h-20 overflow-hidden">
+              <div className="flex gap-1 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent pb-1">
+                {product.imageUrls.map((imageUrl, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`flex-shrink-0 w-12 h-12 rounded border-2 overflow-hidden transition-colors ${
+                      index === currentImageIndex ? 'border-primary' : 'border-transparent'
+                    }`}
+                    data-testid={`modal-thumbnail-${index}`}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`${product.name} - Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>

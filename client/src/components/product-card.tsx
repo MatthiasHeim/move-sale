@@ -27,7 +27,8 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
 
   return (
     <div
-      className={`product-card bg-card rounded-lg shadow-md overflow-hidden border ${
+      onClick={onReservation}
+      className={`product-card bg-card rounded-lg shadow-md overflow-hidden border cursor-pointer hover:shadow-lg transition-shadow ${
         (product as any).isPinned
           ? "border-yellow-500 ring-2 ring-yellow-200 shadow-lg"
           : "border-border"
@@ -111,8 +112,11 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
           <span className="text-xl font-bold text-destructive" data-testid={`product-price-${product.id}`}>
             {formatPrice(product.price)}
           </span>
-          <Button 
-            onClick={onReservation}
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onReservation();
+            }}
             className="bg-primary text-primary-foreground px-6 py-2 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors min-h-[44px]"
             data-testid={`reserve-button-${product.id}`}
           >
