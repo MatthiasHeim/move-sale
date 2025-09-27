@@ -182,11 +182,11 @@ export default function Home() {
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-2">
               <i className="fas fa-phone text-secondary"></i>
-              <span className="text-foreground" data-testid="phone-number">+41 76 123 45 67</span>
+              <span className="text-foreground" data-testid="phone-number">0766286406</span>
             </div>
             <div className="flex items-center gap-2">
               <i className="fas fa-envelope text-secondary"></i>
-              <span className="text-foreground" data-testid="email">contact@möbelmarkt.ch</span>
+              <span className="text-foreground" data-testid="email">matthias@lailix.com</span>
             </div>
             <div className="flex items-start gap-2">
               <i className="fas fa-clock text-secondary mt-0.5"></i>
@@ -200,7 +200,7 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <i className="fas fa-info-circle text-accent"></i>
                 <span className="text-sm font-medium text-accent-foreground" data-testid="urgency-message">
-                  Umzug Ende März - Alle Artikel müssen bis dahin verkauft werden!
+                  Move beginning of November - All items must be sold by then!
                 </span>
               </div>
             </div>
