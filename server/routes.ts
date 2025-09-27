@@ -31,7 +31,7 @@ async function startCleanupIfNeeded() {
     }, 5 * 60 * 1000); // Every 5 minutes
     console.log("Started periodic cleanup");
   } catch (error) {
-    console.warn("Failed to start cleanup:", error.message);
+    console.warn("Failed to start cleanup:", error instanceof Error ? error.message : String(error));
   }
 }
 import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "./schema";
@@ -235,47 +235,64 @@ export function addRoutesToApp(app: Express): void {
         return res.status(400).json({ error: "At least one image URL is required" });
       }
       
-      // System prompt for the AI agent
-      const systemPrompt = `Du bist ein Experte für Secondhand-Möbel und hilfst einer Familie aus Müllheim Dorf, die nach Hongkong umzieht. Alle Möbel und Gegenstände müssen verkauft werden.
+      // Enhanced system prompt with storytelling for engaging listings
+      const systemPrompt = `Du bist ein Experte für Secondhand-Möbel und hilfst einer Familie aus Müllheim Dorf, die im November nach Hongkong umzieht. Alle geliebten Möbel und Gegenstände müssen verkauft werden - nicht wegen Mängeln, sondern wegen des großen Umzugs.
 
-KONTEXT:
-- Familie zieht von Müllheim Dorf nach Hongkong um
-- Alles muss raus - freundliche Preise
-- Abholung vor Ort, Bar oder TWINT
-- Kein Link in Tutti Texten, keine E-Mail oder Telefonnummer
-- Falls Maße unsicher sind, Feld leer lassen oder kurze Rückfrage vorschlagen
+FAMILIEN-KONTEXT FÜR STORYTELLING:
+- Familie zieht im November 2024 nach Hongkong um (großer Lebenswandel)
+- Alle Artikel sind geliebt und gut gepflegt - würden sonst behalten werden
+- Schweren Herzens verkaufen, weil Umzug alles verändert
+- Faire Preise für schnellen, stressfreien Verkauf
+- Abholung vor Ort in Müllheim Dorf, Bar oder TWINT
+- Kein Link, E-Mail oder Telefonnummer in Tutti Texten
 
 KATEGORIEN (nur diese verwenden):
 furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
 
-PREISGESTALTUNG:
-- Preis in CHF, auf 5 CHF runden
-- Als String mit 2 Dezimalstellen (z.B. "120.00")
-- Faire, marktübliche Preise für gebrauchte Artikel
-- Berücksichtige Zustand und Marke
+PREISGESTALTUNG MIT MARKTFORSCHUNG:
+- WICHTIG: Führe eine Web-Suche durch für ähnliche Artikel auf Schweizer Plattformen
+- Suche nach: "{Produktname} gebraucht Schweiz CHF Tutti Ricardo Anibis"
+- Vergleiche gefundene Preise und berücksichtige Zustand
+- Preis in CHF, auf 5 CHF runden, als String mit 2 Dezimalstellen (z.B. "120.00")
+- Berücksichtige Marktpreise + Umzugsdruck (faire aber schnelle Preise)
 
 ZUSTAND (nur diese verwenden):
 like new, very good, good, fair
 
-TON:
-- Kurz, freundlich, klar
-- Deutsch (Schweizer Hochdeutsch)
-- Ehrlich über Zustand
-- Positiv aber realistisch
+BESCHREIBUNGEN ERSTELLEN:
+1. **description** (Website): 2-3 detaillierte Sätze. Beschreibe Nutzen, Besonderheiten, warum es wertvoll ist. Erwähne wie es der Familie gedient hat.
 
-Analysiere die Bilder und erstelle ein JSON-Objekt mit GENAU dieser Struktur:
+2. **tutti_title_de** (Tutti/Facebook): Ansprechender Titel OHNE Preis! Format: "Marke + Modell + Hauptmerkmal" (z.B. "IKEA Kallax Regal weiß 4x4 Fächer")
+
+3. **tutti_body_de** (Tutti/Facebook): Storytelling-Ansatz mit dieser Struktur:
+   - Eröffnung: "Da wir im November nach Hongkong umziehen, müssen wir schweren Herzens..."
+   - Produktstory: Was macht es besonders, wie hat es uns gedient, warum ist es toll
+   - Ehrliche Zustandsbeschreibung mit positiver Note
+   - Emotionale Verbindung: "Würden wir gerne behalten, aber der Umzug lässt uns keine Wahl"
+   - Praktische Details: Abholung Müllheim Dorf, Bezahlung, Preis am Ende
+
+TON UND STIL:
+- Warmherzig & persönlich (wie Gespräch mit Nachbarn)
+- Storytelling-fokussiert (jeder Artikel hat eine Geschichte)
+- Vertrauensbildend (ehrlich über Zustand, begeistert über Qualität)
+- Emotional aber nicht übertrieben sentimental
+- Schaffe Verbindung: "Wir geben unser Zuhause auf, aber Sie können es weiterlieben"
+
+Analysiere die Bilder, führe Marktforschung durch und erstelle ein JSON-Objekt mit GENAU dieser Struktur:
 {
   "name": "Produktname (z.B. 'IKEA Kallax Regal weiß')",
-  "description": "Kurze Produktbeschreibung für internen Gebrauch",
+  "description": "2-3 detaillierte Sätze für Website. Beschreibe Nutzen, Besonderheiten und warum es wertvoll ist.",
   "price_chf": "120.00",
   "category": "furniture",
-  "condition": "good", 
+  "condition": "good",
   "dimensions_cm": "80x40x120 (BxTxH)" oder leer lassen wenn unsicher,
-  "tutti_title_de": "Eingängiger Tutti-Titel",
-  "tutti_body_de": "Vollständige Tutti-Beschreibung mit Details zu Zustand, Abholung in Müllheim Dorf, Preis etc."
+  "market_research": "Zusammenfassung der gefundenen Marktpreise und Begründung der Preisgestaltung",
+  "price_confidence": "hoch/mittel/niedrig - Konfidenz basierend auf verfügbaren Marktdaten",
+  "tutti_title_de": "Ansprechender Titel OHNE Preis (Marke + Modell + Merkmal)",
+  "tutti_body_de": "Storytelling-Beschreibung mit Hongkong-Umzug, Produktstory, Zustand und emotionaler Verbindung. Preis am Ende erwähnen."
 }
 
-Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.`;
+Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext. Nutze Web-Suche für aktuelle Marktpreise. Schaffe emotionale Verbindung ohne aufdringlich zu sein.`;
 
       // Prepare the messages for OpenAI
       const userContent: any[] = [
@@ -315,7 +332,8 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
 
       const openai = await getOpenAI();
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o", // Use GPT-4 with vision capabilities
+        model: "gpt-5", // Use GPT-5 with thinking capabilities
+        reasoning_effort: "medium", // Balanced speed and quality
         messages: [
           {
             role: "system",
@@ -327,7 +345,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
           }
         ],
         response_format: { type: "json_object" },
-        max_tokens: 1000,
+        max_tokens: 2000,
         temperature: 0.7
       });
 
@@ -410,6 +428,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Admin endpoint to update product
   app.patch("/api/products/:id", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     try {
+      const storage = await getStorage();
       const updates = req.body;
       const product = await storage.updateProduct(req.params.id, updates);
       res.json({ success: true, product });
@@ -422,6 +441,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Admin endpoint to mark product as sold
   app.post("/api/products/:id/mark-sold", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     try {
+      const storage = await getStorage();
       await storage.updateProductAvailability(req.params.id, false);
       res.json({ success: true, message: "Produkt als verkauft markiert" });
     } catch (error) {
@@ -433,6 +453,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Admin endpoint to toggle product pinned status
   app.post("/api/products/:id/toggle-pin", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     try {
+      const storage = await getStorage();
       const product = await storage.getProductById(req.params.id);
       if (!product) {
         return res.status(404).json({ error: "Produkt nicht gefunden" });
@@ -454,6 +475,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Admin endpoint to delete product
   app.delete("/api/products/:id", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     try {
+      const storage = await getStorage();
       await storage.deleteProduct(req.params.id);
       res.json({ success: true, message: "Produkt gelöscht" });
     } catch (error) {
@@ -484,6 +506,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
 
   app.get("/api/products/:id", async (req, res) => {
     try {
+      const storage = await getStorage();
       const product = await storage.getProductById(req.params.id);
       if (!product) {
         return res.status(404).json({ error: "Produkt nicht gefunden" });
@@ -498,6 +521,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Authenticated endpoint for creating products (accepts both admin session and API token)
   app.post("/api/products", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
+      const storage = await getStorage();
       const validatedData = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(validatedData);
       res.status(201).json({
@@ -508,9 +532,9 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
     } catch (error: any) {
       console.error("Error creating product:", error);
       if (error.name === 'ZodError') {
-        return res.status(400).json({ 
-          error: "Ungültige Produktdaten", 
-          details: error.errors 
+        return res.status(400).json({
+          error: "Ungültige Produktdaten",
+          details: error.errors
         });
       }
       res.status(500).json({ error: "Fehler beim Erstellen des Produkts" });
@@ -560,6 +584,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
 
   app.post("/api/faqs", async (req, res) => {
     try {
+      const storage = await getStorage();
       const validatedData = insertFaqSchema.parse(req.body);
       const faq = await storage.createFaq(validatedData);
       res.status(201).json(faq);
@@ -572,8 +597,9 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Reservations endpoints
   app.post("/api/reservations", async (req, res) => {
     try {
+      const storage = await getStorage();
       const validatedData = insertReservationSchema.parse(req.body);
-      
+
       // Check if product is still available
       const product = await storage.getProductById(validatedData.productId);
       if (!product) {
@@ -584,10 +610,10 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
       }
 
       const reservation = await storage.createReservation(validatedData);
-      
+
       // Mark product as unavailable
       await storage.updateProductAvailability(validatedData.productId, false);
-      
+
       res.status(201).json(reservation);
     } catch (error) {
       console.error("Error creating reservation:", error);
@@ -597,6 +623,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
 
   app.get("/api/reservations/:id", async (req, res) => {
     try {
+      const storage = await getStorage();
       const reservation = await storage.getReservationById(req.params.id);
       if (!reservation) {
         return res.status(404).json({ error: "Reservierung nicht gefunden" });
@@ -610,6 +637,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
 
   app.patch("/api/reservations/:id/status", async (req, res) => {
     try {
+      const storage = await getStorage();
       const { status } = req.body;
       if (!status) {
         return res.status(400).json({ error: "Status ist erforderlich" });
@@ -707,7 +735,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
     } catch (error) {
       res.status(500).json({
         error: "Diagnostic failed",
-        message: error.message,
+        message: error instanceof Error ? error.message : String(error),
         timestamp: new Date().toISOString()
       });
     }
@@ -716,6 +744,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Sample data creation endpoint for development
   app.post("/api/init-sample-data", async (req, res) => {
     try {
+      const storage = await getStorage();
       // Create sample products
       const sampleProducts = [
         {

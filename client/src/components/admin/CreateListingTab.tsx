@@ -295,6 +295,34 @@ export default function CreateListingTab() {
               </div>
             </div>
 
+            {/* Market Research Section */}
+            {(proposal.market_research || proposal.price_confidence) && (
+              <div className="border-t pt-6">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <span>📊 Marktforschung</span>
+                  {proposal.price_confidence && (
+                    <Badge
+                      variant={
+                        proposal.price_confidence === "hoch" ? "default" :
+                        proposal.price_confidence === "mittel" ? "secondary" :
+                        "outline"
+                      }
+                      data-testid="price-confidence"
+                    >
+                      Konfidenz: {proposal.price_confidence}
+                    </Badge>
+                  )}
+                </h4>
+                {proposal.market_research && (
+                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <p className="text-sm text-blue-800" data-testid="market-research">
+                      {proposal.market_research}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Tutti Text Preview */}
             <div className="border-t pt-6">
               <h4 className="font-semibold mb-3">Tutti-Text:</h4>

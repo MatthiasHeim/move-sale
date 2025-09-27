@@ -95,7 +95,7 @@ export type ProductText = typeof productTexts.$inferSelect;
 export type InsertDraft = z.infer<typeof insertDraftSchema>;
 export type Draft = typeof drafts.$inferSelect;
 
-// AI Agent proposal schema
+// AI Agent proposal schema with market research
 export const agentProposalSchema = z.object({
   name: z.string(),
   description: z.string(),
@@ -103,6 +103,8 @@ export const agentProposalSchema = z.object({
   category: z.enum(["furniture", "appliances", "toys", "electronics", "decor", "kitchen", "sports", "outdoor", "kids_furniture", "other"]),
   condition: z.enum(["like new", "very good", "good", "fair"]),
   dimensions_cm: z.string().optional(),
+  market_research: z.string().optional(),
+  price_confidence: z.enum(["hoch", "mittel", "niedrig"]).optional(),
   cover_image_url: z.string(), // Allow relative URLs like /uploads/filename.webp
   gallery_image_urls: z.array(z.string()), // Allow relative URLs
   tutti_title_de: z.string(),
