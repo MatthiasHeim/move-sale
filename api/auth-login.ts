@@ -22,11 +22,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Verify password
     if (password === process.env.ADMIN_PASS) {
-      // For now, just return success without session management
+      // Set a simple session cookie (24 hour expiry)
+      const expires = new Date();
+      expires.setHours(expires.getHours() + 24);
+
+      res.setHeader('Set-Cookie', [
+        `auth-session=authenticated; HttpOnly; Secure; SameSite=Strict; Path=/; Expires=${expires.toUTCString()}`
+      ]);
+
       return res.json({
         success: true,
         message: 'Login successful',
-        user: { isAdmin: true }
+        user: { isAdmin: true },
+        isAuthenticated: true
       });
     } else {
       return res.status(401).json({ error: 'Invalid password' });
