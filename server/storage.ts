@@ -1,4 +1,4 @@
-import { products, faqs, reservations, productTexts, drafts, type Product, type Faq, type Reservation, type ProductText, type Draft, type InsertProduct, type InsertFaq, type InsertReservation, type InsertProductText, type InsertDraft } from "../shared/schema";
+import { products, faqs, reservations, productTexts, drafts, type Product, type Faq, type Reservation, type ProductText, type Draft, type InsertProduct, type InsertFaq, type InsertReservation, type InsertProductText, type InsertDraft } from "./schema";
 import { db } from "./db";
 import { eq, desc, asc, and } from "drizzle-orm";
 import { sql } from "drizzle-orm";
