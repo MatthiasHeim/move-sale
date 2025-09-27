@@ -167,42 +167,35 @@ export default function CreateListingTab() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'image/*': [], // Accept any image type
-      'image/jpeg': [],
-      'image/png': [],
-      'image/heic': [],
-      'image/heif': [],
-      // Also try common extensions
-      '.jpg': [],
-      '.jpeg': [],
-      '.png': [],
-      '.heic': [],
-      '.heif': []
-    },
+    // Remove accept validation entirely - let the server handle it
+    noClick: false,
+    noKeyboard: false,
     maxFiles: 8,
     maxSize: 10 * 1024 * 1024, // 10MB
-    // Add custom validator as fallback
+    // Remove all file type restrictions to bypass react-dropzone issues
+    accept: undefined,
+    // Custom validator that's very permissive
     validator: (file) => {
-      console.log("🔍 Custom validator for file:", {
+      console.log("🔍 Permissive validator for file:", {
         name: file.name,
         type: file.type,
         size: file.size
       });
 
-      const allowedExtensions = ['.jpg', '.jpeg', '.png', '.heic', '.heif'];
-      const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+      // Only reject obviously non-image files
+      const fileName = file.name.toLowerCase();
+      const badExtensions = ['.txt', '.doc', '.pdf', '.zip', '.exe'];
 
-      if (allowedExtensions.includes(fileExtension)) {
-        console.log("✅ File accepted by custom validator:", file.name);
-        return null; // null means no error
+      if (badExtensions.some(ext => fileName.endsWith(ext))) {
+        console.log("❌ File rejected - clearly not an image:", file.name);
+        return {
+          code: "file-invalid-type",
+          message: `File type not supported: ${fileName.substring(fileName.lastIndexOf('.'))}`
+        };
       }
 
-      console.log("❌ File rejected by custom validator:", file.name);
-      return {
-        code: "file-invalid-type",
-        message: `File type not supported: ${fileExtension}`
-      };
+      console.log("✅ File accepted by permissive validator:", file.name);
+      return null; // Accept everything else
     }
   });
 
