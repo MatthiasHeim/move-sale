@@ -520,6 +520,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // FAQs endpoints
   app.get("/api/faqs", async (req, res) => {
     try {
+      const storage = await getStorage();
       const faqs = await storage.getFaqs();
       res.json(faqs);
     } catch (error) {
