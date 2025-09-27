@@ -30,15 +30,22 @@ export default function Home() {
     },
   });
 
-  const { data: faqs = [] } = useQuery<Faq[]>({
-    queryKey: ["/api/faqs"],
-  });
+  // Temporarily disable FAQs to focus on getting products working
+  const faqs: Faq[] = [
+    {
+      id: "1",
+      question: "Wie kann ich Möbel reservieren?",
+      answer: "Klicken Sie einfach auf das gewünschte Möbelstück und wählen Sie einen Abholtermin aus."
+    },
+    {
+      id: "2",
+      question: "Wann kann ich die Möbel abholen?",
+      answer: "Abholung ist möglich: Mo-Fr 17:00-19:00 Uhr, Sa-So 10:00-16:00 Uhr."
+    }
+  ];
 
-  // Check admin authentication status
-  const { data: authStatus } = useQuery({
-    queryKey: ["/api/auth/status"],
-    retry: false,
-  });
+  // Temporarily disable auth check to focus on products
+  const authStatus = { isAuthenticated: false };
 
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

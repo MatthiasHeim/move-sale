@@ -37,11 +37,11 @@
     },
     {
       "src": "/api/faqs",
-      "dest": "/api/faqs.ts"
+      "dest": "/api/products-working.ts"
     },
     {
       "src": "/api/auth/status",
-      "dest": "/api/auth-status.ts"
+      "dest": "/api/products-working.ts"
     },
     {
       "src": "/uploads/(.*)",
