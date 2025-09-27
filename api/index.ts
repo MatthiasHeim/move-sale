@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
-import { registerRoutes } from "../server/routes.js";
+import { registerRoutes } from "../server/routes";
 
 // Check if we're in Vercel environment
 const isVercel = !!process.env.VERCEL;
