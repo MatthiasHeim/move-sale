@@ -43,6 +43,10 @@
       "dest": "/api/auth-status.ts"
     },
     {
+      "src": "/api/admin/products",
+      "dest": "/api/admin-products.ts"
+    },
+    {
       "src": "/uploads/(.*)",
       "dest": "/client/public/uploads/$1"
     },
