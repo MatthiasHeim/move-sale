@@ -119,6 +119,10 @@ export default function CreateListingTab() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
+      'image/heic': ['.heic'],
+      'image/heif': ['.heif'],
       'image/*': ['.jpeg', '.jpg', '.png', '.heic', '.heif']
     },
     maxFiles: 8,
