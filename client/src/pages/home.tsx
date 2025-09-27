@@ -47,9 +47,9 @@ export default function Home() {
   // Temporarily disable auth check to focus on products
   const authStatus = { isAuthenticated: false };
 
-  const filteredProducts = products.filter(product => 
+  const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchQuery.toLowerCase())
+    (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleReservation = (product: Product) => {
