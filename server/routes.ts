@@ -648,6 +648,41 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
     }
   });
 
+  // Diagnostic endpoint to debug environment variables in production
+  app.get("/api/debug/env", async (req, res) => {
+    try {
+      const envCheck = {
+        NODE_ENV: process.env.NODE_ENV,
+        DATABASE_URL: process.env.DATABASE_URL ? "SET" : "NOT SET",
+        SESSION_SECRET: process.env.SESSION_SECRET ? "SET" : "NOT SET",
+        ADMIN_PASS: process.env.ADMIN_PASS ? "SET" : "NOT SET",
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY ? "SET" : "NOT SET",
+        allEnvKeys: Object.keys(process.env).length
+      };
+
+      // Try database connection
+      let dbStatus = "UNKNOWN";
+      try {
+        const testQuery = await storage.getProducts();
+        dbStatus = `OK - ${testQuery.length} products found`;
+      } catch (dbError) {
+        dbStatus = `ERROR: ${dbError.message}`;
+      }
+
+      res.json({
+        environment: envCheck,
+        database: dbStatus,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Diagnostic failed",
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Sample data creation endpoint for development
   app.post("/api/init-sample-data", async (req, res) => {
     try {
