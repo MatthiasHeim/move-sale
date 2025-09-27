@@ -61,8 +61,10 @@ app.use((req, res, next) => {
   }
 });
 
-// Register API routes
-registerRoutes(app);
+// Register API routes (synchronous for serverless)
+// Note: Skip cleanup and server creation for serverless functions
+import { addRoutesToApp } from "../server/routes";
+addRoutesToApp(app);
 
 // Error handling middleware
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

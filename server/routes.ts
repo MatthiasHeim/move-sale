@@ -84,17 +84,10 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
   }
 }
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Cleanup expired reservations on server start and periodically
-  await storage.cleanupExpiredReservations();
-  setInterval(() => {
-    storage.cleanupExpiredReservations().catch(console.error);
-  }, 5 * 60 * 1000); // Every 5 minutes
-
-  // Log API token for external applications
-  console.log("\n🔑 API Token for external applications:");
-  console.log(`   ${API_TOKEN}`);
-  console.log("   Use this token in the Authorization header: 'Bearer <token>'\n");
+// Synchronous function to add routes without async operations
+export function addRoutesToApp(app: Express): void {
+  // Skip async operations like cleanup for serverless functions
+  // They will be handled on individual requests if needed
 
   // === STATIC FILE SERVING ===
   
@@ -743,6 +736,23 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
       res.status(500).json({ error: "Fehler beim Erstellen der Beispieldaten" });
     }
   });
+
+}
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Add all routes synchronously
+  addRoutesToApp(app);
+
+  // Cleanup expired reservations on server start and periodically
+  await storage.cleanupExpiredReservations();
+  setInterval(() => {
+    storage.cleanupExpiredReservations().catch(console.error);
+  }, 5 * 60 * 1000); // Every 5 minutes
+
+  // Log API token for external applications
+  console.log("\n🔑 API Token for external applications:");
+  console.log(`   ${API_TOKEN}`);
+  console.log("   Use this token in the Authorization header: 'Bearer <token>'\n");
 
   const httpServer = createServer(app);
   return httpServer;
