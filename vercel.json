@@ -1,12 +1,6 @@
 {
   "version": 2,
   "outputDirectory": "public",
-  "functions": {
-    "api/index.ts": {
-      "maxDuration": 30,
-      "includeFiles": "shared/**"
-    }
-  },
   "routes": [
     {
       "src": "/api/test",
