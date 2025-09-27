@@ -19,15 +19,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       varchar
     } = await import('drizzle-orm/pg-core');
 
-    // Minimal products table definition - only basic columns that definitely exist
+    // Ultra-minimal products table definition - only columns that definitely exist
     const products = pgTable('products', {
       id: serial('id').primaryKey(),
       name: text('name'),
-      description: text('description'),
-      price: decimal('price', { precision: 10, scale: 2 }),
-      category: varchar('category', { length: 50 }),
-      available: boolean('available'),
-      createdAt: timestamp('created_at'),
     });
 
     neonConfig.webSocketConstructor = ws.default;
