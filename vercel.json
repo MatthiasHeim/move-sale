@@ -8,6 +8,14 @@
   },
   "routes": [
     {
+      "src": "/api/test",
+      "dest": "/api/test.ts"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/health.ts"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/index.ts"
     },
