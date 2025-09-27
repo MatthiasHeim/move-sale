@@ -8,16 +8,16 @@ import { randomBytes } from "crypto";
 import fs from "fs/promises";
 import { readFileSync } from "fs";
 import path from "path";
-import { storage } from "./storage";
+// Import storage dynamically in handlers to avoid module-level database connections
+async function getStorage() {
+  const { storage } = await import("./storage");
+  return storage;
+}
 import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "@shared/schema";
 import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
-import { uploadImageToSupabase } from "./supabase";
+// Import supabase dynamically to avoid module-level initialization
+// Import OpenAI dynamically to avoid module-level initialization
 import OpenAI from "openai";
-
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -72,6 +72,7 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     console.log(`💾 Image saved to ${tmpPath} for AI processing`);
 
     // Upload to Supabase Storage
+    const { uploadImageToSupabase } = await import("./supabase");
     const publicUrl = await uploadImageToSupabase(filename, processedBuffer, 'image/webp');
 
     console.log(`✅ Image processing complete: ${publicUrl}`);
@@ -281,6 +282,9 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
         }
       }
 
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
       const completion = await openai.chat.completions.create({
         model: "gpt-4o", // Use GPT-4 with vision capabilities
         messages: [
@@ -365,6 +369,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Admin-only endpoint to get all products (including sold)
   app.get("/api/admin/products", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
     try {
+      const storage = await getStorage();
       const products = await storage.getAllProducts();
       res.json(products);
     } catch (error) {
@@ -431,15 +436,16 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
   // Products endpoints
   app.get("/api/products", async (req, res) => {
     try {
+      const storage = await getStorage();
       const category = req.query.category as string;
       let products;
-      
+
       if (category && category !== "all") {
         products = await storage.getProductsByCategory(category);
       } else {
         products = await storage.getProducts();
       }
-      
+
       res.json(products);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -753,8 +759,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   addRoutesToApp(app);
 
   // Cleanup expired reservations on server start and periodically
+  const storage = await getStorage();
   await storage.cleanupExpiredReservations();
-  setInterval(() => {
+  setInterval(async () => {
+    const storage = await getStorage();
     storage.cleanupExpiredReservations().catch(console.error);
   }, 5 * 60 * 1000); // Every 5 minutes
 
