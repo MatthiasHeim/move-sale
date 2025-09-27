@@ -1,3 +1,7 @@
+// Load environment variables FIRST for Vercel serverless functions
+import { config } from "dotenv";
+config();
+
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
