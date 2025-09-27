@@ -641,6 +641,15 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
     }
   });
 
+  // Simple diagnostic endpoint that works without any imports
+  app.get("/api/debug/simple", (req, res) => {
+    res.json({
+      status: "working",
+      timestamp: new Date().toISOString(),
+      message: "API endpoint responding"
+    });
+  });
+
   // Diagnostic endpoint to debug environment variables in production
   app.get("/api/debug/env", async (req, res) => {
     try {
