@@ -28,6 +28,10 @@
       "dest": "/api/products-working.ts"
     },
     {
+      "src": "/api/products",
+      "dest": "/api/products-main.ts"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/index.ts"
     },
