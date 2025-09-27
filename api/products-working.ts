@@ -19,10 +19,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       varchar
     } = await import('drizzle-orm/pg-core');
 
-    // Ultra-minimal products table definition - only columns that definitely exist
+    // Complete products table definition matching the schema
     const products = pgTable('products', {
-      id: serial('id').primaryKey(),
+      id: varchar('id').primaryKey(),
       name: text('name'),
+      description: text('description'),
+      price: decimal('price', { precision: 10, scale: 2 }),
+      category: text('category'),
+      imageUrls: text('image_urls').array(),
+      isAvailable: boolean('is_available'),
+      isPinned: boolean('is_pinned'),
+      createdAt: timestamp('created_at'),
     });
 
     neonConfig.webSocketConstructor = ws.default;
@@ -34,8 +41,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
     const db = drizzle({ client: pool, schema: { products } });
 
-    // Try to query products
-    const productsList = await db.select().from(products).limit(10);
+    // Query available products only
+    const { eq } = await import('drizzle-orm');
+    const productsList = await db.select().from(products)
+      .where(eq(products.isAvailable, true))
+      .orderBy(products.createdAt)
+      .limit(20);
 
     await pool.end();
 
