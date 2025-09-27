@@ -13,6 +13,27 @@ async function getStorage() {
   const { storage } = await import("./storage");
   return storage;
 }
+
+// Start cleanup only in traditional server environments, not serverless
+async function startCleanupIfNeeded() {
+  // Skip cleanup in Vercel/serverless environments
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    console.log("Skipping cleanup in serverless environment");
+    return;
+  }
+
+  try {
+    const storage = await getStorage();
+    await storage.cleanupExpiredReservations();
+    setInterval(async () => {
+      const storage = await getStorage();
+      storage.cleanupExpiredReservations().catch(console.error);
+    }, 5 * 60 * 1000); // Every 5 minutes
+    console.log("Started periodic cleanup");
+  } catch (error) {
+    console.warn("Failed to start cleanup:", error.message);
+  }
+}
 import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "@shared/schema";
 import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
 // Import supabase dynamically to avoid module-level initialization
@@ -759,13 +780,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add all routes synchronously
   addRoutesToApp(app);
 
-  // Cleanup expired reservations on server start and periodically
-  const storage = await getStorage();
-  await storage.cleanupExpiredReservations();
-  setInterval(async () => {
-    const storage = await getStorage();
-    storage.cleanupExpiredReservations().catch(console.error);
-  }, 5 * 60 * 1000); // Every 5 minutes
+  // Start cleanup only in non-serverless environments
+  startCleanupIfNeeded();
 
   // Log API token for external applications
   console.log("\n🔑 API Token for external applications:");
