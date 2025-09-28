@@ -6,9 +6,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm run dev` - Start development server with hot reload (runs both frontend and backend)
 - `npm run build` - Build for production (frontend + backend bundling)
+- `npm run build:client` - Build client files with automatic version updates
+- `npm run deploy` - Deploy to Vercel with proper build process
 - `npm start` - Run production server
 - `npm run check` - Run TypeScript type checking
 - `npm run db:push` - Push database schema changes using Drizzle
+
+## Version Tracking System
+
+The application includes an automatic version tracking system:
+
+- **Version Display**: Admin header shows current version and git commit hash (e.g., "v1.0.0 (8e96e75)")
+- **Auto-Update**: Version info automatically updates on each build using current git commit
+- **Files**:
+  - `client/src/lib/version.ts` - Version info with commit hash and build timestamp
+  - `update-version.cjs` - Script that updates version info during build
+- **Usage**: Import `getVersionString()` or `getVersionDetails()` from `@/lib/version`
 
 ## Project Architecture
 
@@ -130,3 +143,35 @@ This is a full-stack **furniture rental marketplace** called Umzugsbeute with a 
 - **Categories**: Three main types (furniture, equipment, decor) plus extended AI categories
 - **Pickup scheduling**: Mock business hours (Mon-Fri 17:00-19:00, Sat-Sun 10:00-16:00)
 - **Pricing strategy**: Fair pricing with 5 CHF rounding for quick sale due to move
+
+## Deployment Notes
+
+### Vercel Configuration
+- **Build Command**: `npm run build:client` - Builds client files and updates version info
+- **Output Directory**: `public/` - Deploy script copies from `dist/public/` to `public/`
+- **Important**: Always use `npm run deploy` for production deployments, not direct Vercel commands
+
+### Common Issues & Solutions
+
+**Issue**: Version not showing in production
+- **Cause**: Deployment not building client files properly
+- **Solution**: Use `npm run deploy` which runs correct build process and file copying
+
+**Issue**: 404 errors for static assets
+- **Cause**: Built files not in correct directory for Vercel
+- **Solution**: Deploy script automatically copies `dist/public/*` to `public/`
+
+**Issue**: HEIC upload errors on iPhone
+- **Expected Behavior**: Client shows "HEIC compression failed, sending original to server"
+- **This is normal**: HEIC files can't be compressed client-side, server handles conversion
+
+**Issue**: Domain (seup.ch) not updating
+- **Cause**: DNS pointing to registrar nameservers instead of Vercel
+- **Solution**: Update DNS configuration at domain registrar to point to Vercel
+
+### Troubleshooting Checklist
+1. Check admin header shows correct version/commit hash
+2. Verify `npm run deploy` was used (not `vercel deploy`)
+3. Confirm build process ran: look for "Version updated: [hash]" in deploy logs
+4. Test direct Vercel URL first, then custom domain
+5. Check browser developer tools for 404 errors (indicates asset serving issues)
