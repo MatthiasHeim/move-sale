@@ -11,8 +11,9 @@ import { createClient } from '@supabase/supabase-js';
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-    files: 8 // Max 8 files
+    fileSize: 2 * 1024 * 1024, // 2MB per file (client-side compression should ensure this)
+    files: 8, // Max 8 files (client compresses to ~1.5MB each = ~12MB total, but Vercel has 6MB limit)
+    fieldSize: 6 * 1024 * 1024 // Total payload limit 6MB for Vercel
   },
   fileFilter: (req, file, cb) => {
     console.log(`📋 File upload attempt - Name: ${file.originalname}, MIME type: ${file.mimetype || 'undefined'}`);
@@ -72,23 +73,44 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
       }
     }
 
-    // Process with Sharp: rotate, resize, convert to WebP
+    // Process with Sharp: rotate, resize, convert to WebP with adaptive quality
     console.log('🔄 Processing with Sharp...');
     let processedBuffer: Buffer;
 
     try {
-      processedBuffer = await sharp(imageBuffer)
-        .rotate() // Auto-rotate based on EXIF
-        .resize({
-          width: 1600,
-          height: 1600,
-          fit: 'inside',
-          withoutEnlargement: true
-        })
-        .webp({ quality: 82 })
-        .toBuffer();
+      // Start with good quality and reduce if needed
+      let quality = 82;
+      let attempts = 0;
+      const maxAttempts = 3;
+      const targetSizeBytes = 1.5 * 1024 * 1024; // 1.5MB target
 
-      console.log(`✅ Sharp processing complete (${processedBuffer.length} bytes)`);
+      do {
+        attempts++;
+        console.log(`📊 Sharp attempt ${attempts} with quality ${quality}`);
+
+        processedBuffer = await sharp(imageBuffer)
+          .rotate() // Auto-rotate based on EXIF
+          .resize({
+            width: 1600,
+            height: 1600,
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .webp({ quality })
+          .toBuffer();
+
+        console.log(`📏 Result size: ${(processedBuffer.length / 1024 / 1024).toFixed(2)}MB`);
+
+        // If still too large and we have more attempts, reduce quality
+        if (processedBuffer.length > targetSizeBytes && attempts < maxAttempts) {
+          quality = Math.max(60, quality - 15); // Reduce quality, minimum 60
+          console.log(`🔽 File still large, reducing quality to ${quality}`);
+        } else {
+          break;
+        }
+      } while (attempts < maxAttempts);
+
+      console.log(`✅ Sharp processing complete after ${attempts} attempts (${(processedBuffer.length / 1024 / 1024).toFixed(2)}MB)`);
     } catch (sharpError) {
       console.error('❌ Sharp processing failed:', sharpError);
       console.log('⚠️ Using original image buffer as fallback');

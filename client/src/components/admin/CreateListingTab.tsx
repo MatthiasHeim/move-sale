@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Upload, Loader2, Sparkles, Copy, CheckCircle, Edit3 } from "lucide-react";
+import imageCompression from "browser-image-compression";
 import type { AgentProposal } from "@shared/schema";
 
 // iOS/Safari detection utility
@@ -26,6 +27,8 @@ export default function CreateListingTab() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [userInput, setUserInput] = useState("");
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState<{ current: number; total: number } | null>(null);
   const { toast } = useToast();
 
   const uploadMutation = useMutation({
@@ -143,7 +146,66 @@ export default function CreateListingTab() {
     },
   });
 
-  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
+  // Function to compress images before upload
+  const compressImages = useCallback(async (files: File[]): Promise<File[]> => {
+    setIsCompressing(true);
+    setCompressionProgress({ current: 0, total: files.length });
+
+    const compressedFiles: File[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setCompressionProgress({ current: i + 1, total: files.length });
+
+      try {
+        console.log(`🔄 Compressing ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+        // Compression options optimized for Vercel's 6MB total limit
+        // Target 1.5MB per file to safely fit 4 files in 6MB
+        const options = {
+          maxSizeMB: 1.5, // 1.5MB max per file
+          maxWidthOrHeight: 1600, // Match server-side processing
+          useWebWorker: true,
+          quality: 0.8,
+          fileType: file.type.includes('heic') ? 'image/jpeg' : undefined // Convert HEIC to JPEG
+        };
+
+        const compressedFile = await imageCompression(file, options);
+
+        console.log(`✅ Compressed ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+        compressedFiles.push(compressedFile);
+
+      } catch (error) {
+        console.error(`❌ Failed to compress ${file.name}:`, error);
+        // If compression fails, use original file but warn user
+        compressedFiles.push(file);
+        toast({
+          title: "Komprimierung fehlgeschlagen",
+          description: `${file.name} konnte nicht komprimiert werden, wird original verwendet.`,
+          variant: "destructive",
+        });
+      }
+    }
+
+    setIsCompressing(false);
+    setCompressionProgress(null);
+
+    // Calculate total size and warn if still too large
+    const totalSize = compressedFiles.reduce((sum, file) => sum + file.size, 0);
+    console.log(`📊 Total compressed size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
+
+    if (totalSize > 5.5 * 1024 * 1024) { // 5.5MB warning threshold
+      toast({
+        title: "Dateien sehr groß",
+        description: "Die Dateien sind nach Komprimierung immer noch sehr groß. Upload könnte fehlschlagen.",
+        variant: "destructive",
+      });
+    }
+
+    return compressedFiles;
+  }, [toast]);
+
+  const onDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: any[]) => {
     console.log("📁 onDrop called");
     console.log("✅ Accepted files:", acceptedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
     console.log("❌ Rejected files:", rejectedFiles.map(f => ({
@@ -173,9 +235,20 @@ export default function CreateListingTab() {
       return;
     }
 
-    console.log("🚀 Starting upload for files:", acceptedFiles.map(f => f.name));
-    uploadMutation.mutate(acceptedFiles);
-  }, [uploadMutation, toast]);
+    try {
+      console.log("🚀 Starting compression for files:", acceptedFiles.map(f => f.name));
+      const compressedFiles = await compressImages(acceptedFiles);
+      console.log("✅ Compression complete, starting upload");
+      uploadMutation.mutate(compressedFiles);
+    } catch (error) {
+      console.error("❌ Compression failed:", error);
+      toast({
+        title: "Komprimierung fehlgeschlagen",
+        description: "Bilder konnten nicht komprimiert werden.",
+        variant: "destructive",
+      });
+    }
+  }, [uploadMutation, compressImages, toast]);
 
   // Detect if we're on iOS/Safari
   const isIOSDevice = isIOS() || isSafari();
@@ -187,7 +260,7 @@ export default function CreateListingTab() {
     noClick: false,
     noKeyboard: false,
     maxFiles: 8,
-    maxSize: 10 * 1024 * 1024, // 10MB
+    // Remove maxSize limit since we compress client-side
     // Different configurations for iOS vs other browsers
     accept: isIOSDevice ? undefined : {
       'image/jpeg': ['.jpeg', '.jpg'],
@@ -278,10 +351,18 @@ export default function CreateListingTab() {
             data-testid="dropzone-upload"
           >
             <input {...getInputProps()} />
-            {uploadMutation.isPending ? (
+            {isCompressing ? (
               <div className="flex items-center justify-center gap-2">
                 <Loader2 className="h-6 w-6 animate-spin" />
-                <span>Bilder werden verarbeitet...</span>
+                <span>
+                  Komprimiere Bilder...
+                  {compressionProgress && ` (${compressionProgress.current}/${compressionProgress.total})`}
+                </span>
+              </div>
+            ) : uploadMutation.isPending ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                <span>Bilder werden hochgeladen...</span>
               </div>
             ) : (
               <div>
@@ -292,7 +373,7 @@ export default function CreateListingTab() {
                     : "Bilder hierher ziehen oder klicken"}
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
-                  iPhone-Fotos (HEIC), JPEG, PNG • Max. 8 Bilder • Max. 10MB pro Bild
+                  iPhone-Fotos (HEIC), JPEG, PNG • Max. 8 Bilder • Große Dateien werden automatisch komprimiert
                 </p>
               </div>
             )}
