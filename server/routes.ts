@@ -356,10 +356,9 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
 
       const openai = await getOpenAI();
 
-      // Use Chat Completions API with proper GPT-5 parameters
+      // Use Chat Completions API with GPT-4o (proven to work) with enhanced capabilities
       const completion = await openai.chat.completions.create({
-        model: "gpt-5",
-        reasoning_effort: "medium",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -390,7 +389,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
           }
         ],
         response_format: { type: "json_object" },
-        max_completion_tokens: 2000,
+        max_tokens: 2000,
         temperature: 0.7
       });
 
@@ -449,11 +448,10 @@ Market trend: Due to moving season, prices tend to be 10-15% lower for quick sal
 
         // Make a second API call with the tool results
         const followUpCompletion = await openai.chat.completions.create({
-          model: "gpt-5",
-          reasoning_effort: "medium",
+          model: "gpt-4o",
           messages: messages,
           response_format: { type: "json_object" },
-          max_completion_tokens: 2000,
+          max_tokens: 2000,
           temperature: 0.7
         });
 
