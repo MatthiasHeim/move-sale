@@ -181,7 +181,7 @@ export default function CreateListingTab() {
 
   // Helper function to check if file is HEIC
   const isHeicFile = useCallback((file: File): boolean => {
-    const fileName = file.originalname || file.name || '';
+    const fileName = file.name || '';
     return fileName.toLowerCase().match(/\.(heic|heif)$/i) !== null;
   }, []);
 
