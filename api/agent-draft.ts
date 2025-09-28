@@ -123,7 +123,7 @@ Analyze the image and respond with valid JSON only.`;
           type: "image_url",
           image_url: {
             url: `data:image/${imageFormat};base64,${base64Image}`,
-            detail: "high"
+            detail: "low"  // Changed from "high" to "low" to match working test
           }
         });
 
@@ -133,7 +133,16 @@ Analyze the image and respond with valid JSON only.`;
       }
     }
 
-    console.log(`🤖 Starting OpenAI API call with ${imageSources.length} images`);
+    console.log(`🤖 Starting OpenAI API call with ${imageSources.length} image sources`);
+    console.log(`📊 UserContent has ${userContent.length} elements total`);
+
+    // Ensure we have at least one image in the content
+    const imageCount = userContent.filter(item => item.type === 'image_url').length;
+    console.log(`🖼️ Processing ${imageCount} images for OpenAI`);
+
+    if (imageCount === 0) {
+      throw new Error("No images were successfully processed for AI analysis");
+    }
 
     const openai = await getOpenAI();
     const completion = await openai.chat.completions.create({
