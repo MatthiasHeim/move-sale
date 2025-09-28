@@ -67,6 +67,10 @@
       "dest": "/api/debug-agent.ts"
     },
     {
+      "src": "/api/agent-draft-working",
+      "dest": "/api/agent-draft-working.ts"
+    },
+    {
       "src": "/uploads/(.*)",
       "dest": "/client/public/uploads/$1"
     },
