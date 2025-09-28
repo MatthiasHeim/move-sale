@@ -356,22 +356,12 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
 
       const openai = await getOpenAI();
 
-      // Define web search tool for market research
-      const tools = [
-        {
-          type: "custom",
-          name: "web_search",
-          description: "Search the web for current market prices and product information",
-          format: {
-            type: "freeform"
-          }
-        }
-      ];
-
-      const completion = await openai.chat.completions.create({
+      // Use the new Responses API recommended for GPT-5
+      const response = await openai.responses.create({
         model: "gpt-5",
         reasoning_effort: "medium",
-        messages: [
+        verbosity: "medium",
+        input: [
           {
             role: "system",
             content: systemPrompt
@@ -381,78 +371,17 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
             content: userContent
           }
         ],
-        tools: tools,
-        response_format: { type: "json_object" },
-        max_completion_tokens: 2000,
-        temperature: 0.7
+        tools: [
+          {
+            type: "web_search"
+          }
+        ],
+        output: {
+          format: { type: "json_object" }
+        }
       });
 
-      let responseContent = completion.choices[0]?.message?.content;
-      let toolCalls = completion.choices[0]?.message?.tool_calls;
-
-      // Handle tool calls (web search)
-      if (toolCalls && toolCalls.length > 0) {
-        const messages = [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userContent
-          },
-          completion.choices[0]?.message
-        ];
-
-        // Process each tool call
-        for (const toolCall of toolCalls) {
-          if (toolCall.function?.name === "web_search") {
-            try {
-              // Simulate web search for market research
-              const searchQuery = toolCall.function.arguments || "Swiss furniture prices CHF";
-              console.log(`🔍 AI requested web search: ${searchQuery}`);
-
-              // Mock search results for now (in production, you'd integrate with a real search API)
-              const mockSearchResults = `
-Current Swiss market prices for similar items:
-- Similar furniture items on Tutti.ch range from CHF 80-250
-- Ricardo.ch shows comparable items at CHF 100-300
-- Anibis listings for similar condition: CHF 90-200
-- Average market price appears to be CHF 150-180 for good condition items
-Market trend: Due to moving season, prices tend to be 10-15% lower for quick sales
-              `;
-
-              messages.push({
-                role: "tool",
-                tool_call_id: toolCall.id,
-                name: "web_search",
-                content: mockSearchResults
-              });
-            } catch (error) {
-              console.error(`❌ Web search failed:`, error);
-              messages.push({
-                role: "tool",
-                tool_call_id: toolCall.id,
-                name: "web_search",
-                content: "Web search temporarily unavailable. Using general market knowledge for pricing."
-              });
-            }
-          }
-        }
-
-        // Make a second API call with the tool results
-        const followUpCompletion = await openai.chat.completions.create({
-          model: "gpt-5",
-          reasoning_effort: "medium",
-          messages: messages,
-          response_format: { type: "json_object" },
-          max_completion_tokens: 2000,
-          temperature: 0.7
-        });
-
-        responseContent = followUpCompletion.choices[0]?.message?.content;
-      }
-
+      const responseContent = response.choices[0]?.message?.content;
       if (!responseContent) {
         throw new Error("No response from AI");
       }
