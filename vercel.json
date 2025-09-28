@@ -63,6 +63,10 @@
       "dest": "/api/test-vision.ts"
     },
     {
+      "src": "/api/debug-agent",
+      "dest": "/api/debug-agent.ts"
+    },
+    {
       "src": "/uploads/(.*)",
       "dest": "/client/public/uploads/$1"
     },
