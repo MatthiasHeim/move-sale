@@ -43,15 +43,15 @@ async function verifyStorageSetup() {
 
     console.log('📦 Available buckets:', buckets.map(b => b.name).join(', ') || 'none');
 
-    const imagesBucket = buckets.find(bucket => bucket.name === 'images');
+    const imagesBucket = buckets.find(bucket => bucket.name === 'product-images');
 
     if (!imagesBucket) {
-      console.log('\n❌ "images" bucket not found!');
+      console.log('\n❌ "product-images" bucket not found!');
 
       // Try to create the bucket
-      console.log('🔧 Attempting to create "images" bucket...');
+      console.log('🔧 Attempting to create "product-images" bucket...');
 
-      const { data: createData, error: createError } = await supabase.storage.createBucket('images', {
+      const { data: createData, error: createError } = await supabase.storage.createBucket('product-images', {
         public: true,
         allowedMimeTypes: ['image/webp', 'image/jpeg', 'image/png'],
         fileSizeLimit: 10 * 1024 * 1024, // 10MB
@@ -67,10 +67,10 @@ async function verifyStorageSetup() {
         console.log('5. Set file size limit: 10MB');
         return false;
       } else {
-        console.log('✅ Successfully created "images" bucket!');
+        console.log('✅ Successfully created "product-images" bucket!');
       }
     } else {
-      console.log('✅ "images" bucket exists');
+      console.log('✅ "product-images" bucket exists');
       console.log(`   - Public: ${imagesBucket.public}`);
       console.log(`   - Created: ${imagesBucket.created_at}`);
     }
@@ -82,7 +82,7 @@ async function verifyStorageSetup() {
     const testContent = 'This is a test file to verify upload permissions.';
 
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('images')
+      .from('product-images')
       .upload(`test/${testFileName}`, testContent, {
         contentType: 'text/plain',
       });
@@ -109,7 +109,7 @@ async function verifyStorageSetup() {
       console.log('✅ Upload test successful!');
 
       // Clean up test file
-      await supabase.storage.from('images').remove([`test/${testFileName}`]);
+      await supabase.storage.from('product-images').remove([`test/${testFileName}`]);
       console.log('🧹 Test file cleaned up');
     }
 
@@ -117,7 +117,7 @@ async function verifyStorageSetup() {
     console.log('\n🌐 Testing public URL generation...');
 
     const { data: urlData } = supabase.storage
-      .from('images')
+      .from('product-images')
       .getPublicUrl('test/sample.webp');
 
     console.log('✅ Public URL format:', urlData.publicUrl);

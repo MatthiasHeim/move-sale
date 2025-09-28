@@ -90,7 +90,7 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
       );
 
       const { data, error } = await supabase.storage
-        .from('images')
+        .from('product-images')
         .upload(`uploads/${filename}`, processedBuffer, {
           contentType: 'image/webp',
           cacheControl: '3600',
@@ -104,7 +104,7 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
 
       // Get the public URL
       const { data: urlData } = supabase.storage
-        .from('images')
+        .from('product-images')
         .getPublicUrl(`uploads/${filename}`);
 
       const publicUrl = urlData.publicUrl;
