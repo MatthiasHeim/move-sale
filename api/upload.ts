@@ -5,6 +5,7 @@ import sharp from 'sharp';
 import heicConvert from 'heic-convert';
 import { randomBytes } from 'crypto';
 import fs from 'fs/promises';
+import { createClient } from '@supabase/supabase-js';
 
 // Configure multer for file uploads
 const upload = multer({
@@ -81,21 +82,57 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     await fs.writeFile(tmpPath, processedBuffer);
     console.log(`💾 Image saved to ${tmpPath} for AI processing`);
 
-    // For Vercel deployment, we'll return a path that can be served statically
-    // In production, you might want to upload to a CDN or storage service
-    const publicPath = `/uploads/${filename}`;
-
-    // Also save to public uploads directory if it exists (for local dev)
+    // Upload to Supabase Storage for production serving
     try {
-      await fs.mkdir('./public/uploads', { recursive: true });
-      await fs.writeFile(`./public/uploads/${filename}`, processedBuffer);
-      console.log(`💾 Image also saved to public/uploads/${filename}`);
-    } catch (err) {
-      console.log(`⚠️ Could not save to public/uploads (expected in Vercel): ${err}`);
-    }
+      const supabase = createClient(
+        process.env.SUPABASE_URL!,
+        process.env.SUPABASE_ANON_KEY!
+      );
 
-    console.log(`✅ Image processing complete: ${publicPath}`);
-    return publicPath;
+      const { data, error } = await supabase.storage
+        .from('images')
+        .upload(`uploads/${filename}`, processedBuffer, {
+          contentType: 'image/webp',
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error('❌ Supabase upload error:', error);
+        throw error;
+      }
+
+      // Get the public URL
+      const { data: urlData } = supabase.storage
+        .from('images')
+        .getPublicUrl(`uploads/${filename}`);
+
+      const publicUrl = urlData.publicUrl;
+      console.log(`✅ Image uploaded to Supabase: ${publicUrl}`);
+      return publicUrl;
+
+    } catch (supabaseError: any) {
+      console.error('❌ Failed to upload to Supabase:', supabaseError);
+
+      // Check if it's a bucket not found error
+      if (supabaseError.message?.includes('bucket') || supabaseError.message?.includes('does not exist')) {
+        console.error('🚨 Supabase "images" bucket not found. Please create it manually:');
+        console.error('   1. Go to Supabase Dashboard > Storage');
+        console.error('   2. Create bucket named "images" with public access');
+        console.error('   3. Set up RLS policies for uploads');
+        console.error('   4. See SUPABASE_SETUP.md for detailed instructions');
+      }
+
+      // Enhanced fallback: Return a placeholder URL that indicates the issue
+      // This prevents the entire upload from failing
+      const placeholderUrl = `https://via.placeholder.com/400x400/cccccc/666666?text=Image+Upload+Failed`;
+      console.log(`⚠️ Using placeholder image due to Supabase error`);
+
+      // Still save to temp for AI processing even if Supabase fails
+      console.log(`💾 Image still available at ${tmpPath} for AI processing`);
+
+      return placeholderUrl;
+    }
   } catch (error) {
     console.error('Error processing image:', error);
     throw new Error('Failed to process image');
