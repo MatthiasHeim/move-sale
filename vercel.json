@@ -47,6 +47,14 @@
       "dest": "/api/admin-products.ts"
     },
     {
+      "src": "/api/upload",
+      "dest": "/api/upload.ts"
+    },
+    {
+      "src": "/api/agent/draft",
+      "dest": "/api/agent-draft.ts"
+    },
+    {
       "src": "/uploads/(.*)",
       "dest": "/client/public/uploads/$1"
     },

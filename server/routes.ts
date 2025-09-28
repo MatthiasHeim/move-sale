@@ -155,8 +155,9 @@ export function addRoutesToApp(app: Express): void {
   app.post("/api/auth/login", async (req: AuthenticatedRequest, res) => {
     try {
       const { password } = req.body;
-      
-      if (!password || password !== ADMIN_PASS) {
+
+
+      if (!password || password !== process.env.ADMIN_PASS) {
         return res.status(401).json({ error: "Invalid password" });
       }
       
