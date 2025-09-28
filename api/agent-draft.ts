@@ -64,12 +64,12 @@ FAMILIEN-KONTEXT FÜR STORYTELLING:
 KATEGORIEN (nur diese verwenden):
 furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
 
-PREISGESTALTUNG MIT MARKTFORSCHUNG:
-- WICHTIG: Führe eine Web-Suche durch für ähnliche Artikel auf Schweizer Plattformen
-- Suche nach: "{Produktname} gebraucht Schweiz CHF Tutti Ricardo Anibis"
-- Vergleiche gefundene Preise und berücksichtige Zustand
+PREISGESTALTUNG MIT MARKTKENNTNIS:
+- Nutze dein Wissen über typische Schweizer Marktpreise für ähnliche Artikel
+- Berücksichtige Plattformen wie Tutti.ch, Ricardo.ch, Anibis.ch für Preisvergleiche
 - Preis in CHF, auf 5 CHF runden, als String mit 2 Dezimalstellen (z.B. "120.00")
 - Berücksichtige Marktpreise + Umzugsdruck (faire aber schnelle Preise)
+- Schätze basierend auf Zustand, Marke, Alter und Schweizer Marktstandards
 
 ZUSTAND (nur diese verwenden):
 like new, very good, good, fair
@@ -93,7 +93,7 @@ TON UND STIL:
 - Emotional aber nicht übertrieben sentimental
 - Schaffe Verbindung: "Wir geben unser Zuhause auf, aber Sie können es weiterlieben"
 
-Analysiere die Bilder, führe Marktforschung durch und erstelle ein JSON-Objekt mit GENAU dieser Struktur:
+Analysiere die Bilder, schätze Marktpreise basierend auf deinem Wissen über Schweizer Secondhand-Märkte und erstelle ein JSON-Objekt mit GENAU dieser Struktur:
 {
   "name": "Produktname (z.B. 'IKEA Kallax Regal weiß')",
   "description": "2-3 detaillierte Sätze für Website. Beschreibe Nutzen, Besonderheiten und warum es wertvoll ist.",
@@ -101,13 +101,13 @@ Analysiere die Bilder, führe Marktforschung durch und erstelle ein JSON-Objekt 
   "category": "furniture",
   "condition": "good",
   "dimensions_cm": "80x40x120 (BxTxH)" oder leer lassen wenn unsicher,
-  "market_research": "Zusammenfassung der gefundenen Marktpreise und Begründung der Preisgestaltung",
+  "market_research": "Einschätzung der Marktpreise basierend auf Schweizer Secondhand-Plattformen und Begründung der Preisgestaltung",
   "price_confidence": "hoch/mittel/niedrig - Konfidenz basierend auf verfügbaren Marktdaten",
   "tutti_title_de": "Ansprechender Titel OHNE Preis (Marke + Modell + Merkmal)",
   "tutti_body_de": "Storytelling-Beschreibung mit Hongkong-Umzug, Produktstory, Zustand und emotionaler Verbindung. Preis am Ende erwähnen."
 }
 
-Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext. Nutze Web-Suche für aktuelle Marktpreise. Schaffe emotionale Verbindung ohne aufdringlich zu sein.`;
+Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext. Schaffe emotionale Verbindung ohne aufdringlich zu sein.`;
 
     // Prepare the messages for OpenAI
     const userContent: any[] = [
