@@ -68,7 +68,7 @@ export default function Admin() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-gray-900">
-                Umzugsbeute Admin {getVersionString()}
+                Umzugsbeute Admin v1.0.0 (f9f5e6f) - CACHE TEST
               </h1>
               <div className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-mono">
                 LIVE
