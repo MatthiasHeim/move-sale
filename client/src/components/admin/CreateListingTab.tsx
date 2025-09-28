@@ -129,56 +129,130 @@ export default function CreateListingTab() {
     },
   });
 
-  // Simplified, more reliable compression function
+  // Canvas-based fallback compression
+  const compressWithCanvas = useCallback((file: File, maxSize: number = 1024 * 1024): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        // Calculate dimensions to fit within reasonable bounds
+        const maxDimension = 1600;
+        let { width, height } = img;
+
+        if (width > height && width > maxDimension) {
+          height = (height * maxDimension) / width;
+          width = maxDimension;
+        } else if (height > maxDimension) {
+          width = (width * maxDimension) / height;
+          height = maxDimension;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx!.drawImage(img, 0, 0, width, height);
+
+        // Try different quality levels to achieve target size
+        const tryCompress = (quality: number): void => {
+          canvas.toBlob((blob) => {
+            if (blob && (blob.size <= maxSize || quality <= 0.1)) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              });
+              resolve(compressedFile);
+            } else if (quality > 0.1) {
+              tryCompress(quality - 0.1);
+            } else {
+              reject(new Error('Could not compress to target size'));
+            }
+          }, 'image/jpeg', quality);
+        };
+
+        tryCompress(0.8);
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = URL.createObjectURL(file);
+    });
+  }, []);
+
+  // Robust compression function with multiple fallbacks
   const compressImages = useCallback(async (files: File[]): Promise<File[]> => {
     setIsCompressing(true);
     setCompressionProgress({ current: 0, total: files.length });
 
     const compressedFiles: File[] = [];
+    const errors: string[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       setCompressionProgress({ current: i + 1, total: files.length });
 
+      const originalSize = (file.size / 1024 / 1024).toFixed(2);
+
       try {
-        // Always compress to ensure files are under Vercel's limits
-        // More aggressive compression for reliability
-        const compressedFile = await imageCompression(file, {
-          maxSizeMB: 1.2, // Smaller target for reliability
-          maxWidthOrHeight: 1600,
-          useWebWorker: true,
-          quality: 0.75, // Slightly lower quality for better compression
-          fileType: file.name.toLowerCase().match(/\.(heic|heif)$/i) ? 'image/jpeg' : undefined
-        });
+        let compressedFile: File;
+
+        // Method 1: Try browser-image-compression (without WebWorker)
+        try {
+          compressedFile = await imageCompression(file, {
+            maxSizeMB: 1.0, // More aggressive target
+            maxWidthOrHeight: 1600,
+            useWebWorker: false, // Disable WebWorker for reliability
+            quality: 0.7,
+            fileType: file.name.toLowerCase().match(/\.(heic|heif)$/i) ? 'image/jpeg' : undefined
+          });
+        } catch (libraryError) {
+          console.warn('browser-image-compression failed, using Canvas fallback:', libraryError);
+          // Method 2: Fallback to Canvas compression
+          compressedFile = await compressWithCanvas(file, 1024 * 1024); // 1MB target
+        }
+
+        const compressedSize = (compressedFile.size / 1024 / 1024).toFixed(2);
+
+        // Hard size limit check - REJECT files that are still too large
+        if (compressedFile.size > 1.5 * 1024 * 1024) { // 1.5MB hard limit
+          errors.push(`${file.name}: Noch zu groß nach Komprimierung (${compressedSize}MB > 1.5MB)`);
+          continue; // Skip this file entirely
+        }
 
         compressedFiles.push(compressedFile);
 
-      } catch (error: any) {
-        // Fallback: use original file if compression fails
-        compressedFiles.push(file);
         toast({
-          title: "Komprimierung teilweise fehlgeschlagen",
-          description: `${file.name} wird ohne Komprimierung verwendet.`,
-          variant: "destructive",
+          title: `${file.name} komprimiert`,
+          description: `${originalSize}MB → ${compressedSize}MB`,
         });
+
+      } catch (error: any) {
+        console.error(`Compression failed for ${file.name}:`, error);
+        errors.push(`${file.name}: Komprimierung fehlgeschlagen (${error.message})`);
+        // DO NOT add original file - fail completely for large files
       }
     }
 
     setIsCompressing(false);
     setCompressionProgress(null);
 
-    // Final size check
-    const totalSize = compressedFiles.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > 5 * 1024 * 1024) { // 5MB threshold
+    // Show errors if any files failed
+    if (errors.length > 0) {
+      const errorMessage = errors.slice(0, 3).join('\n') + (errors.length > 3 ? '\n...' : '');
       toast({
-        title: "Warnung: Große Dateien",
-        description: "Upload könnte aufgrund der Dateigröße fehlschlagen.",
+        title: `${errors.length} Datei(en) abgelehnt`,
+        description: errorMessage,
         variant: "destructive",
       });
     }
 
+    // Final check - make sure we have some successfully compressed files
+    if (compressedFiles.length === 0) {
+      throw new Error('Keine Dateien konnten erfolgreich komprimiert werden. Bitte verwenden Sie kleinere Bilder.');
+    }
+
     return compressedFiles;
-  }, [toast]);
+  }, [toast, compressWithCanvas]);
 
   const onDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: any[]) => {
     if (rejectedFiles.length > 0) {
@@ -309,16 +383,23 @@ export default function CreateListingTab() {
           >
             <input {...getInputProps()} />
             {isCompressing ? (
-              <div className="flex items-center justify-center gap-2">
-                <Loader2 className="h-6 w-6 animate-spin" />
-                <span>
-                  Komprimiere Bilder...
-                  {compressionProgress && ` (${compressionProgress.current}/${compressionProgress.total})`}
-                </span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                  <span className="font-medium">
+                    Komprimiere Bilder...
+                    {compressionProgress && ` (${compressionProgress.current}/${compressionProgress.total})`}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  <p>✨ Optimiere Dateigröße für schnellen Upload</p>
+                  <p>🔄 Versuche intelligente Komprimierung mit Fallback</p>
+                  <p>⚡ Nur Dateien unter 1.5MB werden akzeptiert</p>
+                </div>
               </div>
             ) : uploadMutation.isPending ? (
               <div className="flex items-center justify-center gap-2">
-                <Loader2 className="h-6 w-6 animate-spin" />
+                <Loader2 className="h-6 w-6 animate-spin text-green-600" />
                 <span>Bilder werden hochgeladen...</span>
               </div>
             ) : (
@@ -329,9 +410,11 @@ export default function CreateListingTab() {
                     ? "Bilder hier ablegen..."
                     : "Bilder hierher ziehen oder klicken"}
                 </p>
-                <p className="text-sm text-gray-500 mt-2">
-                  iPhone-Fotos (HEIC), JPEG, PNG • Max. 8 Bilder • Große Dateien werden automatisch komprimiert
-                </p>
+                <div className="text-sm text-gray-500 mt-2 space-y-1">
+                  <p>📱 iPhone-Fotos (HEIC), JPEG, PNG • Max. 8 Bilder</p>
+                  <p>🚀 <strong>Automatische Komprimierung:</strong> Große Dateien werden intelligent verkleinert</p>
+                  <p>✅ <strong>Garantiert unter 1.5MB:</strong> Dateien die zu groß bleiben werden abgelehnt</p>
+                </div>
               </div>
             )}
           </div>
