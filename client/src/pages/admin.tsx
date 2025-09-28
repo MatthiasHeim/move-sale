@@ -6,8 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Upload, LogOut, Plus, Edit, Trash2, CheckCircle, Copy } from "lucide-react";
+import { Upload, LogOut, Plus, Edit, Trash2, CheckCircle, Copy, Info } from "lucide-react";
 import type { Product } from "@shared/schema";
+import { getVersionString, getVersionDetails } from "@/lib/version";
 
 // Import admin tab components
 import CreateListingTab from "@/components/admin/CreateListingTab";
@@ -65,11 +66,19 @@ export default function Admin() {
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Umzugsbeute Admin
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-gray-900">
+                Umzugsbeute Admin
+              </h1>
+              <div className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-mono">
+                {getVersionString()}
+              </div>
+            </div>
             <p className="text-sm text-gray-600">
               Verwalten Sie Ihre Möbel und Artikel
+            </p>
+            <p className="text-xs text-gray-400 mt-1" title={getVersionDetails()}>
+              {getVersionDetails()}
             </p>
           </div>
           <Button
