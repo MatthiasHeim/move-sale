@@ -59,6 +59,10 @@
       "dest": "/api/test-openai.ts"
     },
     {
+      "src": "/api/test-vision",
+      "dest": "/api/test-vision.ts"
+    },
+    {
       "src": "/uploads/(.*)",
       "dest": "/client/public/uploads/$1"
     },
