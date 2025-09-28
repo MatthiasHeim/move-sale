@@ -52,70 +52,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "At least one image URL or image data is required" });
     }
 
-    // Enhanced system prompt with storytelling for engaging listings
-    const systemPrompt = `Du bist ein Experte für Secondhand-Möbel und hilfst einer Familie aus Müllheim Dorf, die im November nach Hongkong umzieht. Alle geliebten Möbel und Gegenstände müssen verkauft werden - nicht wegen Mängeln, sondern wegen des großen Umzugs.
+    // Simplified system prompt to test if complexity was the issue
+    const systemPrompt = `You are an expert assistant that creates product listings. Analyze the provided image and create a JSON object for a furniture/household item listing.
 
-FAMILIEN-KONTEXT FÜR STORYTELLING:
-- Familie zieht im November 2024 nach Hongkong um (großer Lebenswandel)
-- Alle Artikel sind geliebt und gut gepflegt - würden sonst behalten werden
-- Schweren Herzens verkaufen, weil Umzug alles verändert
-- Faire Preise für schnellen, stressfreien Verkauf
-- Abholung vor Ort in Müllheim Dorf, Bar oder TWINT
-- Kein Link, E-Mail oder Telefonnummer in Tutti Texten
+Categories: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
+Conditions: like new, very good, good, fair
 
-KATEGORIEN (nur diese verwenden):
-furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
-
-PREISGESTALTUNG MIT MARKTKENNTNIS:
-- Nutze dein Wissen über typische Schweizer Marktpreise für ähnliche Artikel
-- Berücksichtige Plattformen wie Tutti.ch, Ricardo.ch, Anibis.ch für Preisvergleiche
-- Preis in CHF, auf 5 CHF runden, als String mit 2 Dezimalstellen (z.B. "120.00")
-- Berücksichtige Marktpreise + Umzugsdruck (faire aber schnelle Preise)
-- Schätze basierend auf Zustand, Marke, Alter und Schweizer Marktstandards
-
-ZUSTAND (nur diese verwenden):
-like new, very good, good, fair
-
-BESCHREIBUNGEN ERSTELLEN:
-1. **description** (Website): 2-3 detaillierte Sätze. Beschreibe Nutzen, Besonderheiten, warum es wertvoll ist. Erwähne wie es der Familie gedient hat.
-
-2. **tutti_title_de** (Tutti/Facebook): Ansprechender Titel OHNE Preis! Format: "Marke + Modell + Hauptmerkmal" (z.B. "IKEA Kallax Regal weiß 4x4 Fächer")
-
-3. **tutti_body_de** (Tutti/Facebook): Storytelling-Ansatz mit dieser Struktur:
-   - Eröffnung: "Da wir im November nach Hongkong umziehen, müssen wir schweren Herzens..."
-   - Produktstory: Was macht es besonders, wie hat es uns gedient, warum ist es toll
-   - Ehrliche Zustandsbeschreibung mit positiver Note
-   - Emotionale Verbindung: "Würden wir gerne behalten, aber der Umzug lässt uns keine Wahl"
-   - Praktische Details: Abholung Müllheim Dorf, Bezahlung, Preis am Ende
-
-TON UND STIL:
-- Warmherzig & persönlich (wie Gespräch mit Nachbarn)
-- Storytelling-fokussiert (jeder Artikel hat eine Geschichte)
-- Vertrauensbildend (ehrlich über Zustand, begeistert über Qualität)
-- Emotional aber nicht übertrieben sentimental
-- Schaffe Verbindung: "Wir geben unser Zuhause auf, aber Sie können es weiterlieben"
-
-Analysiere die Bilder, schätze Marktpreise basierend auf deinem Wissen über Schweizer Secondhand-Märkte und erstelle ein JSON-Objekt mit GENAU dieser Struktur:
+Create a JSON object with this structure:
 {
-  "name": "Produktname (z.B. 'IKEA Kallax Regal weiß')",
-  "description": "2-3 detaillierte Sätze für Website. Beschreibe Nutzen, Besonderheiten und warum es wertvoll ist.",
-  "price_chf": "120.00",
+  "name": "Product name",
+  "description": "Brief description of the item and its value",
+  "price_chf": "95.00",
   "category": "furniture",
   "condition": "good",
-  "dimensions_cm": "80x40x120 (BxTxH)" oder leer lassen wenn unsicher,
-  "market_research": "Einschätzung der Marktpreise basierend auf Schweizer Secondhand-Plattformen und Begründung der Preisgestaltung",
-  "price_confidence": "hoch/mittel/niedrig - Konfidenz basierend auf verfügbaren Marktdaten",
-  "tutti_title_de": "Ansprechender Titel OHNE Preis (Marke + Modell + Merkmal)",
-  "tutti_body_de": "Storytelling-Beschreibung mit Hongkong-Umzug, Produktstory, Zustand und emotionaler Verbindung. Preis am Ende erwähnen."
+  "dimensions_cm": "50x30x80 (WxDxH) or leave empty if unsure",
+  "market_research": "Price reasoning based on Swiss secondhand market",
+  "price_confidence": "high/medium/low",
+  "tutti_title_de": "German title without price",
+  "tutti_body_de": "German description mentioning move to Hong Kong and fair price"
 }
 
-Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext. Schaffe emotionale Verbindung ohne aufdringlich zu sein.`;
+Analyze the image and respond with valid JSON only.`;
 
     // Prepare the messages for OpenAI
     const userContent: any[] = [
       {
         type: "text",
-        text: text ? `Zusätzliche Informationen: ${text}` : "Erstelle eine Produktbeschreibung basierend auf den Bildern."
+        text: text ? `Additional info: ${text}. Create product listing based on the image.` : "Create a product listing based on the image."
       }
     ];
 
@@ -170,6 +133,8 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
       }
     }
 
+    console.log(`🤖 Starting OpenAI API call with ${imageSources.length} images`);
+
     const openai = await getOpenAI();
     const completion = await openai.chat.completions.create({
       model: "gpt-4o", // Use GPT-4o for reliable production performance
@@ -184,9 +149,11 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
         }
       ],
       response_format: { type: "json_object" },
-      max_tokens: 2000,
+      max_tokens: 1000, // Reduced for simpler prompt
       temperature: 0.7
     });
+
+    console.log(`✅ OpenAI API call completed successfully`);
 
     const responseContent = completion.choices[0]?.message?.content;
     if (!responseContent) {
