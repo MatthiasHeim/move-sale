@@ -9,6 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Upload, Loader2, Sparkles, Copy, CheckCircle, Edit3 } from "lucide-react";
 import imageCompression from "browser-image-compression";
+
+// Debug: Check if compression library is properly loaded
+console.log("🔍 Image compression library loaded:", typeof imageCompression);
 import type { AgentProposal } from "@shared/schema";
 
 // iOS/Safari detection utility
@@ -24,6 +27,10 @@ const isSafari = () => {
 };
 
 export default function CreateListingTab() {
+  // IMMEDIATE DEBUG: Alert to verify component loads
+  console.log("🟢 CreateListingTab component initializing...");
+  alert("🟢 CreateListingTab component loaded - compression debug test");
+
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [userInput, setUserInput] = useState("");
   const [proposal, setProposal] = useState<AgentProposal | null>(null);
@@ -148,6 +155,12 @@ export default function CreateListingTab() {
 
   // Function to compress images before upload
   const compressImages = useCallback(async (files: File[]): Promise<File[]> => {
+    // IMMEDIATE DEBUG: Alert to verify compression function is called
+    alert(`🎯 compressImages called with ${files.length} files!`);
+
+    console.log("🎯 compressImages function called with files:", files.map(f => f.name));
+    console.log("🎯 imageCompression available:", typeof imageCompression);
+
     setIsCompressing(true);
     setCompressionProgress({ current: 0, total: files.length });
 
@@ -159,6 +172,12 @@ export default function CreateListingTab() {
 
       try {
         console.log(`🔄 Compressing ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+        console.log(`📋 File details:`, {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified
+        });
 
         // Compression options optimized for Vercel's 6MB total limit
         // Target 1.5MB per file to safely fit 4 files in 6MB
@@ -167,21 +186,34 @@ export default function CreateListingTab() {
           maxWidthOrHeight: 1600, // Match server-side processing
           useWebWorker: true,
           quality: 0.8,
-          fileType: file.type.includes('heic') ? 'image/jpeg' : undefined // Convert HEIC to JPEG
+          fileType: file.name.toLowerCase().includes('heic') || file.name.toLowerCase().includes('heif') ? 'image/jpeg' : undefined // Convert HEIC to JPEG
         };
+
+        console.log(`⚙️ Compression options:`, options);
 
         const compressedFile = await imageCompression(file, options);
 
         console.log(`✅ Compressed ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+        console.log(`📋 Compressed file details:`, {
+          name: compressedFile.name,
+          type: compressedFile.type,
+          size: compressedFile.size
+        });
         compressedFiles.push(compressedFile);
 
       } catch (error) {
         console.error(`❌ Failed to compress ${file.name}:`, error);
+        console.error(`❌ Error details:`, {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+
         // If compression fails, use original file but warn user
         compressedFiles.push(file);
         toast({
           title: "Komprimierung fehlgeschlagen",
-          description: `${file.name} konnte nicht komprimiert werden, wird original verwendet.`,
+          description: `${file.name} konnte nicht komprimiert werden, wird original verwendet. Fehler: ${error.message}`,
           variant: "destructive",
         });
       }
@@ -206,7 +238,10 @@ export default function CreateListingTab() {
   }, [toast]);
 
   const onDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: any[]) => {
-    console.log("📁 onDrop called");
+    // IMMEDIATE DEBUG: Alert to verify onDrop is called
+    alert(`🔥 onDrop called! Files: ${acceptedFiles.length}, Rejected: ${rejectedFiles.length}`);
+
+    console.log("📁 onDrop called with imageCompression:", typeof imageCompression);
     console.log("✅ Accepted files:", acceptedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
     console.log("❌ Rejected files:", rejectedFiles.map(f => ({
       file: { name: f.file?.name, type: f.file?.type, size: f.file?.size },
@@ -234,6 +269,9 @@ export default function CreateListingTab() {
       });
       return;
     }
+
+    console.log("🔧 About to call compressImages with files:", acceptedFiles.map(f => f.name));
+    console.log("🔧 compressImages function type:", typeof compressImages);
 
     try {
       console.log("🚀 Starting compression for files:", acceptedFiles.map(f => f.name));
