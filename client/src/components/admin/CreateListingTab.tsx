@@ -179,7 +179,13 @@ export default function CreateListingTab() {
     });
   }, []);
 
-  // Robust compression function with multiple fallbacks
+  // Helper function to check if file is HEIC
+  const isHeicFile = useCallback((file: File): boolean => {
+    const fileName = file.originalname || file.name || '';
+    return fileName.toLowerCase().match(/\.(heic|heif)$/i) !== null;
+  }, []);
+
+  // Robust compression function with HEIC-aware handling
   const compressImages = useCallback(async (files: File[]): Promise<File[]> => {
     setIsCompressing(true);
     setCompressionProgress({ current: 0, total: files.length });
@@ -192,44 +198,71 @@ export default function CreateListingTab() {
       setCompressionProgress({ current: i + 1, total: files.length });
 
       const originalSize = (file.size / 1024 / 1024).toFixed(2);
+      const isHeic = isHeicFile(file);
 
       try {
         let compressedFile: File;
 
-        // Method 1: Try browser-image-compression (without WebWorker)
-        try {
-          compressedFile = await imageCompression(file, {
-            maxSizeMB: 1.0, // More aggressive target
-            maxWidthOrHeight: 1600,
-            useWebWorker: false, // Disable WebWorker for reliability
-            quality: 0.7,
-            fileType: file.name.toLowerCase().match(/\.(heic|heif)$/i) ? 'image/jpeg' : undefined
+        if (isHeic) {
+          // HEIC files: Allow larger sizes, server will convert and compress
+          const maxHeicSize = 10 * 1024 * 1024; // 10MB limit for HEIC (server will handle compression)
+          if (file.size > maxHeicSize) {
+            errors.push(`${file.name}: HEIC Datei zu groß (${originalSize}MB > 10MB)`);
+            continue;
+          }
+
+          // For HEIC files, try gentle compression but don't fail if it doesn't work well
+          try {
+            compressedFile = await imageCompression(file, {
+              maxSizeMB: 8.0, // More lenient for HEIC
+              maxWidthOrHeight: 2400, // Higher resolution for HEIC
+              useWebWorker: false,
+              quality: 0.9, // Higher quality for HEIC
+              fileType: 'image/jpeg' // Convert to JPEG
+            });
+          } catch (heicCompressionError) {
+            console.warn('HEIC compression failed, sending original to server:', heicCompressionError);
+            // Send original HEIC file to server for processing
+            compressedFile = file;
+          }
+
+          toast({
+            title: `${file.name} vorbereitet`,
+            description: `HEIC Datei wird auf dem Server konvertiert (${originalSize}MB)`,
           });
-        } catch (libraryError) {
-          console.warn('browser-image-compression failed, using Canvas fallback:', libraryError);
-          // Method 2: Fallback to Canvas compression
-          compressedFile = await compressWithCanvas(file, 1024 * 1024); // 1MB target
-        }
+        } else {
+          // Non-HEIC files: Apply strict compression as before
+          try {
+            compressedFile = await imageCompression(file, {
+              maxSizeMB: 1.0,
+              maxWidthOrHeight: 1600,
+              useWebWorker: false,
+              quality: 0.7
+            });
+          } catch (libraryError) {
+            console.warn('browser-image-compression failed, using Canvas fallback:', libraryError);
+            compressedFile = await compressWithCanvas(file, 1024 * 1024);
+          }
 
-        const compressedSize = (compressedFile.size / 1024 / 1024).toFixed(2);
+          const compressedSize = (compressedFile.size / 1024 / 1024).toFixed(2);
 
-        // Hard size limit check - REJECT files that are still too large
-        if (compressedFile.size > 1.5 * 1024 * 1024) { // 1.5MB hard limit
-          errors.push(`${file.name}: Noch zu groß nach Komprimierung (${compressedSize}MB > 1.5MB)`);
-          continue; // Skip this file entirely
+          // Hard size limit for non-HEIC files
+          if (compressedFile.size > 1.5 * 1024 * 1024) {
+            errors.push(`${file.name}: Noch zu groß nach Komprimierung (${compressedSize}MB > 1.5MB)`);
+            continue;
+          }
+
+          toast({
+            title: `${file.name} komprimiert`,
+            description: `${originalSize}MB → ${compressedSize}MB`,
+          });
         }
 
         compressedFiles.push(compressedFile);
 
-        toast({
-          title: `${file.name} komprimiert`,
-          description: `${originalSize}MB → ${compressedSize}MB`,
-        });
-
       } catch (error: any) {
-        console.error(`Compression failed for ${file.name}:`, error);
-        errors.push(`${file.name}: Komprimierung fehlgeschlagen (${error.message})`);
-        // DO NOT add original file - fail completely for large files
+        console.error(`Processing failed for ${file.name}:`, error);
+        errors.push(`${file.name}: Verarbeitung fehlgeschlagen (${error.message})`);
       }
     }
 
@@ -246,13 +279,13 @@ export default function CreateListingTab() {
       });
     }
 
-    // Final check - make sure we have some successfully compressed files
+    // Final check - make sure we have some successfully processed files
     if (compressedFiles.length === 0) {
-      throw new Error('Keine Dateien konnten erfolgreich komprimiert werden. Bitte verwenden Sie kleinere Bilder.');
+      throw new Error('Keine Dateien konnten erfolgreich verarbeitet werden. Bitte verwenden Sie kleinere Bilder oder andere Formate.');
     }
 
     return compressedFiles;
-  }, [toast, compressWithCanvas]);
+  }, [toast, compressWithCanvas, isHeicFile]);
 
   const onDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: any[]) => {
     if (rejectedFiles.length > 0) {

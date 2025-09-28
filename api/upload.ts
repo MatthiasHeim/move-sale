@@ -11,9 +11,9 @@ import { createClient } from '@supabase/supabase-js';
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 2 * 1024 * 1024, // 2MB per file (client-side compression should ensure this)
-    files: 8, // Max 8 files (client compresses to ~1.5MB each = ~12MB total, but Vercel has 6MB limit)
-    fieldSize: 6 * 1024 * 1024 // Total payload limit 6MB for Vercel
+    fileSize: 10 * 1024 * 1024, // 10MB per file (allow large HEIC files, server will compress)
+    files: 8, // Max 8 files
+    fieldSize: 50 * 1024 * 1024 // 50MB total payload limit to handle large HEIC files
   },
   fileFilter: (req, file, cb) => {
     console.log(`📋 File upload attempt - Name: ${file.originalname}, MIME type: ${file.mimetype || 'undefined'}`);
@@ -55,21 +55,51 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
   try {
     let imageBuffer = buffer;
 
-    // Convert HEIC to JPEG if needed
+    // Convert HEIC to JPEG if needed with progressive quality reduction
     if (originalName.toLowerCase().endsWith('.heic') || originalName.toLowerCase().endsWith('.heif')) {
-      console.log('🔄 Converting HEIC to JPEG...');
+      console.log('🔄 Converting HEIC to JPEG with compression...');
       try {
-        const outputBuffer = await heicConvert({
-          buffer,
-          format: 'JPEG',
-          quality: 1
-        });
-        imageBuffer = Buffer.from(outputBuffer);
-        console.log('✅ HEIC conversion successful');
+        // Try multiple quality levels for HEIC conversion to manage file size
+        let convertedBuffer: Buffer | null = null;
+        const targetSizeBytes = 2 * 1024 * 1024; // 2MB target after HEIC conversion
+
+        // Try different quality levels: 0.7, 0.5, 0.3
+        const qualityLevels = [0.7, 0.5, 0.3];
+
+        for (const quality of qualityLevels) {
+          console.log(`📊 Trying HEIC conversion with quality ${quality}`);
+
+          try {
+            const outputBuffer = await heicConvert({
+              buffer,
+              format: 'JPEG',
+              quality
+            });
+
+            const convertedSize = outputBuffer.length;
+            console.log(`📏 HEIC converted size: ${(convertedSize / 1024 / 1024).toFixed(2)}MB`);
+
+            if (convertedSize <= targetSizeBytes || quality === 0.3) {
+              // Accept this quality level (either small enough or last attempt)
+              convertedBuffer = Buffer.from(outputBuffer);
+              console.log(`✅ HEIC conversion successful with quality ${quality}`);
+              break;
+            }
+          } catch (qualityError) {
+            console.warn(`⚠️ HEIC conversion failed at quality ${quality}:`, qualityError);
+            continue;
+          }
+        }
+
+        if (convertedBuffer) {
+          imageBuffer = convertedBuffer;
+          console.log('✅ HEIC conversion completed');
+        } else {
+          throw new Error('All HEIC conversion attempts failed');
+        }
       } catch (heicError) {
-        console.error('❌ HEIC conversion failed:', heicError);
-        // Continue with original buffer for Sharp processing
-        console.log('⚠️ Continuing with original buffer...');
+        console.error('❌ HEIC conversion failed completely:', heicError);
+        throw new Error(`HEIC conversion failed: ${heicError instanceof Error ? heicError.message : String(heicError)}`);
       }
     }
 
