@@ -20,7 +20,7 @@ fi
 
 # Build the project
 echo "🔨 Building project..."
-npm run build:vercel
+npm run build:client
 
 # Check if this is the first deployment
 if [ ! -f .vercel/project.json ]; then
