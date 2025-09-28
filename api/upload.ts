@@ -49,38 +49,68 @@ const upload = multer({
 
 // Image processing function
 async function processImage(buffer: Buffer, originalName: string): Promise<string> {
+  console.log(`🔄 Processing image: ${originalName} (${buffer.length} bytes)`);
+
   try {
     let imageBuffer = buffer;
 
     // Convert HEIC to JPEG if needed
     if (originalName.toLowerCase().endsWith('.heic') || originalName.toLowerCase().endsWith('.heif')) {
-      const outputBuffer = await heicConvert({
-        buffer,
-        format: 'JPEG',
-        quality: 1
-      });
-      imageBuffer = Buffer.from(outputBuffer);
+      console.log('🔄 Converting HEIC to JPEG...');
+      try {
+        const outputBuffer = await heicConvert({
+          buffer,
+          format: 'JPEG',
+          quality: 1
+        });
+        imageBuffer = Buffer.from(outputBuffer);
+        console.log('✅ HEIC conversion successful');
+      } catch (heicError) {
+        console.error('❌ HEIC conversion failed:', heicError);
+        // Continue with original buffer for Sharp processing
+        console.log('⚠️ Continuing with original buffer...');
+      }
     }
 
     // Process with Sharp: rotate, resize, convert to WebP
-    const processedBuffer = await sharp(imageBuffer)
-      .rotate() // Auto-rotate based on EXIF
-      .resize({
-        width: 1600,
-        height: 1600,
-        fit: 'inside',
-        withoutEnlargement: true
-      })
-      .webp({ quality: 82 })
-      .toBuffer();
+    console.log('🔄 Processing with Sharp...');
+    let processedBuffer: Buffer;
 
-    // Generate unique filename
-    const filename = `product-${Date.now()}-${randomBytes(8).toString('hex')}.webp`;
+    try {
+      processedBuffer = await sharp(imageBuffer)
+        .rotate() // Auto-rotate based on EXIF
+        .resize({
+          width: 1600,
+          height: 1600,
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .webp({ quality: 82 })
+        .toBuffer();
+
+      console.log(`✅ Sharp processing complete (${processedBuffer.length} bytes)`);
+    } catch (sharpError) {
+      console.error('❌ Sharp processing failed:', sharpError);
+      console.log('⚠️ Using original image buffer as fallback');
+      processedBuffer = imageBuffer;
+    }
+
+    // Generate unique filename based on whether Sharp processing succeeded
+    const isWebP = processedBuffer !== imageBuffer;
+    const extension = isWebP ? 'webp' : (originalName.split('.').pop()?.toLowerCase() || 'jpg');
+    const filename = `product-${Date.now()}-${randomBytes(8).toString('hex')}.${extension}`;
+
+    console.log(`📝 Generated filename: ${filename} (Sharp processing: ${isWebP ? 'success' : 'fallback'})`);
 
     // Save to /tmp for AI processing
     const tmpPath = `/tmp/${filename}`;
-    await fs.writeFile(tmpPath, processedBuffer);
-    console.log(`💾 Image saved to ${tmpPath} for AI processing`);
+    try {
+      await fs.writeFile(tmpPath, processedBuffer);
+      console.log(`💾 Image saved to ${tmpPath} for AI processing`);
+    } catch (tmpError) {
+      console.error('⚠️ Failed to save to /tmp:', tmpError);
+      // Continue anyway - this is not critical for Supabase upload
+    }
 
     // Upload to Supabase Storage for production serving
     try {
@@ -89,10 +119,13 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
         process.env.SUPABASE_ANON_KEY!
       );
 
+      // Determine content type based on file extension
+      const contentType = isWebP ? 'image/webp' : `image/${extension}`;
+
       const { data, error } = await supabase.storage
         .from('product-images')
         .upload(`uploads/${filename}`, processedBuffer, {
-          contentType: 'image/webp',
+          contentType,
           cacheControl: '3600',
           upsert: false
         });
