@@ -44,10 +44,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { text, image_urls } = req.body;
+    const { text, image_urls, images } = req.body;
 
-    if (!image_urls || !Array.isArray(image_urls) || image_urls.length === 0) {
-      return res.status(400).json({ error: "At least one image URL is required" });
+    // Support both image_urls (legacy) and images (base64 data)
+    if ((!image_urls || !Array.isArray(image_urls) || image_urls.length === 0) &&
+        (!images || !Array.isArray(images) || images.length === 0)) {
+      return res.status(400).json({ error: "At least one image URL or image data is required" });
     }
 
     // Enhanced system prompt with storytelling for engaging listings
@@ -117,31 +119,54 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
       }
     ];
 
-    // Add images to the content (using base64 for reliability)
-    for (const imageUrl of image_urls.slice(0, 4)) { // Limit to 4 images for API
+    // Add images to the content
+    const imageSources = images || image_urls || [];
+    for (const imageSource of imageSources.slice(0, 4)) { // Limit to 4 images for API
       try {
-        // Extract filename from URL
-        const filename = imageUrl.split('/').pop();
-        if (!filename) continue;
+        let base64Image: string;
+        let imageFormat = 'webp';
 
-        const filepath = `/tmp/${filename}`;
-        console.log(`📖 Converting image to base64: ${filepath}`);
+        if (typeof imageSource === 'string' && imageSource.startsWith('data:')) {
+          // Handle base64 data URLs directly
+          base64Image = imageSource.split(',')[1];
+          const mimeType = imageSource.split(',')[0].split(':')[1].split(';')[0];
+          imageFormat = mimeType.split('/')[1] || 'webp';
+          console.log(`📖 Using provided base64 image (${mimeType})`);
+        } else if (typeof imageSource === 'object' && imageSource.data) {
+          // Handle base64 data from objects
+          base64Image = imageSource.data;
+          imageFormat = imageSource.format || 'webp';
+          console.log(`📖 Using object base64 image (${imageFormat})`);
+        } else {
+          // Handle URLs - try to read from /tmp/ (legacy support)
+          const filename = imageSource.split('/').pop();
+          if (!filename) continue;
 
-        // Read image file and convert to base64
-        const imageBuffer = readFileSync(filepath);
-        const base64Image = imageBuffer.toString('base64');
+          const filepath = `/tmp/${filename}`;
+          console.log(`📖 Trying to read from file: ${filepath}`);
+
+          try {
+            const imageBuffer = readFileSync(filepath);
+            base64Image = imageBuffer.toString('base64');
+            console.log(`✅ Read image from file: ${filename} (${imageBuffer.length} bytes)`);
+          } catch (fileError) {
+            console.error(`❌ Failed to read image file ${filepath}:`, fileError);
+            console.log(`⚠️ Skipping image ${filename} - file not accessible in serverless function`);
+            continue;
+          }
+        }
 
         userContent.push({
           type: "image_url",
           image_url: {
-            url: `data:image/webp;base64,${base64Image}`,
+            url: `data:image/${imageFormat};base64,${base64Image}`,
             detail: "high"
           }
         });
 
-        console.log(`✅ Added base64 image: ${filename} (${imageBuffer.length} bytes)`);
+        console.log(`✅ Added image to content (${imageFormat} format)`);
       } catch (err) {
-        console.error(`❌ Failed to process image ${imageUrl}:`, err);
+        console.error(`❌ Failed to process image:`, err);
       }
     }
 
@@ -196,8 +221,9 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
     aiProposal.price_chf = roundedPrice.toFixed(2);
 
     // Set cover image and gallery
-    aiProposal.cover_image_url = image_urls[0];
-    aiProposal.gallery_image_urls = image_urls;
+    const imageUrls = image_urls || [];
+    aiProposal.cover_image_url = imageUrls[0] || '';
+    aiProposal.gallery_image_urls = imageUrls;
 
     // Ensure cover image is in gallery
     if (!aiProposal.gallery_image_urls.includes(aiProposal.cover_image_url)) {
