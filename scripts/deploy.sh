@@ -22,6 +22,11 @@ fi
 echo "🔨 Building project..."
 npm run build:client
 
+# Copy built files to public directory for Vercel
+echo "📁 Copying files to public directory..."
+mkdir -p public
+cp -r dist/public/* public/
+
 # Check if this is the first deployment
 if [ ! -f .vercel/project.json ]; then
     echo "🆕 First time deployment - setting up project..."
