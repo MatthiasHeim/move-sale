@@ -12,7 +12,7 @@ if (!supabaseUrl || !supabaseKey) {
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Storage bucket configuration
-export const STORAGE_BUCKET = 'product-images';
+export const STORAGE_BUCKET = 'images';
 
 /**
  * Upload an image buffer to Supabase Storage
