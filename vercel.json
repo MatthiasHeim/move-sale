@@ -55,6 +55,10 @@
       "dest": "/api/agent-draft.ts"
     },
     {
+      "src": "/api/test-openai",
+      "dest": "/api/test-openai.ts"
+    },
+    {
       "src": "/uploads/(.*)",
       "dest": "/client/public/uploads/$1"
     },
