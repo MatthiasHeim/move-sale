@@ -175,3 +175,4 @@ This is a full-stack **furniture rental marketplace** called Umzugsbeute with a 
 3. Confirm build process ran: look for "Version updated: [hash]" in deploy logs
 4. Test direct Vercel URL first, then custom domain
 5. Check browser developer tools for 404 errors (indicates asset serving issues)
+- # Use the playwright-ui-tester agent to test the UI and use 2l4se&HH43dom! as the admin password for seup.ch
