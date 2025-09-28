@@ -147,8 +147,7 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
 
     const openai = await getOpenAI();
     const completion = await openai.chat.completions.create({
-      model: "gpt-5", // Use GPT-5 with thinking capabilities
-      reasoning_effort: "medium", // Balanced speed and quality
+      model: "gpt-4o", // Use GPT-4o for reliable production performance
       messages: [
         {
           role: "system",
