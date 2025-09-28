@@ -10,18 +10,32 @@ async function getOpenAI() {
   });
 }
 
-// Auth check for admin
+// Auth check for admin with enhanced logging
 function requireAdminAuth(req: VercelRequest): boolean {
+  console.log('🔐 Authentication check started');
+  console.log('📋 Headers present:', Object.keys(req.headers));
+  console.log('🍪 Cookie header:', req.headers.cookie ? 'present' : 'missing');
+
   // Check for API token in Authorization header
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
-    return token === process.env.API_TOKEN;
+    const isValidToken = token === process.env.API_TOKEN;
+    console.log('🔑 API token check:', isValidToken ? 'valid' : 'invalid');
+    if (isValidToken) return true;
   }
 
   // Check for session-based auth (cookie)
-  const sessionCookie = req.headers.cookie?.includes('auth-session=authenticated');
-  return !!sessionCookie;
+  const cookieHeader = req.headers.cookie;
+  if (cookieHeader) {
+    console.log('🍪 Cookie content:', cookieHeader);
+    const hasAuthSession = cookieHeader.includes('auth-session=authenticated');
+    console.log('✅ Auth session found:', hasAuthSession);
+    return hasAuthSession;
+  }
+
+  console.log('❌ No valid authentication found');
+  return false;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
