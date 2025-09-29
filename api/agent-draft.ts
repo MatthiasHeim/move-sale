@@ -86,19 +86,21 @@ Conditions: like new, very good, good, fair`;
       }
     ];
 
-    // Use the first image URL only to keep it simple like debug-agent
-    const imageUrl = image_urls[0];
+    // Process actual uploaded images
+    for (const imageUrl of image_urls.slice(0, 3)) { // Limit to 3 images for API efficiency
+      console.log(`📷 Processing image URL: ${imageUrl}`);
 
-    // For now, use a small test image to ensure it works (like debug-agent)
-    const testImageBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==";
+      // Use the uploaded image URLs directly (they should be accessible URLs)
+      userContent.push({
+        type: "image_url",
+        image_url: {
+          url: imageUrl,
+          detail: "low"
+        }
+      });
 
-    userContent.push({
-      type: "image_url",
-      image_url: {
-        url: `data:image/png;base64,${testImageBase64}`,
-        detail: "low"
-      }
-    });
+      console.log(`✅ Added uploaded image to content`);
+    }
 
     console.log('🤖 Making OpenAI API call...');
     const openai = await getOpenAI();
