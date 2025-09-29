@@ -14,9 +14,11 @@ export default function ProductsTab() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   // Fetch all products (admin version shows all)
-  const { data: products = [], isLoading } = useQuery<Product[]>({
+  const { data: productsResponse, isLoading } = useQuery({
     queryKey: ["/api/admin/products"],
   });
+
+  const products = productsResponse?.products || [];
 
   const markSoldMutation = useMutation({
     mutationFn: async (productId: string) => {
