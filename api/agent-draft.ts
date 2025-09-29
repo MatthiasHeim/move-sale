@@ -2,10 +2,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { agentProposalSchema } from '../shared/schema';
 
 // Dynamic import functions to avoid module-level initialization
-async function getOpenAI() {
+async function getOpenRouterClient() {
   const OpenAI = await import("openai");
   return new OpenAI.default({
-    apiKey: process.env.OPENAI_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: process.env.OPENROUTER_API_KEY,
   });
 }
 
@@ -54,43 +55,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    console.log('=== WORKING AGENT DRAFT START ===');
+    console.log('=== OPENROUTER GROK-4-FAST AGENT DRAFT START ===');
     const { text, image_urls } = req.body;
 
     if (!image_urls || !Array.isArray(image_urls) || image_urls.length === 0) {
       return res.status(400).json({ error: "At least one image URL is required" });
     }
 
-    // Use a minimal but effective prompt
-    const systemPrompt = `Create a product listing in German for a family moving from Switzerland to Hong Kong. Respond with valid JSON only. Important: Use "ss" instead of "ß" in all German text.
+    // Enhanced system prompt leveraging Grok's web search and multimodal capabilities
+    const systemPrompt = `Du bist ein Experte für Secondhand-Möbel und hilfst einer Familie aus Müllheim Dorf, die im November nach Hongkong umzieht. Analysiere die Bilder sehr genau und identifiziere spezifische Gegenstände (z.B. Pflanzenarten, Möbelmarken).
 
-Pricing strategy: Price items below market rate for quick sale (typically 20-30% below retail). Round to nearest 5 CHF. No price mentions in descriptions.
+WEBSUCHE FÜR PREISE:
+- Nutze deine Web-Search-Fähigkeiten um aktuelle Preise auf Tutti.ch, Ricardo.ch und Anibis.ch zu prüfen
+- Suche nach ähnlichen Artikeln mit Zustand und CHF-Preisen
+- Berücksichtige Marktpreise für faire aber schnelle Verkaufspreise
 
-Required format:
+GENAUE OBJEKTERKENNUNG:
+- Identifiziere spezifische Pflanzenarten (z.B. Kaffeepflanze, Monstera, etc.)
+- Erkenne Möbelmarken und -modelle wenn möglich
+- Achte auf Details wie Materialien, Farben, Zustand
+
+DEUTSCHE RECHTSCHREIBUNG:
+- Verwende KORREKTES Deutsch: "Zimmerpflanze" NICHT "Zimmerplanze"
+- "Große" NICHT "Grosse" (außer in der Schweiz üblich)
+- Achte auf Pflanzen-Fachbegriffe
+
+Required JSON format:
 {
-  "name": "Product name in German (use ss instead of ß)",
-  "description": "2-3 sentences describing the item and its features - NEVER mention price here (use ss instead of ß)",
+  "name": "Spezifischer Produktname (z.B. 'Kaffeepflanze im Terrakotta-Topf')",
+  "description": "2-3 detaillierte Sätze über das Objekt und seine Besonderheiten",
   "price_chf": "65.00",
-  "category": "furniture",
+  "category": "decor",
   "condition": "good",
-  "tutti_title_de": "Title without price (use ss instead of ß)",
-  "tutti_body_de": "German description mentioning Hong Kong move and price at end (use ss instead of ß)"
+  "dimensions_cm": "Abmessungen falls erkennbar",
+  "market_research": "Zusammenfassung der Web-Recherche zu aktuellen Marktpreisen",
+  "price_confidence": "hoch/mittel/niedrig",
+  "tutti_title_de": "Ansprechender Titel ohne Preis",
+  "tutti_body_de": "Beschreibung mit Hongkong-Umzug-Story und Preis am Ende"
 }
 
-Categories: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
-Conditions: like new, very good, good, fair
+Kategorien: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
+Zustand: like new, very good, good, fair
 
-CRITICAL RULES:
-- NEVER mention price, CHF, or monetary values in name, description, or tutti_title_de
-- Price items for quick sale (below market rate)
-- Only the tutti_body_de should mention the price at the very end
-- Always use "ss" instead of "ß" in all German text output`;
+WICHTIG: Nutze Web-Search für aktuelle Marktpreise und identifiziere Objekte sehr spezifisch!`;
 
     // Simple content structure like debug-agent
     const userContent = [
       {
         type: "text",
-        text: text ? `Additional info: ${text}. Create listing based on image.` : "Create product listing based on the image."
+        text: text ? `Zusätzliche Informationen: ${text}. Analysiere die Bilder genau und erstelle eine Produktbeschreibung. Nutze Web-Search für aktuelle Marktpreise.` : "Analysiere die Bilder sehr genau. Identifiziere spezifische Gegenstände und nutze Web-Search für aktuelle Marktpreise auf Schweizer Plattformen."
       }
     ];
 
@@ -103,18 +116,18 @@ CRITICAL RULES:
         type: "image_url",
         image_url: {
           url: imageUrl,
-          detail: "low"
+          detail: "high"
         }
       });
 
       console.log(`✅ Added uploaded image to content`);
     }
 
-    console.log('🤖 Making OpenAI API call...');
-    const openai = await getOpenAI();
+    console.log('🤖 Making OpenRouter Grok-4-Fast API call...');
+    const client = await getOpenRouterClient();
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const completion = await client.chat.completions.create({
+      model: "x-ai/grok-4-fast:free",
       messages: [
         {
           role: "system",
@@ -126,11 +139,16 @@ CRITICAL RULES:
         }
       ],
       response_format: { type: "json_object" },
-      max_tokens: 1000,
+      max_tokens: 2000,
       temperature: 0.7
+    }, {
+      headers: {
+        "HTTP-Referer": "https://seup.ch",
+        "X-Title": "Seup.ch - Umzugsbeute Marketplace"
+      }
     });
 
-    console.log('✅ OpenAI API call completed successfully');
+    console.log('✅ OpenRouter Grok-4-Fast API call completed successfully');
 
     const responseContent = completion.choices[0]?.message?.content;
     if (!responseContent) {
@@ -167,7 +185,7 @@ CRITICAL RULES:
     if (!aiProposal.market_research) aiProposal.market_research = "Estimated based on Swiss secondhand market";
     if (!aiProposal.price_confidence) aiProposal.price_confidence = "medium";
 
-    console.log('=== WORKING AGENT DRAFT SUCCESS ===');
+    console.log('=== OPENROUTER GROK-4-FAST AGENT DRAFT SUCCESS ===');
 
     res.json({
       success: true,
@@ -175,7 +193,7 @@ CRITICAL RULES:
     });
 
   } catch (error: any) {
-    console.error("=== WORKING AGENT DRAFT ERROR ===");
+    console.error("=== OPENROUTER GROK-4-FAST AGENT DRAFT ERROR ===");
     console.error("Error type:", error.constructor.name);
     console.error("Error message:", error.message);
     console.error("Error code:", error.code);

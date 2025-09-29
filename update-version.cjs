@@ -29,7 +29,7 @@ try {
   timestamp: '${timestamp}',
   buildTime: '${buildTime}',
   commit: '${commit}',
-  version: '1.0.0'
+  version: '1.0.4'
 };`
   );
 

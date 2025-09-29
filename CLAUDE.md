@@ -70,7 +70,7 @@ This is a full-stack **furniture rental marketplace** called Umzugsbeute with a 
 
 **File upload and AI:**
 - `POST /api/upload` - Multi-file image upload with HEIC conversion and WebP optimization
-- `POST /api/agent/draft` - AI product description generation using OpenAI GPT-4 Vision
+- `POST /api/agent/draft` - AI product description generation using OpenRouter x-ai/grok-4-fast:free
 
 **Customer features:**
 - `POST /api/reservations` - Create product reservation
@@ -105,20 +105,24 @@ This is a full-stack **furniture rental marketplace** called Umzugsbeute with a 
 
 ### AI Integration
 
-- **OpenAI GPT-4 Vision** for product description generation
+- **OpenRouter x-ai/grok-4-fast:free** for product description generation (FREE tier)
+- **Native web search**: Real-time market price research on Swiss platforms
+- **Enhanced object recognition**: Better plant and furniture identification
 - **Input**: Product images + optional text description
 - **Output**: Structured JSON with German product details, pricing, Tutti.ch listings
 - **Categories**: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
 - **Conditions**: like new, very good, good, fair
-- **Pricing**: Rounded to nearest 5 CHF
+- **Pricing**: Rounded to nearest 5 CHF, based on real market data
 
 ### Environment Variables Required
 
 - `DATABASE_URL` - PostgreSQL connection string
 - `SESSION_SECRET` - Session encryption key
 - `ADMIN_PASS` - Admin login password
-- `OPENAI_API_KEY` - OpenAI API key for AI features
+- `OPENROUTER_API_KEY` - OpenRouter API key for x-ai/grok-4-fast:free model (replaces OpenAI)
 - `PORT` - Server port (defaults to 5000)
+
+**Note**: The application now uses OpenRouter with x-ai/grok-4-fast:free model instead of OpenAI GPT-4o for improved object recognition, native web search capabilities, and cost savings.
 
 ### Development Notes
 

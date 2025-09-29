@@ -38,10 +38,11 @@ import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentPro
 import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
 
 // Dynamic import functions to avoid module-level initialization
-async function getOpenAI() {
+async function getOpenRouterClient() {
   const OpenAI = await import("openai");
   return new OpenAI.default({
-    apiKey: process.env.OPENAI_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: process.env.OPENROUTER_API_KEY,
   });
 }
 
@@ -259,70 +260,51 @@ export function addRoutesToApp(app: Express): void {
         return res.status(400).json({ error: "At least one image URL is required" });
       }
       
-      // Enhanced system prompt with storytelling for engaging listings
-      const systemPrompt = `Du bist ein Experte für Secondhand-Möbel und hilfst einer Familie aus Müllheim Dorf, die im November nach Hongkong umzieht. Alle geliebten Möbel und Gegenstände müssen verkauft werden - nicht wegen Mängeln, sondern wegen des großen Umzugs.
+      // Enhanced system prompt leveraging Grok's native web search and improved object recognition
+      const systemPrompt = `Du bist ein Experte für Secondhand-Möbel und hilfst einer Familie aus Müllheim Dorf, die im November nach Hongkong umzieht. Nutze deine natürlichen Web-Search-Fähigkeiten für aktuelle Marktpreise und erkenne Objekte sehr spezifisch.
 
-FAMILIEN-KONTEXT FÜR STORYTELLING:
-- Familie zieht im November 2024 nach Hongkong um (großer Lebenswandel)
-- Alle Artikel sind geliebt und gut gepflegt - würden sonst behalten werden
-- Schweren Herzens verkaufen, weil Umzug alles verändert
-- Faire Preise für schnellen, stressfreien Verkauf
-- Abholung vor Ort in Müllheim Dorf, Bar oder TWINT
-- Kein Link, E-Mail oder Telefonnummer in Tutti Texten
+WICHTIG - GENAUE OBJEKTERKENNUNG:
+- Identifiziere spezifische Pflanzenarten (z.B. Kaffeepflanze, Monstera, Ficus, etc.)
+- Erkenne Möbelmarken und -modelle präzise
+- Achte auf Material, Farbe, Design-Details
+- Verwende KORREKTE deutsche Rechtschreibung: "Zimmerpflanze" NICHT "Zimmerplanze"
 
-KATEGORIEN (nur diese verwenden):
-furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
+WEB-SEARCH FÜR AKTUELLE PREISE:
+- Nutze deine Web-Search um ECHTE aktuelle Preise zu finden
+- Suche auf Tutti.ch, Ricardo.ch, Anibis.ch nach ähnlichen Artikeln
+- Berücksichtige Zustand, Marke und aktuelle Marktlage
+- Preis fair aber für schnellen Verkauf (10-20% unter Marktpreis)
 
-PREISGESTALTUNG MIT MARKTFORSCHUNG:
-- WICHTIG: Führe eine Web-Suche durch für ähnliche Artikel auf Schweizer Plattformen
-- Suche nach: "{Produktname} gebraucht Schweiz CHF Tutti Ricardo Anibis"
-- Vergleiche gefundene Preise und berücksichtige Zustand
-- Preis in CHF, auf 5 CHF runden, als String mit 2 Dezimalstellen (z.B. "120.00")
-- Berücksichtige Marktpreise + Umzugsdruck (faire aber schnelle Preise)
+FAMILIEN-KONTEXT:
+- Familie zieht November 2024 nach Hongkong um
+- Alle Artikel geliebt und gepflegt - Verkauf nur wegen Umzug
+- Ehrliche, warmherzige Beschreibungen mit emotionaler Geschichte
+- Abholung Müllheim Dorf, Bar oder TWINT
 
-ZUSTAND (nur diese verwenden):
-like new, very good, good, fair
-
-BESCHREIBUNGEN ERSTELLEN:
-1. **description** (Website): 2-3 detaillierte Sätze. Beschreibe Nutzen, Besonderheiten, warum es wertvoll ist. Erwähne wie es der Familie gedient hat.
-
-2. **tutti_title_de** (Tutti/Facebook): Ansprechender Titel OHNE Preis! Format: "Marke + Modell + Hauptmerkmal" (z.B. "IKEA Kallax Regal weiß 4x4 Fächer")
-
-3. **tutti_body_de** (Tutti/Facebook): Storytelling-Ansatz mit dieser Struktur:
-   - Eröffnung: "Da wir im November nach Hongkong umziehen, müssen wir schweren Herzens..."
-   - Produktstory: Was macht es besonders, wie hat es uns gedient, warum ist es toll
-   - Ehrliche Zustandsbeschreibung mit positiver Note
-   - Emotionale Verbindung: "Würden wir gerne behalten, aber der Umzug lässt uns keine Wahl"
-   - Praktische Details: Abholung Müllheim Dorf, Bezahlung, Preis am Ende
-
-TON UND STIL:
-- Warmherzig & persönlich (wie Gespräch mit Nachbarn)
-- Storytelling-fokussiert (jeder Artikel hat eine Geschichte)
-- Vertrauensbildend (ehrlich über Zustand, begeistert über Qualität)
-- Emotional aber nicht übertrieben sentimental
-- Schaffe Verbindung: "Wir geben unser Zuhause auf, aber Sie können es weiterlieben"
-
-Analysiere die Bilder, führe Marktforschung durch und erstelle ein JSON-Objekt mit GENAU dieser Struktur:
+Required JSON format:
 {
-  "name": "Produktname (z.B. 'IKEA Kallax Regal weiß')",
-  "description": "2-3 detaillierte Sätze für Website. Beschreibe Nutzen, Besonderheiten und warum es wertvoll ist.",
-  "price_chf": "120.00",
-  "category": "furniture",
+  "name": "Spezifischer Name (z.B. 'Kaffeepflanze im Terrakotta-Topf')",
+  "description": "2-3 detaillierte Sätze über Objekt und Besonderheiten",
+  "price_chf": "75.00",
+  "category": "decor",
   "condition": "good",
-  "dimensions_cm": "80x40x120 (BxTxH)" oder leer lassen wenn unsicher,
-  "market_research": "Zusammenfassung der gefundenen Marktpreise und Begründung der Preisgestaltung",
-  "price_confidence": "hoch/mittel/niedrig - Konfidenz basierend auf verfügbaren Marktdaten",
-  "tutti_title_de": "Ansprechender Titel OHNE Preis (Marke + Modell + Merkmal)",
-  "tutti_body_de": "Storytelling-Beschreibung mit Hongkong-Umzug, Produktstory, Zustand und emotionaler Verbindung. Preis am Ende erwähnen."
+  "dimensions_cm": "Abmessungen falls sichtbar",
+  "market_research": "Web-Search Ergebnisse: aktuelle Preise ähnlicher Artikel",
+  "price_confidence": "hoch/mittel/niedrig",
+  "tutti_title_de": "Ansprechender Titel ohne Preis",
+  "tutti_body_de": "Hongkong-Umzug Story mit Produktdetails und Preis am Ende"
 }
 
-Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext. Nutze Web-Suche für aktuelle Marktpreise. Schaffe emotionale Verbindung ohne aufdringlich zu sein.`;
+Kategorien: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
+Zustand: like new, very good, good, fair
+
+Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisch!`;
 
       // Prepare the messages for OpenAI
       const userContent: any[] = [
-        { 
-          type: "text", 
-          text: text ? `Zusätzliche Informationen: ${text}` : "Erstelle eine Produktbeschreibung basierend auf den Bildern."
+        {
+          type: "text",
+          text: text ? `Zusätzliche Informationen: ${text}. Analysiere die Bilder sehr genau, identifiziere spezifische Objekte und nutze Web-Search für aktuelle Schweizer Marktpreise.` : "Analysiere die Bilder sehr genau. Identifiziere spezifische Objekte (z.B. Pflanzenarten) und nutze Web-Search für aktuelle Marktpreise auf Tutti.ch, Ricardo.ch und Anibis.ch."
         }
       ];
 
@@ -354,11 +336,11 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
         }
       }
 
-      const openai = await getOpenAI();
+      const client = await getOpenRouterClient();
 
-      // Use Chat Completions API with GPT-4o (proven to work) with enhanced capabilities
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
+      // Use Grok-4-Fast which has native web search capabilities
+      const completion = await client.chat.completions.create({
+        model: "x-ai/grok-4-fast:free",
         messages: [
           {
             role: "system",
@@ -369,94 +351,19 @@ Verwende die Bilder als Hauptinformation und den Text als zusätzlichen Kontext.
             content: userContent
           }
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "web_search",
-              description: "Search the web for current market prices and product information",
-              parameters: {
-                type: "object",
-                properties: {
-                  query: {
-                    type: "string",
-                    description: "Search query for finding market prices and product information"
-                  }
-                },
-                required: ["query"]
-              }
-            }
-          }
-        ],
         response_format: { type: "json_object" },
         max_tokens: 2000,
         temperature: 0.7
+      }, {
+        headers: {
+          "HTTP-Referer": "https://seup.ch",
+          "X-Title": "Seup.ch - Umzugsbeute Marketplace"
+        }
       });
 
-      let responseContent = completion.choices[0]?.message?.content;
-      let toolCalls = completion.choices[0]?.message?.tool_calls;
-
-      // Handle tool calls (web search)
-      if (toolCalls && toolCalls.length > 0) {
-        const messages = [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userContent
-          },
-          completion.choices[0]?.message
-        ];
-
-        // Process each tool call
-        for (const toolCall of toolCalls) {
-          if (toolCall.function?.name === "web_search") {
-            try {
-              const args = JSON.parse(toolCall.function.arguments || "{}");
-              const searchQuery = args.query || "Swiss furniture prices CHF";
-              console.log(`🔍 AI requested web search: ${searchQuery}`);
-
-              // Mock search results for now (in production, you'd integrate with a real search API)
-              const mockSearchResults = `
-Current Swiss market prices for similar items:
-- Similar furniture items on Tutti.ch range from CHF 80-250
-- Ricardo.ch shows comparable items at CHF 100-300
-- Anibis listings for similar condition: CHF 90-200
-- Average market price appears to be CHF 150-180 for good condition items
-Market trend: Due to moving season, prices tend to be 10-15% lower for quick sales
-              `;
-
-              messages.push({
-                role: "tool",
-                tool_call_id: toolCall.id,
-                name: "web_search",
-                content: mockSearchResults
-              });
-            } catch (error) {
-              console.error(`❌ Web search failed:`, error);
-              messages.push({
-                role: "tool",
-                tool_call_id: toolCall.id,
-                name: "web_search",
-                content: "Web search temporarily unavailable. Using general market knowledge for pricing."
-              });
-            }
-          }
-        }
-
-        // Make a second API call with the tool results
-        const followUpCompletion = await openai.chat.completions.create({
-          model: "gpt-4o",
-          messages: messages,
-          response_format: { type: "json_object" },
-          max_tokens: 2000,
-          temperature: 0.7
-        });
-
-        responseContent = followUpCompletion.choices[0]?.message?.content;
-      }
+      // Grok has native web search, no need for manual tool calling
+      const responseContent = completion.choices[0]?.message?.content;
+      console.log('🌐 Grok-4-Fast used native web search capabilities');
 
       if (!responseContent) {
         throw new Error("No response from AI");
@@ -629,23 +536,31 @@ Market trend: Due to moving season, prices tend to be 10-15% lower for quick sal
   // Authenticated endpoint for creating products (accepts both admin session and API token)
   app.post("/api/products", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
+      console.log("🔥 Creating product - Auth type:", req.tokenType);
+      console.log("📦 Product data received:", JSON.stringify(req.body, null, 2));
+
       const storage = await getStorage();
       const validatedData = insertProductSchema.parse(req.body);
+      console.log("✅ Data validation passed:", JSON.stringify(validatedData, null, 2));
+
       const product = await storage.createProduct(validatedData);
+      console.log("🎉 Product created successfully:", product.id);
+
       res.status(201).json({
         success: true,
         message: "Produkt erfolgreich erstellt",
         product
       });
     } catch (error: any) {
-      console.error("Error creating product:", error);
+      console.error("💥 Error creating product:", error);
       if (error.name === 'ZodError') {
+        console.error("📋 Validation errors:", error.errors);
         return res.status(400).json({
           error: "Ungültige Produktdaten",
           details: error.errors
         });
       }
-      res.status(500).json({ error: "Fehler beim Erstellen des Produkts" });
+      res.status(500).json({ error: "Fehler beim Erstellen des Produkts", details: error.message });
     }
   });
 

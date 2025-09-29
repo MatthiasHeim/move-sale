@@ -105,9 +105,12 @@ export default function CreateListingTab() {
         category: proposal.category,
         imageUrls: proposal.gallery_image_urls,
       };
-      
+
+      console.log("Publishing product:", productData);
       const response = await apiRequest("POST", "/api/products", productData);
-      return response.json();
+      const result = await response.json();
+      console.log("Publish response:", result);
+      return result;
     },
     onSuccess: () => {
       // Reset form

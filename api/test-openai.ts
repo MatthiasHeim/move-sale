@@ -1,9 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-async function getOpenAI() {
+async function getOpenRouterClient() {
   const OpenAI = await import("openai");
   return new OpenAI.default({
-    apiKey: process.env.OPENAI_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: process.env.OPENROUTER_API_KEY,
   });
 }
 
@@ -13,12 +14,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    console.log('Testing OpenAI API...');
-    const openai = await getOpenAI();
+    console.log('Testing OpenRouter Grok-4-Fast API...');
+    const client = await getOpenRouterClient();
 
     // Simple test without images first
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+    const completion = await client.chat.completions.create({
+      model: "x-ai/grok-4-fast:free",
       messages: [
         {
           role: "system",
@@ -32,10 +33,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       response_format: { type: "json_object" },
       max_tokens: 100,
       temperature: 0.1
+    }, {
+      headers: {
+        "HTTP-Referer": "https://seup.ch",
+        "X-Title": "Seup.ch - Test Endpoint"
+      }
     });
 
     const result = completion.choices[0]?.message?.content;
-    console.log('OpenAI API test result:', result);
+    console.log('OpenRouter Grok-4-Fast API test result:', result);
 
     res.json({
       success: true,
@@ -44,9 +50,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error: any) {
-    console.error("OpenAI API test error:", error);
+    console.error("OpenRouter Grok-4-Fast API test error:", error);
     res.status(500).json({
-      error: "OpenAI API test failed",
+      error: "OpenRouter Grok-4-Fast API test failed",
       details: error.message,
       code: error.code
     });
