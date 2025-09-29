@@ -126,13 +126,30 @@ async function processImage(buffer: Buffer, originalName: string): Promise<strin
     await fs.writeFile(tmpPath, processedBuffer);
     console.log(`💾 Image saved to ${tmpPath} for AI processing`);
 
-    // Upload to Supabase Storage
-    const { uploadImageToSupabase } = await import("./supabase");
-    const publicUrl = await uploadImageToSupabase(filename, processedBuffer, 'image/webp');
+    // Try Supabase Storage first, fallback to local storage if it fails
+    let publicUrl: string;
+
+    try {
+      const { uploadImageToSupabase } = await import("./supabase");
+      publicUrl = await uploadImageToSupabase(filename, processedBuffer, 'image/webp');
+      console.log(`✅ Image uploaded to Supabase: ${publicUrl}`);
+    } catch (supabaseError) {
+      console.warn(`⚠️ Supabase upload failed: ${supabaseError.message}`);
+      console.log(`📁 Falling back to local storage...`);
+
+      // Fallback: Save to client/public/uploads for local serving
+      const uploadsDir = path.join(process.cwd(), 'client/public/uploads');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      const localPath = path.join(uploadsDir, filename);
+      await fs.writeFile(localPath, processedBuffer);
+
+      // Return local URL that Vite can serve
+      publicUrl = `/uploads/${filename}`;
+      console.log(`✅ Image saved locally: ${publicUrl}`);
+    }
 
     console.log(`✅ Image processing complete: ${publicUrl}`);
-
-    // Return the Supabase public URL
     return publicUrl;
   } catch (error) {
     console.error('Error processing image:', error);
