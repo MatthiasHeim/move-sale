@@ -62,21 +62,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Use a minimal but effective prompt
-    const systemPrompt = `Create a product listing in German for a family moving from Switzerland to Hong Kong. Respond with valid JSON only.
+    const systemPrompt = `Create a product listing in German for a family moving from Switzerland to Hong Kong. Respond with valid JSON only. Important: Use "ss" instead of "ß" in all German text.
+
+Pricing strategy: Price items below market rate for quick sale (typically 20-30% below retail). Round to nearest 5 CHF. No price mentions in descriptions.
 
 Required format:
 {
-  "name": "Product name in German",
-  "description": "2-3 sentences describing the item and its value",
-  "price_chf": "95.00",
+  "name": "Product name in German (use ss instead of ß)",
+  "description": "2-3 sentences describing the item and its features - NEVER mention price here (use ss instead of ß)",
+  "price_chf": "65.00",
   "category": "furniture",
   "condition": "good",
-  "tutti_title_de": "Title without price",
-  "tutti_body_de": "German description mentioning Hong Kong move and price at end"
+  "tutti_title_de": "Title without price (use ss instead of ß)",
+  "tutti_body_de": "German description mentioning Hong Kong move and price at end (use ss instead of ß)"
 }
 
 Categories: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
-Conditions: like new, very good, good, fair`;
+Conditions: like new, very good, good, fair
+
+CRITICAL RULES:
+- NEVER mention price, CHF, or monetary values in name, description, or tutti_title_de
+- Price items for quick sale (below market rate)
+- Only the tutti_body_de should mention the price at the very end
+- Always use "ss" instead of "ß" in all German text output`;
 
     // Simple content structure like debug-agent
     const userContent = [

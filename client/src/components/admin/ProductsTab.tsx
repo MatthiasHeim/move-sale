@@ -14,11 +14,18 @@ export default function ProductsTab() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   // Fetch all products (admin version shows all)
-  const { data: productsResponse, isLoading } = useQuery({
+  const { data: productsResponse, isLoading, error } = useQuery({
     queryKey: ["/api/admin/products"],
   });
 
-  const products = productsResponse?.products || [];
+  // Handle both response formats:
+  // - Express server: returns array directly
+  // - Vercel API: returns object with 'products' property
+  const products = Array.isArray(productsResponse)
+    ? productsResponse
+    : Array.isArray(productsResponse?.products)
+    ? productsResponse.products
+    : [];
 
   const markSoldMutation = useMutation({
     mutationFn: async (productId: string) => {
@@ -118,6 +125,19 @@ export default function ProductsTab() {
       <Card>
         <CardContent className="p-8 text-center">
           <div className="text-lg">Lade Artikel...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <div className="text-lg text-red-600">Fehler beim Laden der Artikel</div>
+          <p className="text-sm text-gray-500 mt-2">
+            {error.message || "Bitte versuchen Sie es erneut oder loggen Sie sich neu ein."}
+          </p>
         </CardContent>
       </Card>
     );
