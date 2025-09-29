@@ -13,9 +13,18 @@ export default function TuttiArchiveTab() {
   const { toast } = useToast();
 
   // Fetch all products
-  const { data: products = [], isLoading } = useQuery<Product[]>({
+  const { data: productsResponse, isLoading, error } = useQuery({
     queryKey: ["/api/admin/products"],
   });
+
+  // Handle both response formats:
+  // - Express server: returns array directly
+  // - Vercel API: returns object with 'products' property
+  const products = Array.isArray(productsResponse)
+    ? productsResponse
+    : Array.isArray(productsResponse?.products)
+    ? productsResponse.products
+    : [];
 
   // Filter products based on search term
   const filteredProducts = products.filter(product =>
@@ -62,6 +71,19 @@ Kein Versand. Privatverkauf, keine Garantie.`;
       <Card>
         <CardContent className="p-8 text-center">
           <div className="text-lg">Lade Archiv...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <div className="text-lg text-red-600">Fehler beim Laden des Archivs</div>
+          <p className="text-sm text-gray-500 mt-2">
+            {error.message || "Bitte versuchen Sie es erneut oder loggen Sie sich neu ein."}
+          </p>
         </CardContent>
       </Card>
     );
