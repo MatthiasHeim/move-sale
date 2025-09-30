@@ -396,12 +396,22 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
         throw new Error(`OpenRouter API failed: ${apiError.message}`);
       }
 
+      // Log the full response to debug structure issues
+      console.log('🔍 OpenRouter API Response structure:', JSON.stringify(completion, null, 2));
+
       // Grok has native web search, no need for manual tool calling
-      const responseContent = completion.choices[0]?.message?.content;
-      console.log('🌐 Grok-4-Fast used native web search capabilities');
+      // Try multiple possible response formats
+      const responseContent =
+        completion?.choices?.[0]?.message?.content ||
+        completion?.content ||
+        completion?.message?.content ||
+        null;
+
+      console.log('🌐 Grok-4-Fast response content extracted:', responseContent ? 'Success' : 'Failed');
 
       if (!responseContent) {
-        throw new Error("No response from AI");
+        console.error('❌ Unexpected OpenRouter response structure. Full response:', JSON.stringify(completion, null, 2));
+        throw new Error(`No content in OpenRouter response. Response keys: ${Object.keys(completion || {}).join(', ')}`);
       }
 
       let aiProposal;
@@ -449,16 +459,21 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
       });
 
     } catch (error: any) {
-      console.error("AI agent error:", error);
+      console.error("❌ AI agent error:", error);
+      console.error("📋 Error stack:", error.stack);
+
       if (error.name === 'ZodError') {
-        return res.status(400).json({ 
-          error: "Invalid AI proposal format", 
-          details: error.errors 
+        console.error("🔍 Zod validation errors:", error.errors);
+        return res.status(400).json({
+          error: "Invalid AI proposal format",
+          details: error.errors
         });
       }
-      res.status(500).json({ 
-        error: "AI agent failed to generate proposal",
-        details: error.message 
+
+      // Don't expose internal error details to user in production
+      res.status(500).json({
+        error: "AI processing failed",
+        message: process.env.NODE_ENV === 'development' ? error.message : "Please try again or contact support"
       });
     }
   });
