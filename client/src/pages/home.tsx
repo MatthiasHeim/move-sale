@@ -26,8 +26,8 @@ export default function Home() {
         throw new Error('Failed to fetch products');
       }
       const data = await response.json();
-      // The API returns products array directly
-      return data;
+      // Handle both response formats: array directly or wrapped in an object
+      return Array.isArray(data) ? data : (data.products || []);
     },
   });
 
