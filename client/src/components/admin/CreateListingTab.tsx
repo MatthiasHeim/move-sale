@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,6 +31,7 @@ export default function CreateListingTab() {
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState<{ current: number; total: number } | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const uploadMutation = useMutation({
     mutationFn: async (files: File[]) => {
@@ -129,11 +130,15 @@ export default function CreateListingTab() {
       return result;
     },
     onSuccess: () => {
+      // Invalidate product queries to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+
       // Reset form
       setUploadedImages([]);
       setUserInput("");
       setProposal(null);
-      
+
       toast({
         title: "Artikel veröffentlicht",
         description: "Der Artikel wurde erfolgreich erstellt.",
