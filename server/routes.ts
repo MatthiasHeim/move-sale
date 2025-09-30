@@ -277,13 +277,19 @@ export function addRoutesToApp(app: Express): void {
         return res.status(400).json({ error: "At least one image URL is required" });
       }
       
-      // Enhanced system prompt leveraging Grok's native web search and improved object recognition
+      // Enhanced system prompt with focus on central product and improved object recognition
       const systemPrompt = `Du bist ein Experte für Secondhand-Möbel und hilfst einer Familie aus Müllheim Dorf, die im November nach Hongkong umzieht. Nutze deine natürlichen Web-Search-Fähigkeiten für aktuelle Marktpreise und erkenne Objekte sehr spezifisch.
+
+KRITISCH - PRODUKTFOKUS:
+- FOKUSSIERE NUR auf das HAUPTPRODUKT im Zentrum des Bildes
+- IGNORIERE vollständig die Umgebung, Hintergrund, andere Gegenstände
+- Beschreibe NIEMALS: Räume, Wände, andere Möbel, Dekoration im Hintergrund
+- Konzentriere dich ausschliesslich auf das eine Verkaufsobjekt
 
 WICHTIG - GENAUE OBJEKTERKENNUNG:
 - Identifiziere spezifische Pflanzenarten (z.B. Kaffeepflanze, Monstera, Ficus, etc.)
-- Erkenne Möbelmarken und -modelle präzise
-- Achte auf Material, Farbe, Design-Details
+- Erkenne Möbelmarken und -modelle präzise des HAUPTPRODUKTS
+- Achte auf Material, Farbe, Design-Details nur des Verkaufsobjekts
 - Verwende KORREKTE deutsche Rechtschreibung: "Zimmerpflanze" NICHT "Zimmerplanze"
 
 WEB-SEARCH FÜR AKTUELLE PREISE:
@@ -321,7 +327,7 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
       const userContent: any[] = [
         {
           type: "text",
-          text: text ? `Zusätzliche Informationen: ${text}. Analysiere die Bilder sehr genau, identifiziere spezifische Objekte und nutze Web-Search für aktuelle Schweizer Marktpreise.` : "Analysiere die Bilder sehr genau. Identifiziere spezifische Objekte (z.B. Pflanzenarten) und nutze Web-Search für aktuelle Marktpreise auf Tutti.ch, Ricardo.ch und Anibis.ch."
+          text: text ? `Zusätzliche Informationen: ${text}. WICHTIG: Konzentriere dich nur auf das HAUPTPRODUKT im Zentrum der Bilder. Ignoriere komplett die Umgebung, andere Gegenstände und den Hintergrund. Beschreibe ausschliesslich das eine Verkaufsobjekt und nutze Web-Search für dessen Marktpreis.` : "WICHTIG: Analysiere nur das HAUPTPRODUKT im Zentrum der Bilder. Ignoriere vollständig die Umgebung, andere Möbel und den Hintergrund. Konzentriere dich ausschliesslich auf das eine Verkaufsobjekt und nutze Web-Search für aktuelle Marktpreise auf Tutti.ch, Ricardo.ch und Anibis.ch."
         }
       ];
 
@@ -355,28 +361,40 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
 
       const client = await getOpenRouterClient();
 
+      console.log('🤖 Making OpenRouter API call...');
+      console.log('📝 API Key present:', !!process.env.OPENROUTER_API_KEY);
+      console.log('🖼️ Number of images:', userContent.filter(c => c.type === 'image_url').length);
+
       // Use Grok-4-Fast which has native web search capabilities
-      const completion = await client.chat.completions.create({
-        model: "x-ai/grok-4-fast:free",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userContent
+      let completion;
+      try {
+        completion = await client.chat.completions.create({
+          model: "x-ai/grok-4-fast:free",
+          messages: [
+            {
+              role: "system",
+              content: systemPrompt
+            },
+            {
+              role: "user",
+              content: userContent
+            }
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 2000,
+          temperature: 0.7
+        }, {
+          headers: {
+            "HTTP-Referer": "https://seup.ch",
+            "X-Title": "Seup.ch - Umzugsbeute Marketplace"
           }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 2000,
-        temperature: 0.7
-      }, {
-        headers: {
-          "HTTP-Referer": "https://seup.ch",
-          "X-Title": "Seup.ch - Umzugsbeute Marketplace"
-        }
-      });
+        });
+        console.log('✅ OpenRouter API call successful');
+      } catch (apiError: any) {
+        console.error('❌ OpenRouter API error:', apiError.message);
+        console.error('❌ Error details:', JSON.stringify(apiError.response?.data || apiError, null, 2));
+        throw new Error(`OpenRouter API failed: ${apiError.message}`);
+      }
 
       // Grok has native web search, no need for manual tool calling
       const responseContent = completion.choices[0]?.message?.content;

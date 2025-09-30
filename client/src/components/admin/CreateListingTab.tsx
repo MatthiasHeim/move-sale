@@ -98,15 +98,31 @@ export default function CreateListingTab() {
 
   const publishMutation = useMutation({
     mutationFn: async (proposal: AgentProposal) => {
+      // Map AI categories to database categories (furniture, equipment, decor)
+      const categoryMap: Record<string, string> = {
+        furniture: "furniture",
+        appliances: "equipment",
+        toys: "decor",
+        electronics: "equipment",
+        decor: "decor",
+        kitchen: "equipment",
+        sports: "decor",
+        outdoor: "decor",
+        kids_furniture: "furniture",
+        other: "decor"
+      };
+
+      const mappedCategory = categoryMap[proposal.category] || "decor";
+
       const productData = {
         name: proposal.name,
         description: proposal.description,
         price: proposal.price_chf,
-        category: proposal.category,
+        category: mappedCategory,
         imageUrls: proposal.gallery_image_urls,
       };
 
-      console.log("Publishing product:", productData);
+      console.log("Publishing product:", productData, "| Original category:", proposal.category, "| Mapped to:", mappedCategory);
       const response = await apiRequest("POST", "/api/products", productData);
       const result = await response.json();
       console.log("Publish response:", result);
