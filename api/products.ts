@@ -18,16 +18,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL });
     const db = drizzle({ client: pool, schema });
 
-    // Try to query products
-    const products = await db.select().from(schema.products);
+    // Query available products (matching storage.getProducts())
+    const { eq, desc } = await import('drizzle-orm');
+    const products = await db
+      .select()
+      .from(schema.products)
+      .where(eq(schema.products.isAvailable, true))
+      .orderBy(desc(schema.products.isPinned), desc(schema.products.createdAt));
 
     await pool.end();
 
-    res.json({
-      success: true,
-      count: products.length,
-      products: products.slice(0, 3) // First 3 for testing
-    });
+    // Return products array directly (not wrapped) to match frontend expectations
+    res.json(products);
 
   } catch (error) {
     console.error('Products API error:', error);
