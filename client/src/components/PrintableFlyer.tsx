@@ -68,13 +68,20 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
       <div className="flyer-page" style={{ '--accent-color': config.accentColor } as React.CSSProperties}>
         {/* Header Section */}
         <div className="flyer-header">
-          <div className="flyer-badge">Umzugsverkauf</div>
-          <h1 className="flyer-title">Wir ziehen nach Hong Kong!</h1>
-          <p className="flyer-intro">
-            Unsere Familie zieht von Müllheim nach Asien und muss sich schweren Herzens
-            von unserem gesamten Haushalt trennen. Alle Artikel sind gepflegt und in
-            gutem Zustand – perfekt für ein neues Zuhause!
-          </p>
+          <div className="flyer-header-content">
+            <div className="flyer-header-text">
+              <div className="flyer-badge">Umzugsverkauf</div>
+              <h1 className="flyer-title">Wir ziehen nach Hong Kong!</h1>
+              <p className="flyer-intro">
+                Unsere Familie zieht von Müllheim nach Asien und muss sich schweren Herzens
+                von unserem gesamten Haushalt trennen. Alle Artikel sind gepflegt und in
+                gutem Zustand – perfekt für ein neues Zuhause!
+              </p>
+            </div>
+            <div className="flyer-family-photo">
+              <img src="/family-hk.png" alt="Familie vor Hong Kong Skyline" />
+            </div>
+          </div>
         </div>
 
         {/* Theme Section */}
@@ -131,11 +138,6 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
             WhatsApp: <span className="flyer-whatsapp-number">076 628 64 06</span>
           </p>
         </div>
-
-        {/* Footer */}
-        <div className="flyer-footer">
-          <p>🏠 Abholung in Müllheim • 💚 Faire Preise • ⚡ Noch bis Ende Oktober</p>
-        </div>
       </div>
 
       {/* Print Styles */}
@@ -173,7 +175,34 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         }
 
         .flyer-header {
-          margin-bottom: 4mm;
+          margin-bottom: 3mm;
+        }
+
+        .flyer-header-content {
+          display: flex;
+          gap: 4mm;
+          align-items: center;
+        }
+
+        .flyer-header-text {
+          flex: 1;
+        }
+
+        .flyer-family-photo {
+          width: 22mm;
+          height: 22mm;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 3px solid var(--accent-color);
+          flex-shrink: 0;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .flyer-family-photo img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center 35%;
         }
 
         .flyer-badge {
@@ -190,7 +219,7 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         }
 
         .flyer-title {
-          font-size: 18pt;
+          font-size: 16pt;
           font-weight: 800;
           margin: 0 0 2mm 0;
           color: #111827;
@@ -198,7 +227,7 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         }
 
         .flyer-intro {
-          font-size: 8.5pt;
+          font-size: 7.5pt;
           color: #4b5563;
           margin: 0;
           line-height: 1.4;
@@ -206,8 +235,8 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
 
         .flyer-theme {
           border-top: 2px solid var(--accent-color);
-          padding-top: 3mm;
-          margin-bottom: 3mm;
+          padding-top: 2mm;
+          margin-bottom: 2mm;
         }
 
         .flyer-theme-title {
@@ -227,8 +256,8 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         .flyer-products {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 3mm;
-          margin-bottom: 4mm;
+          gap: 2.5mm;
+          margin-bottom: 3mm;
           flex: 1;
         }
 
@@ -281,11 +310,11 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         .flyer-cta {
           display: flex;
           gap: 4mm;
-          padding: 4mm;
+          padding: 3mm;
           background: #f9fafb;
           border-radius: 2mm;
           border: 2px solid var(--accent-color);
-          margin-bottom: 3mm;
+          margin-bottom: 2mm;
         }
 
         .flyer-cta-left {
@@ -329,9 +358,8 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
 
         .flyer-whatsapp {
           background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-          padding: 3mm;
+          padding: 2.5mm;
           border-radius: 2mm;
-          margin-bottom: 2mm;
           text-align: center;
         }
 
@@ -350,18 +378,6 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           font-size: 14pt;
           font-weight: 800;
           letter-spacing: 1px;
-        }
-
-        .flyer-footer {
-          text-align: center;
-          padding-top: 2mm;
-          border-top: 1px solid #e5e7eb;
-        }
-
-        .flyer-footer p {
-          font-size: 7pt;
-          color: #6b7280;
-          margin: 0;
         }
       `}</style>
     </div>

@@ -1,8 +1,8 @@
 // Simple version tracking
 export const VERSION_INFO = {
-  timestamp: '2025-10-01T06:43:11.371Z',
-  buildTime: '01.10.2025, 08:43',
-  commit: 'c7b874f075fcfd5939888fdc70642d19c4d6c61d',
+  timestamp: '2025-10-01T07:22:33.316Z',
+  buildTime: '01.10.2025, 09:22',
+  commit: 'f11845ab4b669ee2e8a573f3e658c007533c5519',
   version: '1.0.4'
 };
 
