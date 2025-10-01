@@ -23,6 +23,18 @@
       "dest": "/api/products-main.ts"
     },
     {
+      "src": "/api/products/([^/]+)/mark-sold",
+      "dest": "/api/products-working.ts"
+    },
+    {
+      "src": "/api/products/([^/]+)/toggle-pin",
+      "dest": "/api/products-working.ts"
+    },
+    {
+      "src": "/api/products/([^/]+)",
+      "dest": "/api/products-working.ts"
+    },
+    {
       "src": "/api/products",
       "dest": "/api/products-working.ts"
     },
