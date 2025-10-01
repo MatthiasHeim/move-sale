@@ -21,21 +21,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       varchar
     } = await import('drizzle-orm/pg-core');
 
-    // Define products table schema
+    // Define products table schema (matching shared/schema.ts)
     const products = pgTable('products', {
       id: varchar('id').primaryKey(),
       name: text('name').notNull(),
-      description: text('description'),
+      description: text('description').notNull(),
       price: decimal('price', { precision: 10, scale: 2 }).notNull(),
       category: text('category').notNull(),
       imageUrls: text('image_urls').array().notNull(),
       isAvailable: boolean('is_available').default(true),
       isPinned: boolean('is_pinned').default(false),
       createdAt: timestamp('created_at').defaultNow(),
-      condition: text('condition'),
-      dimensions: text('dimensions'),
-      tuttiTitle: text('tutti_title'),
-      tuttiBody: text('tutti_body'),
     });
 
     // Setup database connection
@@ -86,19 +82,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('🔥 POST /api/products - Creating new product');
         console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
 
-        // Product validation schema
+        // Product validation schema (only fields that exist in products table)
         const insertProductSchema = z.object({
           name: z.string().min(1, "Name ist erforderlich"),
-          description: z.string().optional(),
+          description: z.string(),
           price: z.string().or(z.number()).transform(val => String(val)),
           category: z.enum(['furniture', 'equipment', 'decor']),
           imageUrls: z.array(z.string()).min(1, "Mindestens ein Bild erforderlich"),
           isAvailable: z.boolean().default(true),
           isPinned: z.boolean().default(false),
-          condition: z.string().optional(),
-          dimensions: z.string().optional(),
-          tuttiTitle: z.string().optional(),
-          tuttiBody: z.string().optional(),
         });
 
         const validatedData = insertProductSchema.parse(req.body);
@@ -107,10 +99,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Generate unique ID
         const productId = `prod_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
 
-        // Insert product
+        // Insert product (only fields that exist in the database schema)
         const [product] = await db.insert(products).values({
           id: productId,
-          ...validatedData,
+          name: validatedData.name,
+          description: validatedData.description,
+          price: validatedData.price,
+          category: validatedData.category,
+          imageUrls: validatedData.imageUrls,
+          isAvailable: validatedData.isAvailable,
+          isPinned: validatedData.isPinned,
         }).returning();
 
         console.log('🎉 Product created successfully:', product.id);
