@@ -124,6 +124,14 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           </div>
         </div>
 
+        {/* WhatsApp Contact */}
+        <div className="flyer-whatsapp">
+          <p className="flyer-whatsapp-text">
+            📱 <strong>Fragen oder Termin vereinbaren?</strong><br />
+            WhatsApp: <span className="flyer-whatsapp-number">076 628 64 06</span>
+          </p>
+        </div>
+
         {/* Footer */}
         <div className="flyer-footer">
           <p>🏠 Abholung in Müllheim • 💚 Faire Preise • ⚡ Noch bis Ende Oktober</p>
@@ -317,6 +325,31 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           color: #6b7280;
           margin: 0;
           text-align: center;
+        }
+
+        .flyer-whatsapp {
+          background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+          padding: 3mm;
+          border-radius: 2mm;
+          margin-bottom: 2mm;
+          text-align: center;
+        }
+
+        .flyer-whatsapp-text {
+          color: white;
+          font-size: 9pt;
+          margin: 0;
+          line-height: 1.5;
+        }
+
+        .flyer-whatsapp-text strong {
+          font-size: 10pt;
+        }
+
+        .flyer-whatsapp-number {
+          font-size: 14pt;
+          font-weight: 800;
+          letter-spacing: 1px;
         }
 
         .flyer-footer {

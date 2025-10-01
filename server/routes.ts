@@ -724,53 +724,76 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
     }
   });
 
-  // Available pickup times endpoint (Google Calendar integration would go here)
+  // Available pickup times endpoint - specific dates for move preparation
   app.get("/api/pickup-times", async (req, res) => {
     try {
-      // Mock available times based on business hours
-      // In production, this would integrate with Google Calendar API
       const now = new Date();
       const availableTimes: Array<{
         datetime: string;
         display: string;
         value: string;
+        note?: string;
       }> = [];
-      
-      // Generate next 7 days of available slots
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(now);
-        date.setDate(date.getDate() + i);
-        
-        // Skip if it's current day and already past business hours
-        if (i === 0 && (date.getHours() >= 19 || (date.getDay() === 0 || date.getDay() === 6 && date.getHours() >= 16))) {
-          continue;
-        }
-        
-        const dayOfWeek = date.getDay();
-        let timeSlots: string[] = [];
-        
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
-          timeSlots = ["17:00-18:00", "18:00-19:00"];
-        } else if (dayOfWeek === 6 || dayOfWeek === 0) { // Saturday or Sunday
-          timeSlots = ["10:00-11:00", "11:00-12:00", "14:00-15:00", "15:00-16:00"];
-        }
-        
-        timeSlots.forEach(slot => {
+
+      // Specific pickup dates for October 2025
+      const pickupDates = [
+        // Friday, October 3rd - evening only (last Friday available)
+        { date: '2025-10-03', slots: ['17:00-18:00', '18:00-19:00'], day: 'Freitag' },
+
+        // Saturday, October 4th
+        { date: '2025-10-04', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
+
+        // Sunday, October 5th
+        { date: '2025-10-05', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
+
+        // Saturday, October 11th
+        { date: '2025-10-11', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
+
+        // Sunday, October 12th
+        { date: '2025-10-12', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
+
+        // Saturday, October 18th
+        { date: '2025-10-18', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
+
+        // Sunday, October 19th
+        { date: '2025-10-19', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
+
+        // Saturday, October 25th
+        { date: '2025-10-25', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
+
+        // Sunday, October 26th
+        { date: '2025-10-26', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
+      ];
+
+      // Generate time slots for each date
+      pickupDates.forEach(({ date, slots, day }) => {
+        const [year, month, dayNum] = date.split('-').map(Number);
+
+        slots.forEach(slot => {
           const [startTime] = slot.split('-');
-          const pickupTime = new Date(date);
           const [hours, minutes] = startTime.split(':').map(Number);
-          pickupTime.setHours(hours, minutes, 0, 0);
-          
+
+          const pickupTime = new Date(year, month - 1, dayNum, hours, minutes, 0, 0);
+
+          // Only include future times
           if (pickupTime > now) {
             availableTimes.push({
               datetime: pickupTime.toISOString(),
-              display: `${date.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'short' })}, ${slot}`,
-              value: pickupTime.toISOString()
+              display: `${day}, ${dayNum}. Okt, ${slot} Uhr`,
+              value: pickupTime.toISOString(),
             });
           }
         });
-      }
-      
+      });
+
+      // Add WhatsApp coordination option as a special entry
+      availableTimes.push({
+        datetime: 'custom',
+        display: '📱 Anderen Termin per WhatsApp vereinbaren (076 628 64 06)',
+        value: 'whatsapp',
+        note: 'Kontaktieren Sie uns per WhatsApp für individuelle Terminvereinbarung'
+      });
+
       res.json(availableTimes);
     } catch (error) {
       console.error("Error fetching pickup times:", error);
