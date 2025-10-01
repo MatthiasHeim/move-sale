@@ -76,8 +76,207 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Handle POST requests (admin - creates new product)
+    // Handle DELETE requests (admin - deletes product)
+    if (req.method === 'DELETE') {
+      try {
+        console.log('🗑️ DELETE /api/products - Deleting product');
+
+        // Extract product ID from URL path
+        const urlParts = req.url?.split('/');
+        const productId = urlParts?.[urlParts.length - 1];
+
+        if (!productId) {
+          await pool.end();
+          return res.status(400).json({ error: 'Product ID is required' });
+        }
+
+        console.log('🔍 Deleting product ID:', productId);
+
+        // Delete product
+        const deletedProducts = await db
+          .delete(products)
+          .where(eq(products.id, productId))
+          .returning();
+
+        if (deletedProducts.length === 0) {
+          console.log('❌ Product not found:', productId);
+          await pool.end();
+          return res.status(404).json({ error: 'Produkt nicht gefunden' });
+        }
+
+        console.log('🎉 Product deleted successfully:', productId);
+        await pool.end();
+        return res.status(200).json({
+          success: true,
+          message: 'Produkt erfolgreich gelöscht'
+        });
+      } catch (error: any) {
+        console.error('💥 Error deleting product:', error);
+        await pool.end();
+        return res.status(500).json({
+          error: 'Fehler beim Löschen des Produkts',
+          details: error.message
+        });
+      }
+    }
+
+    // Handle PATCH requests (admin - updates product)
+    if (req.method === 'PATCH') {
+      try {
+        console.log('✏️ PATCH /api/products - Updating product');
+
+        // Extract product ID from URL path
+        const urlParts = req.url?.split('/');
+        const productId = urlParts?.[urlParts.length - 1];
+
+        if (!productId) {
+          await pool.end();
+          return res.status(400).json({ error: 'Product ID is required' });
+        }
+
+        console.log('🔍 Updating product ID:', productId);
+        console.log('📦 Update data:', JSON.stringify(req.body, null, 2));
+
+        // Update validation schema (allow partial updates)
+        const updateProductSchema = z.object({
+          name: z.string().optional(),
+          description: z.string().optional(),
+          price: z.string().or(z.number()).transform(val => String(val)).optional(),
+          category: z.enum(['furniture', 'equipment', 'decor']).optional(),
+          imageUrls: z.array(z.string()).optional(),
+          isAvailable: z.boolean().optional(),
+          isPinned: z.boolean().optional(),
+        }).strict();
+
+        const validatedData = updateProductSchema.parse(req.body);
+        console.log('✅ Update validation passed');
+
+        // Update product
+        const updatedProducts = await db
+          .update(products)
+          .set(validatedData)
+          .where(eq(products.id, productId))
+          .returning();
+
+        if (updatedProducts.length === 0) {
+          console.log('❌ Product not found:', productId);
+          await pool.end();
+          return res.status(404).json({ error: 'Produkt nicht gefunden' });
+        }
+
+        console.log('🎉 Product updated successfully:', productId);
+        await pool.end();
+        return res.status(200).json({
+          success: true,
+          message: 'Produkt erfolgreich aktualisiert',
+          product: updatedProducts[0]
+        });
+      } catch (error: any) {
+        console.error('💥 Error updating product:', error);
+        await pool.end();
+
+        if (error.name === 'ZodError') {
+          console.error('📋 Validation errors:', error.errors);
+          return res.status(400).json({
+            error: 'Ungültige Produktdaten',
+            details: error.errors
+          });
+        }
+        return res.status(500).json({
+          error: 'Fehler beim Aktualisieren des Produkts',
+          details: error.message
+        });
+      }
+    }
+
+    // Handle POST requests (admin - creates new product OR special actions)
     if (req.method === 'POST') {
+      // Check if this is a special action endpoint (mark-sold, toggle-pin)
+      const urlParts = req.url?.split('/');
+      const action = urlParts?.[urlParts.length - 1];
+      const productId = urlParts?.[urlParts.length - 2];
+
+      // Handle mark-sold action
+      if (action === 'mark-sold' && productId) {
+        try {
+          console.log('💰 POST /api/products/:id/mark-sold - Marking product as sold');
+          console.log('🔍 Product ID:', productId);
+
+          const updatedProducts = await db
+            .update(products)
+            .set({ isAvailable: false })
+            .where(eq(products.id, productId))
+            .returning();
+
+          if (updatedProducts.length === 0) {
+            console.log('❌ Product not found:', productId);
+            await pool.end();
+            return res.status(404).json({ error: 'Produkt nicht gefunden' });
+          }
+
+          console.log('🎉 Product marked as sold:', productId);
+          await pool.end();
+          return res.status(200).json({
+            success: true,
+            message: 'Produkt als verkauft markiert',
+            product: updatedProducts[0]
+          });
+        } catch (error: any) {
+          console.error('💥 Error marking product as sold:', error);
+          await pool.end();
+          return res.status(500).json({
+            error: 'Fehler beim Markieren als verkauft',
+            details: error.message
+          });
+        }
+      }
+
+      // Handle toggle-pin action
+      if (action === 'toggle-pin' && productId) {
+        try {
+          console.log('📌 POST /api/products/:id/toggle-pin - Toggling pin status');
+          console.log('🔍 Product ID:', productId);
+
+          // Get current pin status
+          const currentProduct = await db
+            .select()
+            .from(products)
+            .where(eq(products.id, productId))
+            .limit(1);
+
+          if (currentProduct.length === 0) {
+            console.log('❌ Product not found:', productId);
+            await pool.end();
+            return res.status(404).json({ error: 'Produkt nicht gefunden' });
+          }
+
+          const newPinStatus = !currentProduct[0].isPinned;
+          console.log(`📍 Toggling pin: ${currentProduct[0].isPinned} → ${newPinStatus}`);
+
+          const updatedProducts = await db
+            .update(products)
+            .set({ isPinned: newPinStatus })
+            .where(eq(products.id, productId))
+            .returning();
+
+          console.log('🎉 Pin status toggled:', productId);
+          await pool.end();
+          return res.status(200).json({
+            success: true,
+            message: newPinStatus ? 'Produkt angepinnt' : 'Produkt entpinnt',
+            product: updatedProducts[0]
+          });
+        } catch (error: any) {
+          console.error('💥 Error toggling pin:', error);
+          await pool.end();
+          return res.status(500).json({
+            error: 'Fehler beim Ändern des Pin-Status',
+            details: error.message
+          });
+        }
+      }
+
+      // Regular product creation
       try {
         console.log('🔥 POST /api/products - Creating new product');
         console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
