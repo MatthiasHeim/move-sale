@@ -143,12 +143,25 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
       {/* Print Styles */}
       <style>{`
         @media print {
+          @page {
+            size: A5;
+            margin: 0;
+          }
+
           body {
             margin: 0;
             padding: 0;
           }
+
+          html, body {
+            width: 148mm;
+            height: 210mm;
+          }
+
           .print-flyer-container {
             page-break-after: always;
+            margin: 0;
+            padding: 0;
           }
         }
 

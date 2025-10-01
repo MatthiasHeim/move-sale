@@ -44,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Query ALL products for admin view (including sold/unavailable)
     const productsList = await db.select().from(products)
       .orderBy(products.createdAt)
-      .limit(50);
+      .limit(1000);
 
     await pool.end();
 
