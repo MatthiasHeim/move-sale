@@ -89,8 +89,8 @@ PREISREGELN:
 
 TUTTI.CH BESCHREIBUNG:
 - Beginne mit Produktdetails und Hongkong-Umzug-Story
-- Füge am Ende den Preis hinzu (z.B. "Preis: 65 CHF")
-- Beende mit: "Versand möglich gegen Portokosten. Bei grossen Gegenständen: 70 CHF pro Kilometer für Lieferung."
+- Füge eine Leerzeile ein
+- Beende mit: "Versand möglich gegen Portokosten. Bei grossen Gegenständen: 0.70 CHF pro Kilometer für Lieferung."
 
 Required JSON format:
 {
@@ -103,7 +103,7 @@ Required JSON format:
   "market_research": "Zusammenfassung der Web-Recherche zu aktuellen Marktpreisen",
   "price_confidence": "hoch/mittel/niedrig",
   "tutti_title_de": "Ansprechender Titel OHNE Preis",
-  "tutti_body_de": "Beschreibung mit Hongkong-Umzug-Story, dann Preis, dann Versandinfo"
+  "tutti_body_de": "Beschreibung mit Hongkong-Umzug-Story, dann Leerzeile, dann Versandinfo - KEIN PREIS"
 }
 
 Kategorien: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
