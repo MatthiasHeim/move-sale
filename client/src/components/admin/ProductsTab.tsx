@@ -95,8 +95,8 @@ export default function ProductsTab() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       toast({
-        title: data.isPinned ? "Artikel angepinnt" : "Artikel entpinnt",
-        description: data.isPinned
+        title: data?.product?.isPinned ? "Artikel angepinnt" : "Artikel entpinnt",
+        description: data?.product?.isPinned
           ? "Der Artikel wird nun ganz oben angezeigt."
           : "Der Artikel ist nicht mehr angepinnt.",
       });
