@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import AdminLogin from "@/pages/admin-login";
+import FlyerPrintPage from "@/pages/FlyerPrintPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/admin" component={Admin} />
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/flyer" component={FlyerPrintPage} />
       <Route component={NotFound} />
     </Switch>
   );

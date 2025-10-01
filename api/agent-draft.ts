@@ -77,27 +77,43 @@ GENAUE OBJEKTERKENNUNG:
 
 DEUTSCHE RECHTSCHREIBUNG:
 - Verwende KORREKTES Deutsch: "Zimmerpflanze" NICHT "Zimmerplanze"
-- "Große" NICHT "Grosse" (außer in der Schweiz üblich)
+- Verwende "ss" statt "ß" (z.B. "Grosse" statt "Große", "weiss" statt "weiß")
 - Achte auf Pflanzen-Fachbegriffe
+
+PREISREGELN:
+- Der Preis gehört NUR in das "price_chf" Feld
+- NIEMALS den Preis in "name" oder "description" erwähnen
+- Der Titel ("name") beschreibt NUR das Produkt ohne Preis
+- Die Beschreibung ("description") enthält NUR Details zum Objekt, NICHT den Preis
+- "tutti_title_de" darf KEINEN Preis enthalten - nur Produktbeschreibung
+
+TUTTI.CH BESCHREIBUNG:
+- Beginne mit Produktdetails und Hongkong-Umzug-Story
+- Füge am Ende den Preis hinzu (z.B. "Preis: 65 CHF")
+- Beende mit: "Versand möglich gegen Portokosten. Bei grossen Gegenständen: 70 CHF pro Kilometer für Lieferung."
 
 Required JSON format:
 {
-  "name": "Spezifischer Produktname (z.B. 'Kaffeepflanze im Terrakotta-Topf')",
-  "description": "2-3 detaillierte Sätze über das Objekt und seine Besonderheiten",
+  "name": "Spezifischer Produktname (z.B. 'Kaffeepflanze im Terrakotta-Topf') - OHNE PREIS",
+  "description": "2-3 detaillierte Sätze über das Objekt und seine Besonderheiten - OHNE PREIS",
   "price_chf": "65.00",
   "category": "decor",
   "condition": "good",
   "dimensions_cm": "Abmessungen falls erkennbar",
   "market_research": "Zusammenfassung der Web-Recherche zu aktuellen Marktpreisen",
   "price_confidence": "hoch/mittel/niedrig",
-  "tutti_title_de": "Ansprechender Titel ohne Preis",
-  "tutti_body_de": "Beschreibung mit Hongkong-Umzug-Story und Preis am Ende"
+  "tutti_title_de": "Ansprechender Titel OHNE Preis",
+  "tutti_body_de": "Beschreibung mit Hongkong-Umzug-Story, dann Preis, dann Versandinfo"
 }
 
 Kategorien: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
 Zustand: like new, very good, good, fair
 
-WICHTIG: Nutze Web-Search für aktuelle Marktpreise und identifiziere Objekte sehr spezifisch!`;
+WICHTIG:
+- Nutze Web-Search für aktuelle Marktpreise und identifiziere Objekte sehr spezifisch!
+- Verwende "ss" statt "ß" in allen deutschen Texten
+- NIEMALS Preis in name, description oder tutti_title_de erwähnen!
+- tutti_body_de muss mit der Versandinfo enden (siehe TUTTI.CH BESCHREIBUNG)`;
 
     // Simple content structure like debug-agent
     const userContent = [
