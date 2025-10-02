@@ -63,6 +63,10 @@
       "dest": "/api/upload.ts"
     },
     {
+      "src": "/api/pickup-times",
+      "dest": "/api/pickup-times.ts"
+    },
+    {
       "src": "/api/agent/draft",
       "dest": "/api/agent-draft.ts"
     },
