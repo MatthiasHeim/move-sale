@@ -65,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Add WhatsApp coordination option as a special entry
     availableTimes.push({
       datetime: 'custom',
-      display: '📱 Anderen Termin per WhatsApp vereinbaren (076 628 64 06)',
+      display: '📱 Anderen Termin per WhatsApp (076 628 64 06)',
       value: 'whatsapp',
       note: 'Kontaktieren Sie uns per WhatsApp für individuelle Terminvereinbarung'
     });
