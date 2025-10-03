@@ -19,12 +19,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Hochwertige Möbel und Pflanzen für Ihr Zuhause',
     accentColor: '#10b981', // emerald
     products: [
-      { name: 'IKEA Ecksofa Grau', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758026215170-31njocg97w4.webp' },
-      { name: 'Esstisch mit 4 Stühlen', price: '300 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882797343-zotkawj75h.webp' },
-      { name: 'Holzregal 3 Ablagen', price: '45 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758381059472-5dxdbvc13e7.webp' },
-      { name: 'Gartenmöbel-Set', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758052561887-qa89o7jhisl.webp' },
-      { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759301231355-c51891dea4727f42.webp' },
-      { name: 'Kaffeepflanze', price: '45 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759299790054-2b323f2af2dbf3f6.webp' },
+      { name: 'IKEA Ecksofa Grau', price: '350 CHF', imageUrl: '/uploads/prod_1759413319944_770db51e-0.webp' },
+      { name: 'Esstisch mit 4 Stühlen', price: '300 CHF', imageUrl: '/uploads/a827f59e-4669-42d5-99ab-3dd81a75ab31-0.webp' },
+      { name: 'Graues 2-Sitzer-Sofa', price: '150 CHF', imageUrl: '/uploads/prod_1759302486557_789128c1-0.webp' },
+      { name: 'Gartenmöbel-Set', price: '250 CHF', imageUrl: '/uploads/38245247-3327-435f-856a-155524c94dff-0.webp' },
+      { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: '/uploads/prod_1759301502508_0baf3a3d-0.webp' },
+      { name: 'Kaffeepflanze', price: '45 CHF', imageUrl: '/uploads/prod_1759299834072_cb4fa94d-0.webp' },
     ]
   },
   baby: {
@@ -32,12 +32,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Liebevoll genutzte Artikel für die Kleinen',
     accentColor: '#f59e0b', // amber
     products: [
-      { name: 'Stokke Xplory Kinderwagen', price: '200 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757881077280-46cvhpc9pb1.webp' },
-      { name: 'Weiße Kinderrutsche', price: '100 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757962503143-1hmsh6gb688.webp' },
-      { name: 'Tuki Learning Tower', price: '90 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882720124-i2ol40gzmfk.webp' },
-      { name: 'Babywippe Moji grau', price: '70 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757881710224-jp7euu2fkp.webp' },
-      { name: 'IKEA Trofast Regal', price: '45 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758381110019-gf63ezyg1xb.webp' },
-      { name: 'Charlie & Lily Regal', price: '45 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758381312384-4toknbcl7g.webp' },
+      { name: 'Moji Hochstuhl Set', price: '220 CHF', imageUrl: '/uploads/prod_1759336051072_82846420-0.webp' },
+      { name: 'Stokke Tripp Trapp', price: '150 CHF', imageUrl: '/uploads/prod_1759336425636_72892795-0.webp' },
+      { name: 'Medela Milchpumpe', price: '120 CHF', imageUrl: '/uploads/prod_1759312799661_4a158286-0.webp' },
+      { name: 'Weiße Kinderrutsche', price: '100 CHF', imageUrl: '/uploads/98ca3d5b-8571-43b9-8655-c16515b54d67-0.webp' },
+      { name: 'Holz-Spielküche', price: '85 CHF', imageUrl: '/uploads/prod_1759338510696_c2339bc5-0.webp' },
+      { name: 'Lovevery Spielset', price: '80 CHF', imageUrl: '/uploads/prod_1759305158389_16c93cd1-0.webp' },
     ]
   },
   household: {
@@ -45,12 +45,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Praktische Helfer für den Alltag',
     accentColor: '#3b82f6', // blue
     products: [
-      { name: 'iRobot Roomba', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882856127-sdnyrq67xch.webp' },
-      { name: 'Salta Trampolin', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758050692245-zxwn2nhol4s.webp' },
-      { name: 'iRobot Braava Wischroboter', price: '150 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882246761-837k2gztfyn.webp' },
-      { name: 'Tefal OptiGrill', price: '85 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882373549-dmutv1zp2f.webp' },
-      { name: 'Kleintierkäfig', price: '200 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757944754633-jj0c6q9k2hj.webp' },
-      { name: 'AniOne Kleintierstall', price: '40 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757878746837-wglu7xaijw.webp' },
+      { name: 'DJI Mavic 2 Drohne', price: '550 CHF', imageUrl: '/uploads/prod_1759412764502_1519ae5d-0.webp' },
+      { name: 'iRobot Roomba', price: '350 CHF', imageUrl: '/uploads/c4977bc4-bd51-4ace-a09e-e15dc2f888fd-0.webp' },
+      { name: 'Fotostudio-Set Godox', price: '250 CHF', imageUrl: '/uploads/prod_1759413319944_770db51e-0.webp' },
+      { name: 'Salta Trampolin', price: '250 CHF', imageUrl: '/uploads/3ed73c20-88aa-4011-b31e-3c4d407f304b-0.webp' },
+      { name: 'Braava M6 Wischroboter', price: '120 CHF', imageUrl: '/uploads/prod_1759308148198_9fa6e5f5-0.webp' },
+      { name: 'Meerschweinchen-Gehege', price: '120 CHF', imageUrl: '/uploads/prod_1759307971448_a3a0a80a-0.webp' },
     ]
   }
 };

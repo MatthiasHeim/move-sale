@@ -102,6 +102,16 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
       </div>
       
       <div className="p-4">
+        {/* Multi-item Discount Banner */}
+        <div className="mb-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-2.5">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🎉</span>
+            <span className="text-xs font-medium text-green-800">
+              Reserviere 2+ Artikel und erhalte 10% Rabatt auf alles!
+            </span>
+          </div>
+        </div>
+
         <h3 className="font-semibold text-foreground mb-2" data-testid={`product-name-${product.id}`}>
           {product.name}
         </h3>

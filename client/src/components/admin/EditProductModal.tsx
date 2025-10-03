@@ -59,7 +59,7 @@ export default function EditProductModal({ isOpen, onClose, product }: EditProdu
       category: string;
     }) => {
       const response = await apiRequest("PATCH", `/api/products/${product!.id}`, data);
-      return response.json();
+      return await response.json();
     },
     onSuccess: () => {
       toast({
