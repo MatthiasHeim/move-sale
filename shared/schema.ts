@@ -55,6 +55,7 @@ export const insertProductSchema = createInsertSchema(products).omit({
   createdAt: true,
 }).extend({
   imageUrls: z.array(z.string()).min(1, "At least one image URL is required"), // Allow relative URLs like /uploads/filename.webp
+  category: z.enum(["furniture", "appliances", "toys", "electronics", "decor", "kitchen", "sports", "outdoor", "kids_furniture", "other"]),
 });
 
 export const insertFaqSchema = createInsertSchema(faqs).omit({

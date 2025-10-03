@@ -3,7 +3,7 @@ import PrintableFlyer from '@/components/PrintableFlyer';
 import { Button } from '@/components/ui/button';
 import { Printer, Download } from 'lucide-react';
 
-type FlyerTheme = 'furniture' | 'baby' | 'household';
+type FlyerTheme = 'furniture' | 'baby' | 'household' | 'lifestyle';
 
 export default function FlyerPrintPage() {
   const [selectedThemes, setSelectedThemes] = useState<FlyerTheme[]>(['furniture']);
@@ -12,6 +12,7 @@ export default function FlyerPrintPage() {
     { value: 'furniture', label: 'Möbel & Wohnen' },
     { value: 'baby', label: 'Baby & Kinder' },
     { value: 'household', label: 'Haushalt & Technik' },
+    { value: 'lifestyle', label: 'Deko & Lifestyle' },
   ];
 
   const toggleTheme = (theme: FlyerTheme) => {

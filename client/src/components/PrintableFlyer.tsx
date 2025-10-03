@@ -1,6 +1,6 @@
 import { QRCodeSVG } from 'qrcode.react';
 
-type FlyerTheme = 'furniture' | 'baby' | 'household';
+type FlyerTheme = 'furniture' | 'baby' | 'household' | 'lifestyle';
 
 interface Product {
   name: string;
@@ -45,12 +45,25 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Praktische Helfer für den Alltag',
     accentColor: '#3b82f6', // blue
     products: [
-      { name: 'DJI Mavic 2 Drohne', price: '550 CHF', imageUrl: '/uploads/prod_1759412764502_1519ae5d-0.webp' },
+      { name: 'DJI Mavic 2 Drohne', price: '400 CHF', imageUrl: '/uploads/prod_1759412764502_1519ae5d-0.webp' },
       { name: 'iRobot Roomba', price: '350 CHF', imageUrl: '/uploads/c4977bc4-bd51-4ace-a09e-e15dc2f888fd-0.webp' },
       { name: 'Fotostudio-Set Godox', price: '250 CHF', imageUrl: '/uploads/prod_1759413319944_770db51e-0.webp' },
       { name: 'Salta Trampolin', price: '250 CHF', imageUrl: '/uploads/3ed73c20-88aa-4011-b31e-3c4d407f304b-0.webp' },
-      { name: 'Braava M6 Wischroboter', price: '120 CHF', imageUrl: '/uploads/prod_1759308148198_9fa6e5f5-0.webp' },
+      { name: 'Braava M6 Wischroboter', price: '150 CHF', imageUrl: '/uploads/prod_1759308148198_9fa6e5f5-0.webp' },
       { name: 'Meerschweinchen-Gehege', price: '120 CHF', imageUrl: '/uploads/prod_1759307971448_a3a0a80a-0.webp' },
+    ]
+  },
+  lifestyle: {
+    title: 'Deko & Lifestyle',
+    subtitle: 'Schöne Dinge für ein gemütliches Zuhause',
+    accentColor: '#ec4899', // pink
+    products: [
+      { name: 'Trockenblumen & Ausstattung', price: '500 CHF', imageUrl: '/uploads/prod_1759338982529_bbb1ed13-0.webp' },
+      { name: 'Dekorative Deckenleuchte', price: '95 CHF', imageUrl: '/uploads/9566afbb-c72b-470f-a39e-6e3d44ec792e-0.webp' },
+      { name: 'Rustikale Hängeleuchte', price: '95 CHF', imageUrl: '/uploads/fd55f34e-3a7b-4e75-b53c-e339cbb65777-0.webp' },
+      { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: '/uploads/prod_1759301502508_0baf3a3d-0.webp' },
+      { name: 'Astronaut Holzlampe', price: '60 CHF', imageUrl: '/uploads/prod_1759338929166_208ea006-0.webp' },
+      { name: 'Koala Nachtlampe', price: '60 CHF', imageUrl: '/uploads/prod_1759338982529_bbb1ed13-0.webp' },
     ]
   }
 };
