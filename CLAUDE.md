@@ -70,7 +70,7 @@ This is a full-stack **furniture rental marketplace** called Umzugsbeute with a 
 
 **File upload and AI:**
 - `POST /api/upload` - Multi-file image upload with HEIC conversion and WebP optimization
-- `POST /api/agent/draft` - AI product description generation using OpenRouter x-ai/grok-4-fast:free
+- `POST /api/agent/draft` - AI product description generation using OpenRouter google/gemini-2.5-flash with web search
 
 **Customer features:**
 - `POST /api/reservations` - Create product reservation
@@ -105,24 +105,26 @@ This is a full-stack **furniture rental marketplace** called Umzugsbeute with a 
 
 ### AI Integration
 
-- **OpenRouter x-ai/grok-4-fast:free** for product description generation (FREE tier)
-- **Native web search**: Real-time market price research on Swiss platforms
-- **Enhanced object recognition**: Better plant and furniture identification
+- **Google Gemini 2.5 Flash** via OpenRouter for product description generation
+- **Web search enabled**: Real-time market price research on Swiss platforms (Tutti.ch, Ricardo.ch, Anibis.ch)
+- **Deep reasoning**: Configured with high effort reasoning (2000 tokens) for better analysis
+- **Comprehensive search**: Up to 10 web search results per request using Exa search engine
+- **Enhanced object recognition**: Advanced plant and furniture identification
 - **Input**: Product images + optional text description
 - **Output**: Structured JSON with German product details, pricing, Tutti.ch listings
 - **Categories**: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
 - **Conditions**: like new, very good, good, fair
-- **Pricing**: Rounded to nearest 5 CHF, based on real market data
+- **Pricing**: Rounded to nearest 5 CHF, based on real market data from web search
 
 ### Environment Variables Required
 
 - `DATABASE_URL` - PostgreSQL connection string
 - `SESSION_SECRET` - Session encryption key
 - `ADMIN_PASS` - Admin login password
-- `OPENROUTER_API_KEY` - OpenRouter API key for x-ai/grok-4-fast:free model (replaces OpenAI)
+- `OPENROUTER_API_KEY` - OpenRouter API key for google/gemini-2.5-flash model
 - `PORT` - Server port (defaults to 5000)
 
-**Note**: The application now uses OpenRouter with x-ai/grok-4-fast:free model instead of OpenAI GPT-4o for improved object recognition, native web search capabilities, and cost savings.
+**Note**: The application uses OpenRouter with google/gemini-2.5-flash model for advanced reasoning, comprehensive web search (up to 10 results via Exa), and improved object recognition. The model is configured with deep reasoning capabilities and web search enabled for real-time market price research.
 
 ### Development Notes
 

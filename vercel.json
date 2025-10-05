@@ -31,6 +31,10 @@
       "dest": "/api/products-working.ts"
     },
     {
+      "src": "/api/products/by-slug/([^/]+)",
+      "dest": "/api/products-by-slug.ts"
+    },
+    {
       "src": "/api/products/([^/]+)",
       "dest": "/api/products-working.ts"
     },

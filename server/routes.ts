@@ -365,11 +365,11 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
       console.log('📝 API Key present:', !!process.env.OPENROUTER_API_KEY);
       console.log('🖼️ Number of images:', userContent.filter(c => c.type === 'image_url').length);
 
-      // Use Grok-4-Fast which has native web search capabilities
+      // Use Gemini 2.5 Flash with web search and deep reasoning
       let completion;
       try {
         completion = await client.chat.completions.create({
-          model: "x-ai/grok-4-fast:free",
+          model: "google/gemini-2.5-flash:online",
           messages: [
             {
               role: "system",
@@ -381,8 +381,19 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
             }
           ],
           response_format: { type: "json_object" },
-          max_tokens: 2000,
-          temperature: 0.7
+          max_tokens: 4000,
+          temperature: 0.7,
+          // Enable deep reasoning with high effort
+          reasoning: {
+            max_tokens: 2000,
+            effort: "high"
+          },
+          // Configure web search for comprehensive market research
+          plugins: [{
+            id: "web",
+            max_results: 10,
+            engine: "exa"
+          }]
         }, {
           headers: {
             "HTTP-Referer": "https://seup.ch",
@@ -399,7 +410,7 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
       // Log the full response to debug structure issues
       console.log('🔍 OpenRouter API Response structure:', JSON.stringify(completion, null, 2));
 
-      // Grok has native web search, no need for manual tool calling
+      // Gemini 2.5 Flash with web search enabled
       // Try multiple possible response formats
       const responseContent =
         completion?.choices?.[0]?.message?.content ||
@@ -407,7 +418,7 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
         completion?.message?.content ||
         null;
 
-      console.log('🌐 Grok-4-Fast response content extracted:', responseContent ? 'Success' : 'Failed');
+      console.log('🌐 Gemini 2.5 Flash response content extracted:', responseContent ? 'Success' : 'Failed');
 
       if (!responseContent) {
         console.error('❌ Unexpected OpenRouter response structure. Full response:', JSON.stringify(completion, null, 2));
@@ -579,6 +590,20 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
       res.json(product);
     } catch (error) {
       console.error("Error fetching product:", error);
+      res.status(500).json({ error: "Fehler beim Laden des Produkts" });
+    }
+  });
+
+  app.get("/api/products/by-slug/:slug", async (req, res) => {
+    try {
+      const storage = await getStorage();
+      const product = await storage.getProductBySlug(req.params.slug);
+      if (!product) {
+        return res.status(404).json({ error: "Produkt nicht gefunden" });
+      }
+      res.json(product);
+    } catch (error) {
+      console.error("Error fetching product by slug:", error);
       res.status(500).json({ error: "Fehler beim Laden des Produkts" });
     }
   });

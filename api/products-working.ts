@@ -25,6 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const products = pgTable('products', {
       id: varchar('id').primaryKey(),
       name: text('name').notNull(),
+      slug: text('slug').notNull(),
       description: text('description').notNull(),
       price: decimal('price', { precision: 10, scale: 2 }).notNull(),
       category: text('category').notNull(),
@@ -52,7 +53,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (category && category !== 'all') {
           productsList = await db
-            .select()
+            .select({
+              id: products.id,
+              name: products.name,
+              slug: products.slug,
+              description: products.description,
+              price: products.price,
+              category: products.category,
+              imageUrls: products.imageUrls,
+              isAvailable: products.isAvailable,
+              isPinned: products.isPinned,
+              createdAt: products.createdAt,
+            })
             .from(products)
             .where(and(
               eq(products.category, category),
@@ -61,7 +73,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             .orderBy(desc(products.isPinned), desc(products.createdAt));
         } else {
           productsList = await db
-            .select()
+            .select({
+              id: products.id,
+              name: products.name,
+              slug: products.slug,
+              description: products.description,
+              price: products.price,
+              category: products.category,
+              imageUrls: products.imageUrls,
+              isAvailable: products.isAvailable,
+              isPinned: products.isPinned,
+              createdAt: products.createdAt,
+            })
             .from(products)
             .where(eq(products.isAvailable, true))
             .orderBy(desc(products.isPinned), desc(products.createdAt));
@@ -284,6 +307,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Product validation schema (only fields that exist in products table)
         const insertProductSchema = z.object({
           name: z.string().min(1, "Name ist erforderlich"),
+          slug: z.string().optional(),
           description: z.string(),
           price: z.string().or(z.number()).transform(val => String(val)),
           category: z.enum(["furniture", "appliances", "toys", "electronics", "decor", "kitchen", "sports", "outdoor", "kids_furniture", "other"]),
@@ -298,10 +322,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Generate unique ID
         const productId = `prod_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
 
+        // Generate slug if not provided
+        const slug = validatedData.slug || validatedData.name
+          .toLowerCase()
+          .trim()
+          .replace(/ä/g, 'ae')
+          .replace(/ö/g, 'oe')
+          .replace(/ü/g, 'ue')
+          .replace(/ß/g, 'ss')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          + '-' + productId.substring(0, 8);
+
         // Insert product (only fields that exist in the database schema)
         const [product] = await db.insert(products).values({
           id: productId,
           name: validatedData.name,
+          slug,
           description: validatedData.description,
           price: validatedData.price,
           category: validatedData.category,

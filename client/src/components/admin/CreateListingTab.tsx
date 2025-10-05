@@ -115,8 +115,23 @@ export default function CreateListingTab() {
 
       const mappedCategory = categoryMap[proposal.category] || "decor";
 
+      // Generate slug from product name
+      const slug = proposal.name
+        .toLowerCase()
+        .trim()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        + '-' + Date.now().toString(36);
+
       const productData = {
         name: proposal.name,
+        slug,
         description: proposal.description,
         price: proposal.price_chf,
         category: mappedCategory,

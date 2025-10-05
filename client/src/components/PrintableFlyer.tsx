@@ -19,12 +19,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Hochwertige Möbel und Pflanzen für Ihr Zuhause',
     accentColor: '#10b981', // emerald
     products: [
-      { name: 'IKEA Ecksofa Grau', price: '350 CHF', imageUrl: '/uploads/prod_1759413319944_770db51e-0.webp' },
-      { name: 'Esstisch mit 4 Stühlen', price: '300 CHF', imageUrl: '/uploads/a827f59e-4669-42d5-99ab-3dd81a75ab31-0.webp' },
-      { name: 'Graues 2-Sitzer-Sofa', price: '150 CHF', imageUrl: '/uploads/prod_1759302486557_789128c1-0.webp' },
-      { name: 'Gartenmöbel-Set', price: '250 CHF', imageUrl: '/uploads/38245247-3327-435f-856a-155524c94dff-0.webp' },
-      { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: '/uploads/prod_1759301502508_0baf3a3d-0.webp' },
-      { name: 'Kaffeepflanze', price: '45 CHF', imageUrl: '/uploads/prod_1759299834072_cb4fa94d-0.webp' },
+      { name: 'IKEA Ecksofa Grau', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758026215170-31njocg97w4.webp' },
+      { name: 'Esstisch mit 4 Stühlen', price: '300 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882797343-zotkawj75h.webp' },
+      { name: 'Graues 2-Sitzer-Sofa', price: '150 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759302326045-790414de97fb1309.webp' },
+      { name: 'Gartenmöbel-Set', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758052561887-qa89o7jhisl.webp' },
+      { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759301231355-c51891dea4727f42.webp' },
+      { name: 'Kaffeepflanze', price: '45 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759299790054-2b323f2af2dbf3f6.webp' },
     ]
   },
   baby: {
@@ -32,12 +32,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Liebevoll genutzte Artikel für die Kleinen',
     accentColor: '#f59e0b', // amber
     products: [
-      { name: 'Moji Hochstuhl Set', price: '220 CHF', imageUrl: '/uploads/prod_1759336051072_82846420-0.webp' },
-      { name: 'Stokke Tripp Trapp', price: '150 CHF', imageUrl: '/uploads/prod_1759336425636_72892795-0.webp' },
-      { name: 'Medela Milchpumpe', price: '120 CHF', imageUrl: '/uploads/prod_1759312799661_4a158286-0.webp' },
-      { name: 'Weiße Kinderrutsche', price: '100 CHF', imageUrl: '/uploads/98ca3d5b-8571-43b9-8655-c16515b54d67-0.webp' },
-      { name: 'Holz-Spielküche', price: '85 CHF', imageUrl: '/uploads/prod_1759338510696_c2339bc5-0.webp' },
-      { name: 'Lovevery Spielset', price: '80 CHF', imageUrl: '/uploads/prod_1759305158389_16c93cd1-0.webp' },
+      { name: 'Moji Hochstuhl Set', price: '220 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759334845131-81a40a0835f40be4.webp' },
+      { name: 'Stokke Tripp Trapp', price: '150 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759336075298-4c6f735e8921b511.webp' },
+      { name: 'Medela Freestyle Milchpumpe', price: '120 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759311748807-2e9916c23d4ed586.webp' },
+      { name: 'Weiße Kinderrutsche', price: '100 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757962503143-1hmsh6gb688.webp' },
+      { name: 'Holz-Spielküche', price: '85 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759338422746-2ddc775dcb109aa6.webp' },
+      { name: 'Lovevery Spielset', price: '80 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759305115802-af74e11189f10ec7.webp' },
     ]
   },
   household: {
@@ -45,12 +45,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Praktische Helfer für den Alltag',
     accentColor: '#3b82f6', // blue
     products: [
-      { name: 'DJI Mavic 2 Drohne', price: '400 CHF', imageUrl: '/uploads/prod_1759412764502_1519ae5d-0.webp' },
-      { name: 'iRobot Roomba', price: '350 CHF', imageUrl: '/uploads/c4977bc4-bd51-4ace-a09e-e15dc2f888fd-0.webp' },
-      { name: 'Fotostudio-Set Godox', price: '250 CHF', imageUrl: '/uploads/prod_1759413319944_770db51e-0.webp' },
-      { name: 'Salta Trampolin', price: '250 CHF', imageUrl: '/uploads/3ed73c20-88aa-4011-b31e-3c4d407f304b-0.webp' },
-      { name: 'Braava M6 Wischroboter', price: '150 CHF', imageUrl: '/uploads/prod_1759308148198_9fa6e5f5-0.webp' },
-      { name: 'Meerschweinchen-Gehege', price: '120 CHF', imageUrl: '/uploads/prod_1759307971448_a3a0a80a-0.webp' },
+      { name: 'DJI Mavic 2 Drohne', price: '400 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759412629256-8e37a0193a5fde82.webp' },
+      { name: 'iRobot Roomba', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882856127-sdnyrq67xch.webp' },
+      { name: 'Fotostudio-Set Godox', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759412982588-6784843e269c17b6.webp' },
+      { name: 'Salta Trampolin', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758050692245-zxwn2nhol4s.webp' },
+      { name: 'Braava M6 Wischroboter', price: '120 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759308027433-cb5e0ae02d313007.webp' },
+      { name: 'Meerschweinchen-Gehege', price: '120 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759307860180-616f300a826fbbca.webp' },
     ]
   },
   lifestyle: {
@@ -58,12 +58,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Schöne Dinge für ein gemütliches Zuhause',
     accentColor: '#ec4899', // pink
     products: [
-      { name: 'Trockenblumen & Ausstattung', price: '500 CHF', imageUrl: '/uploads/prod_1759338982529_bbb1ed13-0.webp' },
-      { name: 'Dekorative Deckenleuchte', price: '95 CHF', imageUrl: '/uploads/9566afbb-c72b-470f-a39e-6e3d44ec792e-0.webp' },
-      { name: 'Rustikale Hängeleuchte', price: '95 CHF', imageUrl: '/uploads/fd55f34e-3a7b-4e75-b53c-e339cbb65777-0.webp' },
-      { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: '/uploads/prod_1759301502508_0baf3a3d-0.webp' },
-      { name: 'Astronaut Holzlampe', price: '60 CHF', imageUrl: '/uploads/prod_1759338929166_208ea006-0.webp' },
-      { name: 'Koala Nachtlampe', price: '60 CHF', imageUrl: '/uploads/prod_1759338982529_bbb1ed13-0.webp' },
+      { name: 'Trockenblumen & Ausstattung', price: '500 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757881355596-8p34h4bjeoi.webp' },
+      { name: 'Dekorative Deckenleuchte', price: '95 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757962457458-lv5o2zau0es.webp' },
+      { name: 'Rustikale Hängeleuchte', price: '95 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757961628785-76t37jhtucj.webp' },
+      { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759301231355-c51891dea4727f42.webp' },
+      { name: 'Astronaut Holzlampe', price: '60 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759338883406-b587dafee36482f3.webp' },
+      { name: 'Koala Nachtlampe', price: '60 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759338948917-9b772d19e92c8658.webp' },
     ]
   }
 };
@@ -79,6 +79,11 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
     <div className="print-flyer-container">
       {/* A5 Page */}
       <div className="flyer-page" style={{ '--accent-color': config.accentColor } as React.CSSProperties}>
+        {/* Discount Sticker */}
+        <div className="discount-sticker">
+          10% Rabatt ab 2 Artikeln
+        </div>
+
         {/* Header Section */}
         <div className="flyer-header">
           <div className="flyer-header-content">
@@ -198,6 +203,7 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           flex-direction: column;
           font-family: system-ui, -apple-system, sans-serif;
           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          position: relative;
         }
 
         .flyer-header {
@@ -404,6 +410,24 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           font-size: 14pt;
           font-weight: 800;
           letter-spacing: 1px;
+        }
+
+        .discount-sticker {
+          position: absolute;
+          top: 5mm;
+          right: 5mm;
+          background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+          color: white;
+          padding: 3mm 5mm;
+          border-radius: 50px;
+          font-size: 9pt;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          box-shadow: 0 4px 12px rgba(238, 90, 111, 0.4);
+          transform: rotate(3deg);
+          z-index: 10;
+          border: 2px solid white;
         }
       `}</style>
     </div>

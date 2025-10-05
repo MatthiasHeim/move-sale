@@ -7,12 +7,14 @@ import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import AdminLogin from "@/pages/admin-login";
 import FlyerPrintPage from "@/pages/FlyerPrintPage";
+import ProductDetail from "@/pages/product-detail";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/p/:slug" component={ProductDetail} />
       <Route path="/admin" component={Admin} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/flyer" component={FlyerPrintPage} />

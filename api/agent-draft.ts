@@ -55,7 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    console.log('=== OPENROUTER GROK-4-FAST AGENT DRAFT START ===');
+    console.log('=== OPENROUTER GEMINI 2.5 FLASH AGENT DRAFT START ===');
     const { text, image_urls } = req.body;
 
     if (!image_urls || !Array.isArray(image_urls) || image_urls.length === 0) {
@@ -139,11 +139,11 @@ WICHTIG:
       console.log(`✅ Added uploaded image to content`);
     }
 
-    console.log('🤖 Making OpenRouter Grok-4-Fast API call...');
+    console.log('🤖 Making OpenRouter Gemini 2.5 Flash API call...');
     const client = await getOpenRouterClient();
 
     const completion = await client.chat.completions.create({
-      model: "x-ai/grok-4-fast:free",
+      model: "google/gemini-2.5-flash:online",
       messages: [
         {
           role: "system",
@@ -155,8 +155,19 @@ WICHTIG:
         }
       ],
       response_format: { type: "json_object" },
-      max_tokens: 2000,
-      temperature: 0.7
+      max_tokens: 4000,
+      temperature: 0.7,
+      // Enable deep reasoning with high effort
+      reasoning: {
+        max_tokens: 2000,
+        effort: "high"
+      },
+      // Configure web search for comprehensive market research
+      plugins: [{
+        id: "web",
+        max_results: 10,
+        engine: "exa"
+      }]
     }, {
       headers: {
         "HTTP-Referer": "https://seup.ch",
@@ -164,7 +175,7 @@ WICHTIG:
       }
     });
 
-    console.log('✅ OpenRouter Grok-4-Fast API call completed successfully');
+    console.log('✅ OpenRouter Gemini 2.5 Flash API call completed successfully');
 
     const responseContent = completion.choices[0]?.message?.content;
     if (!responseContent) {
@@ -201,7 +212,7 @@ WICHTIG:
     if (!aiProposal.market_research) aiProposal.market_research = "Estimated based on Swiss secondhand market";
     if (!aiProposal.price_confidence) aiProposal.price_confidence = "medium";
 
-    console.log('=== OPENROUTER GROK-4-FAST AGENT DRAFT SUCCESS ===');
+    console.log('=== OPENROUTER GEMINI 2.5 FLASH AGENT DRAFT SUCCESS ===');
 
     res.json({
       success: true,
@@ -209,7 +220,7 @@ WICHTIG:
     });
 
   } catch (error: any) {
-    console.error("=== OPENROUTER GROK-4-FAST AGENT DRAFT ERROR ===");
+    console.error("=== OPENROUTER GEMINI 2.5 FLASH AGENT DRAFT ERROR ===");
     console.error("Error type:", error.constructor.name);
     console.error("Error message:", error.message);
     console.error("Error code:", error.code);

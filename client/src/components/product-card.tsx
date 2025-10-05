@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Pin } from "lucide-react";
+import { Link } from "wouter";
 import type { Product } from "@shared/schema";
 
 interface ProductCardProps {
@@ -25,16 +26,18 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
 
   const hasMultipleImages = product.imageUrls.length > 1;
 
+  const slug = (product as any).slug || `product-${product.id}`;
+
   return (
-    <div
-      onClick={onReservation}
-      className={`product-card bg-card rounded-lg shadow-md overflow-hidden border cursor-pointer hover:shadow-lg transition-shadow ${
-        (product as any).isPinned
-          ? "border-yellow-500 ring-2 ring-yellow-200 shadow-lg"
-          : "border-border"
-      }`}
-      data-testid={`product-card-${product.id}`}
-    >
+    <Link href={`/p/${slug}`}>
+      <div
+        className={`product-card bg-card rounded-lg shadow-md overflow-hidden border cursor-pointer hover:shadow-lg transition-shadow ${
+          (product as any).isPinned
+            ? "border-yellow-500 ring-2 ring-yellow-200 shadow-lg"
+            : "border-border"
+        }`}
+        data-testid={`product-card-${product.id}`}
+      >
       <div className="relative group">
         <img 
           src={product.imageUrls[currentImageIndex]} 
@@ -102,16 +105,6 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
       </div>
       
       <div className="p-4">
-        {/* Multi-item Discount Banner */}
-        <div className="mb-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🎉</span>
-            <span className="text-xs font-medium text-green-800">
-              Reserviere 2+ Artikel und erhalte 10% Rabatt auf alles!
-            </span>
-          </div>
-        </div>
-
         <h3 className="font-semibold text-foreground mb-2" data-testid={`product-name-${product.id}`}>
           {product.name}
         </h3>
@@ -124,6 +117,7 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
           </span>
           <Button
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onReservation();
             }}
@@ -135,5 +129,6 @@ export default function ProductCard({ product, onReservation }: ProductCardProps
         </div>
       </div>
     </div>
+    </Link>
   );
 }
