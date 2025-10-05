@@ -156,18 +156,7 @@ WICHTIG:
       ],
       response_format: { type: "json_object" },
       max_tokens: 4000,
-      temperature: 0.7,
-      // Enable deep reasoning with high effort
-      reasoning: {
-        max_tokens: 2000,
-        effort: "high"
-      },
-      // Configure web search for comprehensive market research
-      plugins: [{
-        id: "web",
-        max_results: 10,
-        engine: "exa"
-      }]
+      temperature: 0.7
     }, {
       headers: {
         "HTTP-Referer": "https://seup.ch",
