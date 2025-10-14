@@ -99,21 +99,22 @@ export default function CreateListingTab() {
 
   const publishMutation = useMutation({
     mutationFn: async (proposal: AgentProposal) => {
-      // Map AI categories to database categories (furniture, equipment, decor)
+      // Map AI categories to database categories
+      // Valid categories: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
       const categoryMap: Record<string, string> = {
         furniture: "furniture",
-        appliances: "equipment",
-        toys: "decor",
-        electronics: "equipment",
+        appliances: "appliances",
+        toys: "toys",
+        electronics: "electronics",
         decor: "decor",
-        kitchen: "equipment",
-        sports: "decor",
-        outdoor: "decor",
-        kids_furniture: "furniture",
-        other: "decor"
+        kitchen: "kitchen",
+        sports: "sports",
+        outdoor: "outdoor",
+        kids_furniture: "kids_furniture",
+        other: "other"
       };
 
-      const mappedCategory = categoryMap[proposal.category] || "decor";
+      const mappedCategory = categoryMap[proposal.category] || "other";
 
       // Generate slug from product name
       const slug = proposal.name

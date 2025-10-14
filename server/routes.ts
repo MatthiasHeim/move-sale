@@ -879,7 +879,7 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
           name: "Kühlschrank",
           description: "Energieeffizienter Kühlschrank, 200L Fassungsvermögen, A++ Energieklasse",
           price: "280.00",
-          category: "equipment",
+          category: "appliances",
           imageUrls: ["https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=500&h=400&fit=crop"]
         },
         {
