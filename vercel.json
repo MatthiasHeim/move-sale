@@ -71,6 +71,18 @@
       "dest": "/api/pickup-times.ts"
     },
     {
+      "src": "/api/reservations/([^/]+)/status",
+      "dest": "/api/reservations.ts?id=$1"
+    },
+    {
+      "src": "/api/reservations/([^/]+)",
+      "dest": "/api/reservations.ts?id=$1"
+    },
+    {
+      "src": "/api/reservations",
+      "dest": "/api/reservations.ts"
+    },
+    {
       "src": "/api/agent/draft",
       "dest": "/api/agent-draft.ts"
     },
