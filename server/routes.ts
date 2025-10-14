@@ -448,11 +448,32 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
         throw new Error(`No content in OpenRouter response. Response keys: ${Object.keys(completion || {}).join(', ')}`);
       }
 
+      // Extract JSON from response (handle markdown code blocks, extra text, etc.)
       let aiProposal;
       try {
-        aiProposal = JSON.parse(responseContent);
+        let jsonString = responseContent.trim();
+
+        // Remove markdown code blocks if present
+        const codeBlockMatch = jsonString.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+        if (codeBlockMatch) {
+          jsonString = codeBlockMatch[1].trim();
+          console.log('📝 Extracted JSON from code block');
+        }
+
+        // Try to find JSON object if wrapped in text
+        const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
+        if (jsonMatch && !jsonString.startsWith('{')) {
+          jsonString = jsonMatch[0];
+          console.log('📝 Extracted JSON from mixed text');
+        }
+
+        // Parse the cleaned JSON
+        aiProposal = JSON.parse(jsonString);
+        console.log('✅ Successfully parsed AI JSON response');
       } catch (error) {
-        console.error("Failed to parse AI response:", responseContent);
+        console.error("❌ Failed to parse AI response:");
+        console.error("📄 Raw response:", responseContent);
+        console.error("🔍 Parse error:", error);
         throw new Error("Invalid JSON response from AI");
       }
 
