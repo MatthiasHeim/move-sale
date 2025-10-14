@@ -82,6 +82,19 @@ export default function CreateListingTab() {
       return response.json();
     },
     onSuccess: (data) => {
+      console.log("🎯 AI Response received:", data);
+      console.log("📦 Proposal data:", data.proposal);
+
+      if (!data.proposal || Object.keys(data.proposal).length === 0) {
+        console.error("❌ Empty proposal received from API");
+        toast({
+          title: "Leerer Vorschlag",
+          description: "Die KI hat keinen gültigen Vorschlag generiert. Bitte versuchen Sie es erneut.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setProposal(data.proposal);
       toast({
         title: "Vorschlag generiert",
@@ -99,6 +112,11 @@ export default function CreateListingTab() {
 
   const publishMutation = useMutation({
     mutationFn: async (proposal: AgentProposal) => {
+      // Validate proposal has required fields
+      if (!proposal.name || !proposal.description || !proposal.price_chf) {
+        throw new Error("Unvollständiger Vorschlag: Name, Beschreibung oder Preis fehlt");
+      }
+
       // Map AI categories to database categories
       // Valid categories: furniture, appliances, toys, electronics, decor, kitchen, sports, outdoor, kids_furniture, other
       const categoryMap: Record<string, string> = {
