@@ -49,7 +49,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
     onSuccess: () => {
       toast({
         title: "Reservierung erfolgreich!",
-        description: "Sie erhalten in Kürze eine Bestätigung per Telefon.",
+        description: "Vielen Dank für Ihre Reservierung!",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       resetForm();
