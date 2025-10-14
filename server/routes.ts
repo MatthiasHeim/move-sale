@@ -334,26 +334,49 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
       // Add images to the content (using base64 for reliability)
       for (const imageUrl of image_urls.slice(0, 4)) { // Limit to 4 images for API
         try {
-          // Extract filename from URL
-          const filename = imageUrl.split('/').pop();
-          if (!filename) continue;
-          
-          const filepath = `/tmp/${filename}`;
-          console.log(`📖 Converting image to base64: ${filepath}`);
-          
-          // Read image file and convert to base64
-          const imageBuffer = readFileSync(filepath);
+          let imageBuffer: Buffer;
+
+          // Check if URL is external (Supabase) or local
+          if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            // Fetch from external URL (Supabase Storage)
+            console.log(`🌐 Fetching image from URL: ${imageUrl}`);
+            const response = await fetch(imageUrl);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch image: ${response.statusText}`);
+            }
+            const arrayBuffer = await response.arrayBuffer();
+            imageBuffer = Buffer.from(arrayBuffer);
+            console.log(`✅ Downloaded image from URL (${imageBuffer.length} bytes)`);
+          } else {
+            // Try local /tmp first, then fall back to public directory
+            const filename = imageUrl.split('/').pop();
+            if (!filename) continue;
+
+            try {
+              const tmpPath = `/tmp/${filename}`;
+              imageBuffer = readFileSync(tmpPath);
+              console.log(`📖 Read image from /tmp: ${tmpPath} (${imageBuffer.length} bytes)`);
+            } catch (tmpError) {
+              // Fallback: try reading from public/uploads
+              console.log(`⚠️ /tmp read failed, trying public directory...`);
+              const publicPath = path.join(process.cwd(), 'public', imageUrl);
+              imageBuffer = readFileSync(publicPath);
+              console.log(`📖 Read image from public: ${publicPath} (${imageBuffer.length} bytes)`);
+            }
+          }
+
+          // Convert to base64
           const base64Image = imageBuffer.toString('base64');
-          
+
           userContent.push({
             type: "image_url",
-            image_url: { 
+            image_url: {
               url: `data:image/webp;base64,${base64Image}`,
               detail: "high"
             }
           });
-          
-          console.log(`✅ Added base64 image: ${filename} (${imageBuffer.length} bytes)`);
+
+          console.log(`✅ Added base64 image to AI request (${imageBuffer.length} bytes)`);
         } catch (err) {
           console.error(`❌ Failed to process image ${imageUrl}:`, err);
         }
