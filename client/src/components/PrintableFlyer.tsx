@@ -76,8 +76,13 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
   const config = themeConfig[theme];
 
   // Generate UTM-tracked URL for QR code
-  // Use 'tech' for household theme for alternate tracking
-  const utmCampaign = theme === 'household' ? 'tech' : theme;
+  // Use custom campaign names for different tracking
+  let utmCampaign = theme;
+  if (theme === 'household') {
+    utmCampaign = 'tech';
+  } else if (theme === 'baby') {
+    utmCampaign = 'kids';
+  }
   const qrUrl = `https://seup.ch?utm_source=flyer&utm_medium=qr&utm_campaign=${utmCampaign}`;
 
   return (
