@@ -20,11 +20,11 @@ const themeConfig: Record<FlyerTheme, {
     accentColor: '#10b981', // emerald
     products: [
       { name: 'IKEA Ecksofa Grau', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758026215170-31njocg97w4.webp' },
-      { name: 'Esstisch mit 4 Stühlen', price: '300 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882797343-zotkawj75h.webp' },
+      { name: 'Grosses weisses Kallax Regal', price: '180 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1760452764148-bb7a3d49b0ee1c6e.webp' },
       { name: 'Graues 2-Sitzer-Sofa', price: '150 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759302326045-790414de97fb1309.webp' },
-      { name: 'Gartenmöbel-Set', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758052561887-qa89o7jhisl.webp' },
       { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759301231355-c51891dea4727f42.webp' },
       { name: 'Kaffeepflanze', price: '45 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759299790054-2b323f2af2dbf3f6.webp' },
+      { name: 'Hölzerner Laufgitter', price: '40 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759305172076-93face335f499d6f.webp' },
     ]
   },
   baby: {
@@ -32,12 +32,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Liebevoll genutzte Artikel für die Kleinen',
     accentColor: '#f59e0b', // amber
     products: [
-      { name: 'Moji Hochstuhl Set', price: '220 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759334845131-81a40a0835f40be4.webp' },
-      { name: 'Stokke Tripp Trapp', price: '150 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759336075298-4c6f735e8921b511.webp' },
       { name: 'Medela Freestyle Milchpumpe', price: '120 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759311748807-2e9916c23d4ed586.webp' },
-      { name: 'Weiße Kinderrutsche', price: '100 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757962503143-1hmsh6gb688.webp' },
-      { name: 'Holz-Spielküche', price: '85 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759338422746-2ddc775dcb109aa6.webp' },
-      { name: 'Lovevery Spielset', price: '80 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759305115802-af74e11189f10ec7.webp' },
+      { name: 'Ergobaby Babytrage', price: '65 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759304818218-270ad9ef9a61f6f9.webp' },
+      { name: 'Holz-Spielküche', price: '60 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759338422746-2ddc775dcb109aa6.webp' },
+      { name: 'Schwangerschaftskissen', price: '35 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759317624214-467a4bcadf20e27a.webp' },
+      { name: 'Baby Einstein Drums', price: '25 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759311695143-72b1df8ba69da9d9.webp' },
+      { name: 'Baby-Schlafsack', price: '20 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759304876151-5cd389cab4f5e9c6.webp' },
     ]
   },
   household: {
@@ -45,12 +45,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Praktische Helfer für den Alltag',
     accentColor: '#3b82f6', // blue
     products: [
-      { name: 'DJI Mavic 2 Drohne', price: '400 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759412629256-8e37a0193a5fde82.webp' },
-      { name: 'iRobot Roomba', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882856127-sdnyrq67xch.webp' },
-      { name: 'Fotostudio-Set Godox', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759412982588-6784843e269c17b6.webp' },
-      { name: 'Salta Trampolin', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758050692245-zxwn2nhol4s.webp' },
+      { name: 'iRobot Roomba Saugroboter', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882856127-sdnyrq67xch.webp' },
+      { name: 'DJI Mavic 2 Drohne', price: '290 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759412629256-8e37a0193a5fde82.webp' },
+      { name: 'Qeridoo Fahrradanhänger', price: '250 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1760452704110-8dcaf83bdfd86e00.webp' },
       { name: 'Braava M6 Wischroboter', price: '120 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759308027433-cb5e0ae02d313007.webp' },
-      { name: 'Meerschweinchen-Gehege', price: '120 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759307860180-616f300a826fbbca.webp' },
+      { name: 'Tefal OptiGrill', price: '85 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882373549-dmutv1zp2f.webp' },
+      { name: 'Nespresso Vertuo', price: '75 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759329109464-13539b38f15e81ed.webp' },
     ]
   },
   lifestyle: {
@@ -58,12 +58,12 @@ const themeConfig: Record<FlyerTheme, {
     subtitle: 'Schöne Dinge für ein gemütliches Zuhause',
     accentColor: '#ec4899', // pink
     products: [
-      { name: 'Trockenblumen & Ausstattung', price: '500 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757881355596-8p34h4bjeoi.webp' },
-      { name: 'Dekorative Deckenleuchte', price: '95 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757962457458-lv5o2zau0es.webp' },
-      { name: 'Rustikale Hängeleuchte', price: '95 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757961628785-76t37jhtucj.webp' },
+      { name: 'Cricut Maker 3 Set', price: '500 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759657998251-fc4fdd2217c96a25.webp' },
+      { name: 'Ast-Deckenlampe mit Efeu', price: '120 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759657940923-605023abc8f2c5b0.webp' },
       { name: 'Grosse Birkenfeige', price: '65 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759301231355-c51891dea4727f42.webp' },
       { name: 'Astronaut Holzlampe', price: '60 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759338883406-b587dafee36482f3.webp' },
       { name: 'Koala Nachtlampe', price: '60 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759338948917-9b772d19e92c8658.webp' },
+      { name: 'Kaffeepflanze', price: '45 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759299790054-2b323f2af2dbf3f6.webp' },
     ]
   }
 };
@@ -74,6 +74,9 @@ interface PrintableFlyerProps {
 
 export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
   const config = themeConfig[theme];
+
+  // Generate UTM-tracked URL for QR code
+  const qrUrl = `https://seup.ch?utm_source=flyer&utm_medium=qr&utm_campaign=${theme}`;
 
   return (
     <div className="print-flyer-container">
@@ -121,7 +124,6 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
               </div>
               <div className="flyer-product-info">
                 <p className="flyer-product-name">{product.name}</p>
-                <p className="flyer-product-price">{product.price}</p>
               </div>
             </div>
           ))}
@@ -135,13 +137,13 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
             <p className="flyer-cta-details">
               • Über 50 weitere Artikel<br />
               • Direkt reservieren<br />
-              • Abholung in Müllheim
+              • Abholung: Storenberg 9a, Müllheim
             </p>
           </div>
           <div className="flyer-cta-qr">
             <QRCodeSVG
-              value="https://seup.ch"
-              size={120}
+              value={qrUrl}
+              size={140}
               level="M"
               includeMargin={false}
             />
@@ -180,6 +182,12 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
             page-break-after: always;
             margin: 0;
             padding: 0;
+          }
+
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
         }
 
@@ -228,6 +236,7 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           border: 3px solid var(--accent-color);
           flex-shrink: 0;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          background: white;
         }
 
         .flyer-family-photo img {
@@ -288,9 +297,9 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         .flyer-products {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 2.5mm;
-          margin-bottom: 3mm;
-          flex: 1;
+          gap: 2mm;
+          margin-bottom: 2.5mm;
+          align-content: start;
         }
 
         .flyer-product {
@@ -299,11 +308,12 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           border-radius: 2mm;
           overflow: hidden;
           border: 1px solid #e5e7eb;
+          height: fit-content;
         }
 
         .flyer-product-image-wrapper {
           width: 100%;
-          height: 25mm;
+          height: 22mm;
           overflow: hidden;
           background: #f9fafb;
         }
@@ -315,34 +325,30 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         }
 
         .flyer-product-info {
-          padding: 2mm;
+          padding: 1mm;
           background: white;
+          text-align: center;
+          height: auto;
         }
 
         .flyer-product-name {
-          font-size: 7pt;
+          font-size: 7.5pt;
           font-weight: 600;
-          margin: 0 0 1mm 0;
+          margin: 0;
           color: #111827;
-          line-height: 1.2;
+          line-height: 1.15;
           overflow: hidden;
           text-overflow: ellipsis;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
-        }
-
-        .flyer-product-price {
-          font-size: 9pt;
-          font-weight: 700;
-          margin: 0;
-          color: var(--accent-color);
+          width: 100%;
         }
 
         .flyer-cta {
           display: flex;
-          gap: 4mm;
-          padding: 3mm;
+          gap: 5mm;
+          padding: 4mm;
           background: #f9fafb;
           border-radius: 2mm;
           border: 2px solid var(--accent-color);
@@ -354,60 +360,61 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         }
 
         .flyer-cta-title {
-          font-size: 10pt;
+          font-size: 11pt;
           font-weight: 700;
-          margin: 0 0 1mm 0;
+          margin: 0 0 1.5mm 0;
           color: #111827;
         }
 
         .flyer-cta-url {
-          font-size: 16pt;
+          font-size: 18pt;
           font-weight: 800;
-          margin: 0 0 2mm 0;
+          margin: 0 0 2.5mm 0;
           color: var(--accent-color);
         }
 
         .flyer-cta-details {
-          font-size: 7.5pt;
+          font-size: 8.5pt;
           color: #4b5563;
           margin: 0;
-          line-height: 1.5;
+          line-height: 1.6;
         }
 
         .flyer-cta-qr {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 1mm;
+          gap: 1.5mm;
         }
 
         .flyer-cta-qr-label {
-          font-size: 6.5pt;
+          font-size: 7.5pt;
           color: #6b7280;
           margin: 0;
           text-align: center;
+          font-weight: 600;
         }
 
         .flyer-whatsapp {
           background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-          padding: 2.5mm;
+          padding: 3.5mm;
           border-radius: 2mm;
           text-align: center;
         }
 
         .flyer-whatsapp-text {
           color: white;
-          font-size: 9pt;
+          font-size: 10pt;
           margin: 0;
-          line-height: 1.5;
+          line-height: 1.6;
         }
 
         .flyer-whatsapp-text strong {
-          font-size: 10pt;
+          font-size: 11pt;
         }
 
         .flyer-whatsapp-number {
-          font-size: 14pt;
+          font-size: 16pt;
           font-weight: 800;
           letter-spacing: 1px;
         }
