@@ -76,7 +76,9 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
   const config = themeConfig[theme];
 
   // Generate UTM-tracked URL for QR code
-  const qrUrl = `https://seup.ch?utm_source=flyer&utm_medium=qr&utm_campaign=${theme}`;
+  // Use 'tech' for household theme for alternate tracking
+  const utmCampaign = theme === 'household' ? 'tech' : theme;
+  const qrUrl = `https://seup.ch?utm_source=flyer&utm_medium=qr&utm_campaign=${utmCampaign}`;
 
   return (
     <div className="print-flyer-container">
@@ -239,11 +241,25 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           background: white;
         }
 
+        @media print {
+          .flyer-family-photo {
+            box-shadow: none !important;
+            background: white !important;
+          }
+        }
+
         .flyer-family-photo img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           object-position: center 35%;
+          background: white;
+        }
+
+        @media print {
+          .flyer-family-photo img {
+            background: white !important;
+          }
         }
 
         .flyer-badge {
@@ -431,10 +447,15 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          box-shadow: 0 4px 12px rgba(238, 90, 111, 0.4);
           transform: rotate(3deg);
           z-index: 10;
           border: 2px solid white;
+        }
+
+        @media print {
+          .discount-sticker {
+            box-shadow: none !important;
+          }
         }
       `}</style>
     </div>
