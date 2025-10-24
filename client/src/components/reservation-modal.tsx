@@ -118,7 +118,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg mx-auto max-h-[90vh] overflow-y-auto" data-testid="reservation-modal">
+      <DialogContent className="max-w-lg mx-auto h-[100dvh] sm:max-h-[90vh] sm:h-auto overflow-y-auto" data-testid="reservation-modal">
         <DialogHeader>
           <DialogTitle data-testid="modal-title">Artikel reservieren</DialogTitle>
           <DialogDescription>
@@ -127,9 +127,9 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
         </DialogHeader>
         
         {/* Product Summary */}
-        <div className="border rounded-lg p-4 bg-muted/20" data-testid="product-summary">
+        <div className="border rounded-lg p-3 sm:p-4 bg-muted/20" data-testid="product-summary">
           {/* Large Product Image Gallery */}
-          <div className="relative w-full aspect-[4/3] mb-4 group">
+          <div className="relative w-full aspect-video sm:aspect-[4/3] mb-3 sm:mb-4 group">
             <img
               src={product.imageUrls[currentImageIndex]}
               alt={`${product.name} - Bild ${currentImageIndex + 1}`}
@@ -166,14 +166,14 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
           </div>
 
           {/* Product Details */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-lg" data-testid="modal-product-name">
+          <div className="space-y-1 sm:space-y-2">
+            <h4 className="font-semibold text-base sm:text-lg" data-testid="modal-product-name">
               {product.name}
             </h4>
-            <p className="text-2xl font-bold text-destructive" data-testid="modal-product-price">
+            <p className="text-xl sm:text-2xl font-bold text-destructive" data-testid="modal-product-price">
               {formatPrice(product.price)}
             </p>
-            <p className="text-sm text-muted-foreground" data-testid="modal-product-description">
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 sm:line-clamp-none" data-testid="modal-product-description">
               {product.description}
             </p>
           </div>
@@ -203,10 +203,10 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
             </div>
           )}
         </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <div>
-            <Label htmlFor="customerName" className="block text-sm font-medium text-foreground mb-1">
+            <Label htmlFor="customerName" className="block text-xs sm:text-sm font-medium text-foreground mb-1">
               Ihr Name
             </Label>
             <Input
@@ -220,9 +220,9 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
               data-testid="input-customer-name"
             />
           </div>
-          
+
           <div>
-            <Label htmlFor="customerPhone" className="block text-sm font-medium text-foreground mb-1">
+            <Label htmlFor="customerPhone" className="block text-xs sm:text-sm font-medium text-foreground mb-1">
               Telefonnummer
             </Label>
             <Input
@@ -236,9 +236,9 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
               data-testid="input-customer-phone"
             />
           </div>
-          
+
           <div>
-            <Label htmlFor="pickupTime" className="block text-sm font-medium text-foreground mb-1">
+            <Label htmlFor="pickupTime" className="block text-xs sm:text-sm font-medium text-foreground mb-1">
               Gewünschter Abholtermin
             </Label>
             <Select value={selectedPickupTime} onValueChange={setSelectedPickupTime} required>
@@ -254,19 +254,19 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
               </SelectContent>
             </Select>
           </div>
-          
-          <div className="bg-muted/50 p-3 rounded-lg" data-testid="reservation-notice">
-            <div className="text-sm text-muted-foreground">
+
+          <div className="bg-muted/50 p-2 sm:p-3 rounded-lg" data-testid="reservation-notice">
+            <div className="text-xs sm:text-sm text-muted-foreground">
               <strong>Wichtig:</strong> Die Reservierung ist 48 Stunden gültig. Bei Nichtabholung wird der Artikel wieder freigegeben.
             </div>
           </div>
-          
-          <div className="flex gap-3">
+
+          <div className="flex gap-2 sm:gap-3 pb-2 sm:pb-0">
             <Button
               type="button"
               variant="secondary"
               onClick={handleClose}
-              className="flex-1 min-h-[44px]"
+              className="flex-1 min-h-[44px] text-sm"
               data-testid="cancel-reservation-button"
             >
               Abbrechen
@@ -274,7 +274,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
             <Button
               type="submit"
               disabled={reservationMutation.isPending}
-              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 min-h-[44px]"
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 min-h-[44px] text-sm"
               data-testid="confirm-reservation-button"
             >
               {reservationMutation.isPending ? "Wird reserviert..." : "Reservierung bestätigen"}
