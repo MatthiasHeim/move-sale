@@ -42,7 +42,7 @@ export default function AdminLogin() {
     if (!password.trim()) {
       toast({
         title: "Passwort erforderlich",
-        description: "Bitte geben Sie das Admin-Passwort ein.",
+        description: "Bitte gib das Admin-Passwort ein.",
         variant: "destructive",
       });
       return;
@@ -56,7 +56,7 @@ export default function AdminLogin() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
           <CardDescription>
-            Melden Sie sich an, um auf den Admin-Bereich zuzugreifen
+            Melde dich an, um auf den Admin-Bereich zuzugreifen
           </CardDescription>
         </CardHeader>
         <CardContent>

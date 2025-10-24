@@ -36,7 +36,7 @@ export default function Home() {
     {
       id: "1",
       question: "Wie kann ich Möbel reservieren?",
-      answer: "Klicken Sie einfach auf das gewünschte Möbelstück und wählen Sie einen Abholtermin aus."
+      answer: "Klicke einfach auf das gewünschte Möbelstück und wähle einen Abholtermin aus."
     },
     {
       id: "2",

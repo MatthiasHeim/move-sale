@@ -34,7 +34,7 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/status"] });
       toast({
         title: "Abgemeldet",
-        description: "Sie wurden erfolgreich abgemeldet.",
+        description: "Du wurdest erfolgreich abgemeldet.",
       });
       navigate("/admin/login");
     },
@@ -76,7 +76,7 @@ export default function Admin() {
               </div>
             </div>
             <p className="text-sm text-gray-600">
-              Verwalten Sie Ihre Möbel und Artikel
+              Verwalte deine Möbel und Artikel
             </p>
             <p className="text-xs text-gray-400 mt-1" title={getVersionDetails()}>
               {getVersionDetails()}

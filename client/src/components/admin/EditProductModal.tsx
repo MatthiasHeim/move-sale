@@ -85,7 +85,7 @@ export default function EditProductModal({ isOpen, onClose, product }: EditProdu
     if (!name.trim() || !description.trim() || !price.trim() || !category) {
       toast({
         title: "Fehlende Angaben",
-        description: "Bitte füllen Sie alle Felder aus.",
+        description: "Bitte fülle alle Felder aus.",
         variant: "destructive",
       });
       return;
@@ -121,7 +121,7 @@ export default function EditProductModal({ isOpen, onClose, product }: EditProdu
         <DialogHeader>
           <DialogTitle>Artikel bearbeiten</DialogTitle>
           <DialogDescription>
-            Bearbeiten Sie die Details von "{product.name}".
+            Bearbeite die Details von "{product.name}".
           </DialogDescription>
         </DialogHeader>
 

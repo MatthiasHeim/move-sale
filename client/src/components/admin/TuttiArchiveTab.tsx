@@ -82,7 +82,7 @@ Kein Versand. Privatverkauf, keine Garantie.`;
         <CardContent className="p-8 text-center">
           <div className="text-lg text-red-600">Fehler beim Laden des Archivs</div>
           <p className="text-sm text-gray-500 mt-2">
-            {error.message || "Bitte versuchen Sie es erneut oder loggen Sie sich neu ein."}
+            {error.message || "Bitte versuche es erneut oder logge dich neu ein."}
           </p>
         </CardContent>
       </Card>

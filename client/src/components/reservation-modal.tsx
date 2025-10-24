@@ -49,7 +49,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
     onSuccess: () => {
       toast({
         title: "Reservierung erfolgreich!",
-        description: "Vielen Dank! Wir haben Ihre Reservierung erhalten.",
+        description: "Vielen Dank! Wir haben deine Reservierung erhalten.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       resetForm();
@@ -93,7 +93,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
     if (!product || !customerName.trim() || !customerPhone.trim() || !selectedPickupTime) {
       toast({
         title: "Fehlende Angaben",
-        description: "Bitte füllen Sie alle Felder aus.",
+        description: "Bitte fülle alle Felder aus.",
         variant: "destructive",
       });
       return;
@@ -122,7 +122,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
         <DialogHeader>
           <DialogTitle data-testid="modal-title">Artikel reservieren</DialogTitle>
           <DialogDescription>
-            Füllen Sie das Formular aus, um {product.name} zu reservieren und einen Abholtermin zu vereinbaren.
+            Fülle das Formular aus, um {product.name} zu reservieren und einen Abholtermin zu vereinbaren.
           </DialogDescription>
         </DialogHeader>
         
@@ -207,7 +207,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <div>
             <Label htmlFor="customerName" className="block text-xs sm:text-sm font-medium text-foreground mb-1">
-              Ihr Name
+              Dein Name
             </Label>
             <Input
               id="customerName"
@@ -243,7 +243,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
             </Label>
             <Select value={selectedPickupTime} onValueChange={setSelectedPickupTime} required>
               <SelectTrigger className="w-full" data-testid="select-pickup-time">
-                <SelectValue placeholder="Wählen Sie einen Termin" />
+                <SelectValue placeholder="Wähle einen Termin" />
               </SelectTrigger>
               <SelectContent>
                 {pickupTimes.map((time) => (
@@ -257,7 +257,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
 
           <div className="bg-muted/50 p-2 sm:p-3 rounded-lg" data-testid="reservation-notice">
             <div className="text-xs sm:text-sm text-muted-foreground">
-              <strong>Wichtig:</strong> Die Reservierung ist 48 Stunden gültig. Bei Nichtabholung wird der Artikel wieder freigegeben.
+              <strong>Wichtig:</strong> Deine Reservierung ist 48 Stunden gültig. Bei Nichtabholung wird der Artikel wieder freigegeben.
             </div>
           </div>
 

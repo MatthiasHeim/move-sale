@@ -89,7 +89,7 @@ export default function CreateListingTab() {
         console.error("❌ Empty proposal received from API");
         toast({
           title: "Leerer Vorschlag",
-          description: "Die KI hat keinen gültigen Vorschlag generiert. Bitte versuchen Sie es erneut.",
+          description: "Die KI hat keinen gültigen Vorschlag generiert. Bitte versuche es erneut.",
           variant: "destructive",
         });
         return;
@@ -339,7 +339,7 @@ export default function CreateListingTab() {
 
     // Final check - make sure we have some successfully processed files
     if (compressedFiles.length === 0) {
-      throw new Error('Keine Dateien konnten erfolgreich verarbeitet werden. Bitte verwenden Sie kleinere Bilder oder andere Formate.');
+      throw new Error('Keine Dateien konnten erfolgreich verarbeitet werden. Bitte verwende kleinere Bilder oder andere Formate.');
     }
 
     return compressedFiles;
@@ -433,7 +433,7 @@ export default function CreateListingTab() {
     if (uploadedImages.length === 0) {
       toast({
         title: "Keine Bilder",
-        description: "Bitte laden Sie zuerst Bilder hoch.",
+        description: "Bitte lade zuerst Bilder hoch.",
         variant: "destructive",
       });
       return;

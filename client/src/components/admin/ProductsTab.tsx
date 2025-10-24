@@ -136,7 +136,7 @@ export default function ProductsTab() {
         <CardContent className="p-8 text-center">
           <div className="text-lg text-red-600">Fehler beim Laden der Artikel</div>
           <p className="text-sm text-gray-500 mt-2">
-            {error.message || "Bitte versuchen Sie es erneut oder loggen Sie sich neu ein."}
+            {error.message || "Bitte versuche es erneut oder logge dich neu ein."}
           </p>
         </CardContent>
       </Card>
@@ -151,7 +151,7 @@ export default function ProductsTab() {
             Noch keine Artikel erstellt.
           </div>
           <p className="text-sm text-gray-400 mt-2">
-            Erstellen Sie Ihren ersten Artikel im "Neues Angebot" Tab.
+            Erstelle deinen ersten Artikel im "Neues Angebot" Tab.
           </p>
         </CardContent>
       </Card>
