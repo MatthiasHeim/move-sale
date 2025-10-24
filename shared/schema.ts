@@ -26,7 +26,7 @@ export const faqs = pgTable("faqs", {
 
 export const reservations = pgTable("reservations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  productId: varchar("product_id").references(() => products.id).notNull(),
+  productId: varchar("product_id").references(() => products.id, { onDelete: 'cascade' }).notNull(),
   customerName: text("customer_name").notNull(),
   customerPhone: text("customer_phone").notNull(),
   pickupTime: timestamp("pickup_time").notNull(),
