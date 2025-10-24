@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Upload, LogOut, Plus, Edit, Trash2, CheckCircle, Copy, Info } from "lucide-react";
+import { Upload, LogOut, Plus, Edit, Trash2, CheckCircle, Copy, Info, Calendar } from "lucide-react";
 import type { Product } from "@shared/schema";
 import { getVersionString, getVersionDetails } from "@/lib/version";
 
@@ -14,6 +14,7 @@ import { getVersionString, getVersionDetails } from "@/lib/version";
 import CreateListingTab from "@/components/admin/CreateListingTab";
 import ProductsTab from "@/components/admin/ProductsTab";
 import TuttiArchiveTab from "@/components/admin/TuttiArchiveTab";
+import ReservationsTab from "@/components/admin/ReservationsTab";
 
 export default function Admin() {
   const [, navigate] = useLocation();
@@ -97,7 +98,7 @@ export default function Admin() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         <Tabs defaultValue="create" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="create" data-testid="tab-create">
               <Plus className="h-4 w-4 mr-2" />
               Neues Angebot
@@ -105,6 +106,10 @@ export default function Admin() {
             <TabsTrigger value="products" data-testid="tab-products">
               <Edit className="h-4 w-4 mr-2" />
               Meine Artikel
+            </TabsTrigger>
+            <TabsTrigger value="reservations" data-testid="tab-reservations">
+              <Calendar className="h-4 w-4 mr-2" />
+              Reservierungen
             </TabsTrigger>
             <TabsTrigger value="tutti" data-testid="tab-tutti">
               <Copy className="h-4 w-4 mr-2" />
@@ -118,6 +123,10 @@ export default function Admin() {
 
           <TabsContent value="products">
             <ProductsTab />
+          </TabsContent>
+
+          <TabsContent value="reservations">
+            <ReservationsTab />
           </TabsContent>
 
           <TabsContent value="tutti">

@@ -15,8 +15,8 @@ const themeConfig: Record<FlyerTheme, {
   accentColor: string;
 }> = {
   furniture: {
-    title: 'Möbel & Wohnen',
-    subtitle: 'Hochwertige Möbel und Pflanzen für Ihr Zuhause',
+    title: 'Vielseitiges Sortiment',
+    subtitle: 'Von Möbeln über Technik bis zu Kinderartikeln',
     accentColor: '#10b981', // emerald
     products: [
       { name: 'IKEA Ecksofa Grau', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1758026215170-31njocg97w4.webp' },
@@ -28,8 +28,8 @@ const themeConfig: Record<FlyerTheme, {
     ]
   },
   baby: {
-    title: 'Baby & Kinder',
-    subtitle: 'Liebevoll genutzte Artikel für die Kleinen',
+    title: 'Vielseitiges Sortiment',
+    subtitle: 'Von Möbeln über Technik bis zu Kinderartikeln',
     accentColor: '#f59e0b', // amber
     products: [
       { name: 'Medela Freestyle Milchpumpe', price: '120 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759311748807-2e9916c23d4ed586.webp' },
@@ -41,8 +41,8 @@ const themeConfig: Record<FlyerTheme, {
     ]
   },
   household: {
-    title: 'Haushalt & Technik',
-    subtitle: 'Praktische Helfer für den Alltag',
+    title: 'Vielseitiges Sortiment',
+    subtitle: 'Von Möbeln über Technik bis zu Kinderartikeln',
     accentColor: '#3b82f6', // blue
     products: [
       { name: 'iRobot Roomba Saugroboter', price: '350 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/product-1757882856127-sdnyrq67xch.webp' },
@@ -54,8 +54,8 @@ const themeConfig: Record<FlyerTheme, {
     ]
   },
   lifestyle: {
-    title: 'Deko & Lifestyle',
-    subtitle: 'Schöne Dinge für ein gemütliches Zuhause',
+    title: 'Vielseitiges Sortiment',
+    subtitle: 'Von Möbeln über Technik bis zu Kinderartikeln',
     accentColor: '#ec4899', // pink
     products: [
       { name: 'Cricut Maker 3 Set', price: '500 CHF', imageUrl: 'https://skyttkazfonfzhbgtbus.supabase.co/storage/v1/object/public/product-images/uploads/product-1759657998251-fc4fdd2217c96a25.webp' },
@@ -222,12 +222,12 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
         }
 
         .flyer-header {
-          margin-bottom: 3mm;
+          margin-bottom: 2mm;
         }
 
         .flyer-header-content {
           display: flex;
-          gap: 4mm;
+          gap: 3mm;
           align-items: center;
         }
 
@@ -243,13 +243,15 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           border: 3px solid var(--accent-color);
           flex-shrink: 0;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          background: white;
+          background: transparent;
         }
 
         @media print {
           .flyer-family-photo {
             box-shadow: none !important;
-            background: white !important;
+            background: transparent !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
         }
 
@@ -258,12 +260,13 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           height: 100%;
           object-fit: cover;
           object-position: center 35%;
-          background: white;
+          display: block;
         }
 
         @media print {
           .flyer-family-photo img {
-            background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
         }
 
@@ -297,8 +300,8 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
 
         .flyer-theme {
           border-top: 2px solid var(--accent-color);
-          padding-top: 2mm;
-          margin-bottom: 2mm;
+          padding-top: 1.5mm;
+          margin-bottom: 1.5mm;
         }
 
         .flyer-theme-title {
@@ -319,7 +322,7 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 2mm;
-          margin-bottom: 2.5mm;
+          margin-bottom: 2mm;
           align-content: start;
         }
 
@@ -368,12 +371,12 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
 
         .flyer-cta {
           display: flex;
-          gap: 5mm;
-          padding: 4mm;
+          gap: 4mm;
+          padding: 3mm;
           background: #f9fafb;
           border-radius: 2mm;
           border: 2px solid var(--accent-color);
-          margin-bottom: 2mm;
+          margin-bottom: 1.5mm;
         }
 
         .flyer-cta-left {
@@ -418,7 +421,7 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
 
         .flyer-whatsapp {
           background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-          padding: 3.5mm;
+          padding: 3mm;
           border-radius: 2mm;
           text-align: center;
         }
@@ -444,7 +447,7 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           position: absolute;
           top: 5mm;
           right: 5mm;
-          background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+          background: #ff6b6b;
           color: white;
           padding: 3mm 5mm;
           border-radius: 50px;
@@ -453,13 +456,23 @@ export default function PrintableFlyer({ theme }: PrintableFlyerProps) {
           text-transform: uppercase;
           letter-spacing: 0.5px;
           transform: rotate(3deg);
-          z-index: 10;
+          z-index: 1;
           border: 2px solid white;
+        }
+
+        @media screen {
+          .discount-sticker {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            box-shadow: 0 4px 12px rgba(238, 90, 111, 0.4);
+            z-index: 10;
+          }
         }
 
         @media print {
           .discount-sticker {
+            background: #ff6b6b !important;
             box-shadow: none !important;
+            z-index: 1 !important;
           }
         }
       `}</style>

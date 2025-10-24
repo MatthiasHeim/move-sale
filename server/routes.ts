@@ -817,7 +817,7 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
             id: product.id,
             name: product.name,
             price: product.price,
-            coverImageUrl: product.coverImageUrl,
+            coverImageUrl: product.imageUrls[0] || null,
           },
         };
 
