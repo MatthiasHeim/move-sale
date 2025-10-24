@@ -34,8 +34,9 @@ async function startCleanupIfNeeded() {
     console.warn("Failed to start cleanup:", error instanceof Error ? error.message : String(error));
   }
 }
-import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal } from "./schema";
+import { insertProductSchema, insertFaqSchema, insertReservationSchema, agentProposalSchema, type AgentProposal, products, reservations } from "./schema";
 import { validateApiToken, optionalApiToken, API_TOKEN, requireAdminAuth, requireAuth, optionalAuth, ADMIN_PASS, type AuthenticatedRequest } from "./auth";
+import { eq, desc } from "drizzle-orm";
 
 // Dynamic import functions to avoid module-level initialization
 async function getOpenRouterClient() {
@@ -49,6 +50,11 @@ async function getOpenRouterClient() {
 async function getSupabase() {
   const { supabase } = await import("./supabase");
   return supabase;
+}
+
+async function getDb() {
+  const { db } = await import("./db");
+  return db;
 }
 
 // Configure multer for file uploads
@@ -470,6 +476,7 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
         // Parse the cleaned JSON
         aiProposal = JSON.parse(jsonString);
         console.log('✅ Successfully parsed AI JSON response');
+        console.log('📊 Parsed AI proposal:', JSON.stringify(aiProposal, null, 2));
       } catch (error) {
         console.error("❌ Failed to parse AI response:");
         console.error("📄 Raw response:", responseContent);
@@ -507,6 +514,8 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
 
       // Validate with Zod schema
       const validatedProposal = agentProposalSchema.parse(aiProposal);
+
+      console.log('✅ Zod validation passed. Final proposal:', JSON.stringify(validatedProposal, null, 2));
 
       res.json({
         success: true,
@@ -737,6 +746,41 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
   });
 
   // Reservations endpoints
+  // Admin endpoint to get all reservations with product details
+  app.get("/api/admin/reservations", requireAdminAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const db = await getDb();
+      const reservationsData = await db.select({
+        id: reservations.id,
+        productId: reservations.productId,
+        customerName: reservations.customerName,
+        customerPhone: reservations.customerPhone,
+        pickupTime: reservations.pickupTime,
+        status: reservations.status,
+        createdAt: reservations.createdAt,
+        expiresAt: reservations.expiresAt,
+        productName: products.name,
+        productPrice: products.price,
+        productImageUrls: products.imageUrls,
+      })
+      .from(reservations)
+      .leftJoin(products, eq(reservations.productId, products.id))
+      .orderBy(desc(reservations.createdAt));
+
+      // Transform data to include the first image as cover image
+      const transformedData = reservationsData.map(res => ({
+        ...res,
+        productCoverImage: res.productImageUrls?.[0] || null,
+        productImageUrls: undefined, // Remove from response
+      }));
+
+      res.json(transformedData);
+    } catch (error) {
+      console.error("Error fetching admin reservations:", error);
+      res.status(500).json({ error: "Fehler beim Laden der Reservierungen" });
+    }
+  });
+
   app.post("/api/reservations", async (req, res) => {
     try {
       const storage = await getStorage();
@@ -755,6 +799,46 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
 
       // Mark product as unavailable
       await storage.updateProductAvailability(validatedData.productId, false);
+
+      // Trigger webhook notification
+      try {
+        const webhookUrl = "https://primary-production-460f.up.railway.app/webhook/75dce36d-5bd8-42ee-94d1-feda671650ca";
+        const webhookPayload = {
+          event: "reservation.created",
+          reservation: {
+            id: reservation.id,
+            customerName: reservation.customerName,
+            customerPhone: reservation.customerPhone,
+            pickupTime: reservation.pickupTime,
+            status: reservation.status,
+            createdAt: reservation.createdAt,
+          },
+          product: {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            coverImageUrl: product.coverImageUrl,
+          },
+        };
+
+        console.log('📤 Sending webhook notification to:', webhookUrl);
+        const webhookResponse = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload),
+        });
+
+        if (!webhookResponse.ok) {
+          console.error('⚠️ Webhook failed:', webhookResponse.status, await webhookResponse.text());
+        } else {
+          console.log('✅ Webhook sent successfully');
+        }
+      } catch (webhookError) {
+        // Log error but don't fail the reservation
+        console.error('❌ Webhook error:', webhookError);
+      }
 
       res.status(201).json(reservation);
     } catch (error) {
