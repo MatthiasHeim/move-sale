@@ -801,6 +801,7 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
       await storage.updateProductAvailability(validatedData.productId, false);
 
       // Trigger webhook notification
+      console.log('🔔 Starting webhook notification process...');
       try {
         const webhookUrl = "https://primary-production-460f.up.railway.app/webhook/75dce36d-5bd8-42ee-94d1-feda671650ca";
         const webhookPayload = {
@@ -821,7 +822,9 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
           },
         };
 
-        console.log('📤 Sending webhook notification to:', webhookUrl);
+        console.log('📤 Sending webhook to:', webhookUrl);
+        console.log('📦 Payload:', JSON.stringify(webhookPayload, null, 2));
+
         const webhookResponse = await fetch(webhookUrl, {
           method: 'POST',
           headers: {
@@ -830,15 +833,22 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
           body: JSON.stringify(webhookPayload),
         });
 
+        console.log('📬 Webhook response status:', webhookResponse.status);
+        const responseText = await webhookResponse.text();
+        console.log('📬 Webhook response body:', responseText);
+
         if (!webhookResponse.ok) {
-          console.error('⚠️ Webhook failed:', webhookResponse.status, await webhookResponse.text());
+          console.error('⚠️ Webhook failed with status:', webhookResponse.status);
+          console.error('⚠️ Response:', responseText);
         } else {
-          console.log('✅ Webhook sent successfully');
+          console.log('✅ Webhook sent successfully!');
         }
       } catch (webhookError) {
         // Log error but don't fail the reservation
-        console.error('❌ Webhook error:', webhookError);
+        console.error('❌ Webhook error occurred:', webhookError);
+        console.error('❌ Error details:', JSON.stringify(webhookError, Object.getOwnPropertyNames(webhookError)));
       }
+      console.log('🏁 Webhook process completed');
 
       res.status(201).json(reservation);
     } catch (error) {
