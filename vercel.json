@@ -63,6 +63,10 @@
       "dest": "/api/admin-products.ts"
     },
     {
+      "src": "/api/admin/reservations",
+      "dest": "/api/admin-reservations.ts"
+    },
+    {
       "src": "/api/upload",
       "dest": "/api/upload.ts"
     },
