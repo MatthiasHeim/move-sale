@@ -804,22 +804,33 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
       console.log('🔔 Starting webhook notification process...');
       try {
         const webhookUrl = "https://primary-production-460f.up.railway.app/webhook/75dce36d-5bd8-42ee-94d1-feda671650ca";
+
+        // Format pickup time for display
+        const pickupDate = new Date(reservation.pickupTime);
+        const formattedPickupTime = pickupDate.toLocaleString('de-CH', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Europe/Zurich'
+        });
+
         const webhookPayload = {
           event: "reservation.created",
-          reservation: {
-            id: reservation.id,
-            customerName: reservation.customerName,
-            customerPhone: reservation.customerPhone,
-            pickupTime: reservation.pickupTime,
-            status: reservation.status,
-            createdAt: reservation.createdAt,
-          },
-          product: {
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            coverImageUrl: product.imageUrls[0] || null,
-          },
+          // Flat structure for easier n8n access
+          reservationId: reservation.id,
+          customerName: reservation.customerName,
+          customerPhone: reservation.customerPhone,
+          pickupTime: formattedPickupTime,
+          pickupTimeRaw: reservation.pickupTime,
+          status: reservation.status,
+          productId: product.id,
+          productName: product.name,
+          productPrice: `CHF ${product.price}`,
+          productImage: product.imageUrls[0] || null,
+          createdAt: reservation.createdAt,
         };
 
         console.log('📤 Sending webhook to:', webhookUrl);
