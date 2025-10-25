@@ -115,6 +115,66 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           .where(eq(products.id, validatedData.productId));
 
         console.log('🎉 Reservation created:', reservationId);
+
+        // Trigger webhook notification
+        console.log('🔔 Starting webhook notification process...');
+        try {
+          const webhookUrl = "https://primary-production-460f.up.railway.app/webhook/75dce36d-5bd8-42ee-94d1-feda671650ca";
+
+          // Format pickup time for display
+          const pickupDate = new Date(reservation.pickupTime);
+          const formattedPickupTime = pickupDate.toLocaleString('de-CH', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'Europe/Zurich'
+          });
+
+          const webhookPayload = {
+            event: "reservation.created",
+            // Flat structure for easier n8n access
+            reservationId: reservation.id,
+            customerName: reservation.customerName,
+            customerPhone: reservation.customerPhone,
+            pickupTime: formattedPickupTime,
+            pickupTimeRaw: reservation.pickupTime,
+            status: reservation.status,
+            productId: product[0].id,
+            productName: product[0].name,
+            productPrice: `CHF ${product[0].price}`,
+            productImage: product[0].imageUrls[0] || null,
+            createdAt: reservation.createdAt,
+          };
+
+          console.log('📤 Sending webhook to:', webhookUrl);
+          console.log('📦 Payload:', JSON.stringify(webhookPayload, null, 2));
+
+          const webhookResponse = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(webhookPayload),
+          });
+
+          console.log('📬 Webhook response status:', webhookResponse.status);
+          const responseText = await webhookResponse.text();
+          console.log('📬 Webhook response body:', responseText);
+
+          if (!webhookResponse.ok) {
+            console.error('⚠️ Webhook failed with status:', webhookResponse.status);
+            console.error('⚠️ Response:', responseText);
+          } else {
+            console.log('✅ Webhook sent successfully!');
+          }
+        } catch (webhookError: any) {
+          console.error('❌ Webhook error:', webhookError.message);
+          // Don't fail the reservation if webhook fails
+        }
+
         await pool.end();
         return res.status(201).json(reservation);
 
