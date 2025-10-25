@@ -261,8 +261,8 @@ export default function Home() {
       />
 
       {/* Lailix Footer Banner */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
-        <div className="max-w-md mx-auto px-4 py-2">
+      <footer className="fixed bottom-0 left-0 right-0 bg-[#0A0F1C] shadow-lg z-40">
+        <div className="max-w-md mx-auto px-4 py-2.5">
           <a
             href="https://lailix.com/offerten-pilot"
             target="_blank"
@@ -270,11 +270,11 @@ export default function Home() {
             className="flex items-center justify-center gap-3 hover:opacity-80 transition-opacity"
           >
             <img
-              src="/lailix_logo.png"
+              src="/lailix_logo_dark.webp"
               alt="Lailix Logo"
-              className="h-6 w-auto"
+              className="h-8 w-auto"
             />
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-white font-medium">
               Entwickelt von Lailix, Ihrem Partner für KI-Lösungen.
             </span>
           </a>
