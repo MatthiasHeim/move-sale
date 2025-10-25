@@ -98,22 +98,26 @@ export default function Admin() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
         <Tabs defaultValue="create" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="create" data-testid="tab-create">
-              <Plus className="h-4 w-4 mr-2" />
-              Neues Angebot
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+            <TabsTrigger value="create" data-testid="tab-create" className="text-xs sm:text-sm">
+              <Plus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Neues Angebot</span>
+              <span className="sm:hidden">Neu</span>
             </TabsTrigger>
-            <TabsTrigger value="products" data-testid="tab-products">
-              <Edit className="h-4 w-4 mr-2" />
-              Meine Artikel
+            <TabsTrigger value="products" data-testid="tab-products" className="text-xs sm:text-sm">
+              <Edit className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Meine Artikel</span>
+              <span className="sm:hidden">Artikel</span>
             </TabsTrigger>
-            <TabsTrigger value="reservations" data-testid="tab-reservations">
-              <Calendar className="h-4 w-4 mr-2" />
-              Reservierungen
+            <TabsTrigger value="reservations" data-testid="tab-reservations" className="text-xs sm:text-sm">
+              <Calendar className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Reservierungen</span>
+              <span className="sm:hidden">Reserve</span>
             </TabsTrigger>
-            <TabsTrigger value="tutti" data-testid="tab-tutti">
-              <Copy className="h-4 w-4 mr-2" />
-              Tutti Archiv
+            <TabsTrigger value="tutti" data-testid="tab-tutti" className="text-xs sm:text-sm">
+              <Copy className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Tutti Archiv</span>
+              <span className="sm:hidden">Tutti</span>
             </TabsTrigger>
           </TabsList>
 
