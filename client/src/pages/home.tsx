@@ -177,7 +177,7 @@ export default function Home() {
         onCategoryChange={setSelectedCategory}
       />
 
-      <main className="max-w-md mx-auto px-4 py-4">
+      <main className="max-w-md mx-auto px-4 py-4 pb-16">
         {/* Product Grid */}
         <section className="mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-4" data-testid="products-heading">
@@ -259,6 +259,27 @@ export default function Home() {
         product={selectedProduct}
         onSuccess={handleReservationSuccess}
       />
+
+      {/* Lailix Footer Banner */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
+        <div className="max-w-md mx-auto px-4 py-2">
+          <a
+            href="https://lailix.com/offerten-pilot"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-3 hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="/lailix_logo.png"
+              alt="Lailix Logo"
+              className="h-6 w-auto"
+            />
+            <span className="text-xs text-gray-600">
+              Entwickelt von Lailix, Ihrem Partner für KI-Lösungen.
+            </span>
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
