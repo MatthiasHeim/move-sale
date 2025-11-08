@@ -909,34 +909,22 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
         note?: string;
       }> = [];
 
-      // Specific pickup dates for October 2025
+      // Specific pickup dates for November 2025 (last few days before move)
       const pickupDates = [
-        // Friday, October 3rd - evening only (last Friday available)
-        { date: '2025-10-03', slots: ['17:00-18:00', '18:00-19:00'], day: 'Freitag' },
+        // Saturday, November 8th
+        { date: '2025-11-08', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
 
-        // Saturday, October 4th
-        { date: '2025-10-04', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
+        // Sunday, November 9th
+        { date: '2025-11-09', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
 
-        // Sunday, October 5th
-        { date: '2025-10-05', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
+        // Monday, November 10th
+        { date: '2025-11-10', slots: ['17:00-18:00', '18:00-19:00'], day: 'Montag' },
 
-        // Saturday, October 11th
-        { date: '2025-10-11', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
+        // Tuesday, November 11th
+        { date: '2025-11-11', slots: ['17:00-18:00', '18:00-19:00'], day: 'Dienstag' },
 
-        // Sunday, October 12th
-        { date: '2025-10-12', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
-
-        // Saturday, October 18th
-        { date: '2025-10-18', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
-
-        // Sunday, October 19th
-        { date: '2025-10-19', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
-
-        // Saturday, October 25th
-        { date: '2025-10-25', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
-
-        // Sunday, October 26th
-        { date: '2025-10-26', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
+        // Wednesday, November 12th
+        { date: '2025-11-12', slots: ['17:00-18:00', '18:00-19:00'], day: 'Mittwoch' },
       ];
 
       // Generate time slots for each date
@@ -953,7 +941,7 @@ Nutze Web-Search für echte Marktpreise und identifiziere Objekte sehr spezifisc
           if (pickupTime > now) {
             availableTimes.push({
               datetime: pickupTime.toISOString(),
-              display: `${day}, ${dayNum}. Okt, ${slot} Uhr`,
+              display: `${day}, ${dayNum}. Nov, ${slot} Uhr`,
               value: pickupTime.toISOString(),
             });
           }
