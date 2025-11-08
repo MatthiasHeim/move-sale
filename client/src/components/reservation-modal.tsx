@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,14 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Scroll input into view when focused on mobile
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Small delay to wait for keyboard to appear
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  };
 
   const { data: pickupTimes = [] } = useQuery<PickupTime[]>({
     queryKey: ["/api/pickup-times"],
@@ -118,16 +126,17 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg mx-auto h-[100dvh] sm:max-h-[90vh] sm:h-auto overflow-y-auto" data-testid="reservation-modal">
-        <DialogHeader>
-          <DialogTitle data-testid="modal-title">Artikel reservieren</DialogTitle>
-          <DialogDescription>
-            Fülle das Formular aus, um {product.name} zu reservieren und einen Abholtermin zu vereinbaren.
-          </DialogDescription>
-        </DialogHeader>
-        
-        {/* Product Summary */}
-        <div className="border rounded-lg p-3 sm:p-4 bg-muted/20" data-testid="product-summary">
+      <DialogContent className="max-w-lg mx-auto max-h-[100dvh] sm:max-h-[90vh] overflow-y-auto p-0" data-testid="reservation-modal">
+        <div className="p-4 sm:p-6 pb-safe">
+          <DialogHeader className="mb-4">
+            <DialogTitle data-testid="modal-title">Artikel reservieren</DialogTitle>
+            <DialogDescription>
+              Fülle das Formular aus, um {product.name} zu reservieren und einen Abholtermin zu vereinbaren.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Product Summary */}
+          <div className="border rounded-lg p-3 sm:p-4 bg-muted/20 mb-4" data-testid="product-summary">
           {/* Large Product Image Gallery */}
           <div className="relative w-full aspect-video sm:aspect-[4/3] mb-3 sm:mb-4 group">
             <img
@@ -214,6 +223,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
+              onFocus={handleInputFocus}
               placeholder="Vollständiger Name"
               className="w-full"
               required
@@ -230,6 +240,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
               type="tel"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
+              onFocus={handleInputFocus}
               placeholder="+41 XX XXX XX XX"
               className="w-full"
               required
@@ -261,7 +272,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
             </div>
           </div>
 
-          <div className="flex gap-2 sm:gap-3 pb-2 sm:pb-0">
+          <div className="flex gap-2 sm:gap-3">
             <Button
               type="button"
               variant="secondary"
@@ -281,6 +292,7 @@ export default function ReservationModal({ isOpen, onClose, product, onSuccess }
             </Button>
           </div>
         </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -111,4 +111,13 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Safe area padding for mobile devices */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 1rem);
+  }
 }
