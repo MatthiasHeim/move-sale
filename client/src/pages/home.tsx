@@ -264,7 +264,7 @@ export default function Home() {
       <footer className="fixed bottom-0 left-0 right-0 bg-[#0A0F1C] shadow-lg z-40">
         <div className="max-w-md mx-auto px-4 py-2.5">
           <a
-            href="https://lailix.com/offertenpilot"
+            href="https://lailix.com"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-3 hover:scale-105 transition-transform group"
