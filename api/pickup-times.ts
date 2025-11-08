@@ -1,4 +1,4 @@
-// Pickup times endpoint - specific dates for October 2025
+// Pickup times endpoint - specific dates for November 2025
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -11,34 +11,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       note?: string;
     }> = [];
 
-    // Specific pickup dates for October 2025
+    // Specific pickup dates for November 2025 (last few days before move)
     const pickupDates = [
-      // Friday, October 3rd - evening only (last Friday available)
-      { date: '2025-10-03', slots: ['17:00-18:00', '18:00-19:00'], day: 'Freitag' },
+      // Saturday, November 8th - 11:00 to 14:00
+      { date: '2025-11-08', slots: ['11:00-12:00', '12:00-13:00', '13:00-14:00'], day: 'Samstag' },
 
-      // Saturday, October 4th
-      { date: '2025-10-04', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
+      // Sunday, November 9th - 13:00 to 18:00
+      { date: '2025-11-09', slots: ['13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00'], day: 'Sonntag' },
 
-      // Sunday, October 5th
-      { date: '2025-10-05', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
+      // Monday, November 10th - 15:00 to 17:00
+      { date: '2025-11-10', slots: ['15:00-16:00', '16:00-17:00'], day: 'Montag' },
 
-      // Saturday, October 11th
-      { date: '2025-10-11', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
-
-      // Sunday, October 12th
-      { date: '2025-10-12', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
-
-      // Saturday, October 18th
-      { date: '2025-10-18', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
-
-      // Sunday, October 19th
-      { date: '2025-10-19', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
-
-      // Saturday, October 25th
-      { date: '2025-10-25', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Samstag' },
-
-      // Sunday, October 26th
-      { date: '2025-10-26', slots: ['11:00-12:00', '17:00-18:00', '18:00-19:00'], day: 'Sonntag' },
+      // Wednesday, November 12th - whole day (9:00 to 20:00)
+      { date: '2025-11-12', slots: ['09:00-10:00', '10:00-11:00', '11:00-12:00', '12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00', '18:00-19:00', '19:00-20:00'], day: 'Mittwoch' },
     ];
 
     // Generate time slots for each date
@@ -55,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (pickupTime > now) {
           availableTimes.push({
             datetime: pickupTime.toISOString(),
-            display: `${day}, ${dayNum}. Okt, ${slot} Uhr`,
+            display: `${day}, ${dayNum}. Nov, ${slot} Uhr`,
             value: pickupTime.toISOString(),
           });
         }
